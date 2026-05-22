@@ -18,6 +18,8 @@
 
   <body class="h-screen flex overflow-hidden bg-(--color-surface-muted) antialiased max-w-7xl">
 
+    <%= render "shared/toast" %>
+
     <%# ── Sidebar (desktop only) ─────────────────────────────── %>
     <aside class="hidden md:flex w-60 flex-col flex-shrink-0 bg-(--color-sidebar-bg) border-r border-(--color-sidebar-border)">
 
@@ -93,12 +95,20 @@
     <%# ── Main content ────────────────────────────────────────────── %>
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
 
-      <%# Flash messages %>
-      <% if notice %>
-        <div class="mx-4 md:mx-6 mt-4 flex items-center gap-3 bg-(--color-success-light) text-(--color-success) border border-(--color-success) rounded-lg px-4 py-3 text-sm font-medium" data-turbo-temporary style="margin-top: max(1rem, env(safe-area-inset-top));">
-          <i class="ph ph-check-circle text-lg flex-shrink-0"></i>
-          <span><%= notice %></span>
-        </div>
+      <%# Flash messages — success/info via toast, alert as persistent banner %>
+      <% if notice.present? %>
+        <script>
+          document.addEventListener('turbo:load', function() {
+            if (typeof window.toast === 'function') window.toast('<%= j notice %>', { type: 'success' });
+          }, { once: true });
+        </script>
+      <% end %>
+      <% if flash[:info].present? %>
+        <script>
+          document.addEventListener('turbo:load', function() {
+            if (typeof window.toast === 'function') window.toast('<%= j flash[:info] %>', { type: 'info' });
+          }, { once: true });
+        </script>
       <% end %>
       <% if alert %>
         <div class="mx-4 md:mx-6 mt-4 flex items-center gap-3 bg-(--color-danger-light) text-(--color-danger) border border-(--color-danger) rounded-lg px-4 py-3 text-sm font-medium" data-turbo-temporary style="margin-top: max(1rem, env(safe-area-inset-top));">
@@ -134,9 +144,6 @@
 
     <%# ── Modal Turbo Frame (shared across all pages) ── %>
     <turbo-frame id="modal"></turbo-frame>
-
-    <%# ── Toast container (Turbo Stream notifications) ── %>
-    <div id="flash-toast" class="fixed top-5 right-5 z-[200]"></div>
 
   </body>
 </html>
