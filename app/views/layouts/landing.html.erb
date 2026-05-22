@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <title>Cobrança em Dia — Cobranças via WhatsApp no piloto automático</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="Automatize o envio de lembretes de vencimento pelo WhatsApp, acompanhe pagamentos e mantenha seus clientes em dia.">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <link rel="icon" href="/logo.jpeg" type="image/jpeg">
+    <link rel="apple-touch-icon" href="/logo.jpeg">
+
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
+  </head>
+
+  <body class="bg-(--color-surface) antialiased text-(--color-text)">
+    <%= yield %>
+  </body>
+</html>
