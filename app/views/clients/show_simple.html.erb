@@ -1,6 +1,6 @@
 <% content_for :page_title, @client.name %>
 
-<% edit_btn_cls = "opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md hover:bg-(--color-surface-raised) text-(--color-text-subtle) hover:text-(--color-text-muted) flex-shrink-0" %>
+<% edit_btn_cls = "md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1 rounded-md hover:bg-(--color-surface-raised) text-(--color-text-subtle) hover:text-(--color-text-muted) flex-shrink-0" %>
 <% save_cls    = "px-2.5 py-1.5 bg-(--color-brand) text-(--color-text-inverse) text-xs font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors cursor-pointer whitespace-nowrap" %>
 <% cancel_cls  = "px-2.5 py-1.5 border border-(--color-border) text-xs font-medium text-(--color-text-muted) rounded-lg hover:text-(--color-text) transition-colors whitespace-nowrap" %>
 <% input_cls   = "w-full px-3 py-2 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors" %>
@@ -167,15 +167,23 @@
                            data-amount-input-target="display"
                            data-action="input->amount-input#format"
                            data-inline-edit-target="field"
-                           class="w-full pl-9 pr-3 py-2 bg-(--color-surface) border border-(--color-border) rounded-lg text-lg font-bold text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand)">
+                           class="w-full pl-9 pr-20 py-2 bg-(--color-surface) border border-(--color-border) rounded-lg text-lg font-bold text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand)">
                     <input type="hidden"
                            name="campaign_client[amount]"
                            value="<%= @campaign_client.amount %>"
                            data-amount-input-target="hidden">
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <%= f.submit "Salvar", class: save_cls %>
-                    <button type="button" data-action="click->inline-edit#cancel" class="<%= cancel_cls %>">Cancelar</button>
+                    <div class="absolute inset-y-0 right-1.5 flex items-center gap-1">
+                      <button type="button" data-action="click->inline-edit#cancel"
+                              class="w-7 h-7 flex items-center justify-center rounded-md text-(--color-text-muted) hover:bg-(--color-surface-raised) transition-colors"
+                              aria-label="Cancelar">
+                        <i class="ph ph-x text-sm"></i>
+                      </button>
+                      <button type="submit"
+                              class="w-7 h-7 flex items-center justify-center rounded-md bg-(--color-brand) text-(--color-text-inverse) hover:bg-(--color-brand-dark) transition-colors"
+                              aria-label="Salvar">
+                        <i class="ph ph-check text-sm"></i>
+                      </button>
+                    </div>
                   </div>
                 <% end %>
               </div>

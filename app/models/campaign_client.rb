@@ -69,6 +69,11 @@ class CampaignClient < ApplicationRecord
       inst.update_columns(status: "cancelled")
     end
 
+    # Se já existe uma parcela paga para o mesmo mês/ano E a alteração foi APENAS de valor, retorna aqui sem fazer nada, para evitar um rollback da transação devido à condição de validação da installment
+    if installments.exists?(status: :paid, due_date: next_due_date.beginning_of_month..next_due_date.end_of_month) && !next_due_date_changed?
+      return
+    end
+    
     # Build the replacement installment and validate before the parent saves.
     new_inst = installments.build(
       due_date: next_due_date,
