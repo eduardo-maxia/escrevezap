@@ -96,6 +96,43 @@ end
 
 ---
 
+## Modals
+
+Standard pattern across the whole app: native `<dialog>` inside a shared `turbo-frame#modal`, opened via Turbo link with `data-turbo-frame="modal"`. On mobile it's a **bottom sheet sliding up**; on desktop it's a centered card fading in. Both behaviors are baked into the `.app-modal` class in `application.tailwind.css` — never roll your own positioning/animation.
+
+**Standard skeleton for any new modal view:**
+
+```erb
+<turbo-frame id="modal">
+  <dialog data-controller="modal" class="app-modal md:max-w-md">
+    <div class="app-modal-handle"></div>
+
+    <%# Header %>
+    <div class="flex items-start justify-between gap-4 px-6 py-5 border-b border-(--color-border) flex-shrink-0">
+      <h2 class="text-base font-bold text-(--color-text)">Título</h2>
+      <button type="button" data-action="click->modal#close"
+              class="p-1.5 rounded-lg text-(--color-text-muted) hover:bg-(--color-surface-raised)">
+        <i class="ph ph-x text-sm"></i>
+      </button>
+    </div>
+
+    <%# Body — scrollable on mobile (max-height: 92vh applied by .app-modal) %>
+    <div class="px-6 py-5 overflow-y-auto">
+      <%# ... form / content ... %>
+    </div>
+  </dialog>
+</turbo-frame>
+```
+
+Rules:
+- Always include `.app-modal-handle` — invisible on desktop, shows the drag-bar affordance on mobile.
+- Width override: use `md:max-w-*` utility on the `<dialog>` (e.g. `md:max-w-lg`); mobile is always full-width.
+- Open with: `<%= link_to "Edit", edit_path(record), data: { turbo_frame: "modal" } %>`
+- Forms inside modal that should navigate after submit must use `data: { turbo_frame: "_top" }`.
+- The `modal` Stimulus controller (`modal_controller.js`) auto-calls `showModal()`, handles backdrop click, ESC, and clears the frame on close.
+
+---
+
 ## Auth Guards (ApplicationController)
 
 Use these `before_action` helpers in controllers:

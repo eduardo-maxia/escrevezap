@@ -21,12 +21,20 @@ default: &default
 
 
 development:
-  <<: *default
-  database: cobranca_em_dia_development
-  host: <%= Rails.application.credentials.dig(:database, :host) %>
-  username: <%= Rails.application.credentials.dig(:database, :username) %>
-  password: <%= Rails.application.credentials.dig(:database, :password) %>
-  port: <%= Rails.application.credentials.dig(:database, :port) %>
+  primary:
+    <<: *default
+    database: cobranca_em_dia_development
+    host: <%= Rails.application.credentials.dig(:database, :host) %>
+    username: <%= Rails.application.credentials.dig(:database, :username) %>
+    password: <%= Rails.application.credentials.dig(:database, :password) %>
+    port: <%= Rails.application.credentials.dig(:database, :port) %>
+  cable:
+    <<: *default
+    database: cobranca_em_dia_cable_development
+    host: <%= Rails.application.credentials.dig(:database, :host) %>
+    username: <%= Rails.application.credentials.dig(:database, :username) %>
+    password: <%= Rails.application.credentials.dig(:database, :password) %>
+    port: <%= Rails.application.credentials.dig(:database, :port) %>
 
   # The specified database role being used to connect to PostgreSQL.
   # To create additional roles in PostgreSQL see `$ createuser --help`.

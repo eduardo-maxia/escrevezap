@@ -19,6 +19,9 @@ application.register("phone-input", PhoneInputController)
 import ChipAuthController from "./chip_auth_controller"
 application.register("chip-auth", ChipAuthController)
 
+import ChipShowController from "./chip_show_controller"
+application.register("chip-show", ChipShowController)
+
 import ToggleController from "./toggle_controller"
 application.register("toggle", ToggleController)
 

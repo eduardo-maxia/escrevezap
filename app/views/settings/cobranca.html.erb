@@ -1,102 +1,115 @@
 <% content_for :page_title, "Cobrança" %>
-<% input_cls = "w-full px-3 py-2.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors" %>
+<% input_cls = "w-full px-3 py-2 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors" %>
+<% section_label_cls = "text-[11px] font-semibold text-(--color-text-subtle) uppercase tracking-wider px-4 mb-2" %>
 
-<div class="p-6 max-w-xl space-y-6">
-  <div>
-    <h2 class="text-2xl font-bold text-(--color-text)">Cobrança automática</h2>
-    <p class="text-sm text-(--color-text-muted) mt-1">Configure o serviço de cobrança da sua empresa.</p>
+<div class="md:p-6 md:max-w-2xl md:mx-auto">
+
+  <%# Header %>
+  <div class="px-4 pt-4 pb-3 md:px-0 md:pt-0 md:pb-6">
+    <h2 class="text-xl md:text-2xl font-bold text-(--color-text)">Cobrança automática</h2>
+    <p class="text-xs md:text-sm text-(--color-text-muted) mt-0.5">Configure o serviço de cobrança da sua empresa.</p>
   </div>
 
-  <% if notice.present? %>
-    <div class="flex items-center gap-3 px-4 py-3 bg-(--color-success-light) border border-(--color-success) rounded-lg text-sm text-(--color-text)">
-      <i class="ph ph-check-circle text-(--color-success)"></i>
-      <%= notice %>
+  <% if @campaign&.errors&.any? %>
+    <div class="mx-4 md:mx-0 mb-3 flex items-start gap-2 px-3 py-2 bg-(--color-danger-light) border border-(--color-danger) rounded-lg text-xs text-(--color-danger)">
+      <i class="ph ph-warning-circle flex-shrink-0 mt-0.5"></i>
+      <span><%= @campaign.errors.full_messages.to_sentence %></span>
     </div>
   <% end %>
 
-  <%# ── Configurações do serviço ────────────────────────────────── %>
+  <%# ── Serviço de cobrança ─────────────────────────────────────── %>
   <% if @campaign %>
-    <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-6">
-      <h3 class="font-semibold text-(--color-text) mb-4">Serviço de cobrança</h3>
+    <div class="mb-5 md:mb-6">
+      <h3 class="<%= section_label_cls %>">Serviço de cobrança</h3>
 
-      <% if @campaign.errors.any? %>
-        <div class="flex items-start gap-3 px-4 py-3 mb-4 bg-(--color-danger-light) border border-(--color-danger) rounded-lg text-sm text-(--color-danger)">
-          <i class="ph ph-warning-circle flex-shrink-0 mt-0.5"></i>
-          <span><%= @campaign.errors.full_messages.to_sentence %></span>
-        </div>
-      <% end %>
+      <%= form_with model: @campaign, url: settings_cobranca_path, method: :patch,
+            class: "md:bg-(--color-surface) md:rounded-xl md:border md:border-(--color-border) md:p-5" do |f| %>
 
-      <%= form_with model: @campaign, url: settings_cobranca_path, method: :patch, class: "space-y-4" do |f| %>
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <%= f.label :start_time, "Início dos envios", class: "block text-sm font-medium text-(--color-text) mb-1.5" %>
-            <%= f.time_field :start_time, class: input_cls %>
+        <div class="px-4 md:px-0 md:space-y-4">
+
+          <%# Horários %>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <%= f.label :start_time, "Início dos envios", class: "block text-xs font-medium text-(--color-text-muted) mb-1" %>
+              <%= f.time_field :start_time, class: input_cls %>
+            </div>
+            <div>
+              <%= f.label :end_time, "Fim dos envios", class: "block text-xs font-medium text-(--color-text-muted) mb-1" %>
+              <%= f.time_field :end_time, class: input_cls %>
+            </div>
           </div>
-          <div>
-            <%= f.label :end_time, "Fim dos envios", class: "block text-sm font-medium text-(--color-text) mb-1.5" %>
-            <%= f.time_field :end_time, class: input_cls %>
+
+          <%# Mensagem %>
+          <div class="mt-3 md:mt-0">
+            <label class="block text-xs font-medium text-(--color-text-muted) mb-1">Mensagem de cobrança</label>
+            <textarea name="campaign[template][body]"
+                      rows="4"
+                      placeholder="Olá {{nome}}, sua mensalidade de {{valor}} vence em {{vencimento}}."
+                      class="<%= input_cls %> resize-none"><%= @campaign.template&.dig("body") %></textarea>
+            <p class="text-[11px] text-(--color-text-subtle) mt-1.5 leading-relaxed">
+              Variáveis:
+              <code class="bg-(--color-surface-raised) px-1 py-0.5 rounded">{{nome}}</code>
+              <code class="bg-(--color-surface-raised) px-1 py-0.5 rounded">{{valor}}</code>
+              <code class="bg-(--color-surface-raised) px-1 py-0.5 rounded">{{vencimento}}</code>
+            </p>
           </div>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-(--color-text) mb-1.5">Mensagem de cobrança</label>
-          <textarea name="campaign[template][body]"
-                    rows="5"
-                    placeholder="Olá {{nome}}, sua mensalidade de {{valor}} vence em {{vencimento}}."
-                    class="<%= input_cls %> resize-none"><%= @campaign.template&.dig("body") %></textarea>
-          <p class="text-xs text-(--color-text-subtle) mt-1.5">
-            Variáveis disponíveis:
-            <code class="bg-(--color-surface-raised) px-1 py-0.5 rounded">{{nome}}</code>
-            <code class="bg-(--color-surface-raised) px-1 py-0.5 rounded">{{valor}}</code>
-            <code class="bg-(--color-surface-raised) px-1 py-0.5 rounded">{{vencimento}}</code>
-          </p>
-        </div>
-        <div class="flex justify-end">
-          <%= f.submit "Salvar",
-                class: "px-5 py-2.5 bg-(--color-brand) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors cursor-pointer" %>
+
+          <%# Submit %>
+          <div class="mt-4 md:mt-0 flex justify-end">
+            <%= f.submit "Salvar",
+                  class: "px-5 py-2 bg-(--color-brand) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors cursor-pointer" %>
+          </div>
+
         </div>
       <% end %>
     </div>
   <% else %>
-    <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-8 text-center">
-      <i class="ph ph-invoice text-(--color-text-subtle) text-4xl block mb-2"></i>
-      <p class="text-sm text-(--color-text-muted)">Nenhuma cobrança configurada ainda.</p>
-      <p class="text-xs text-(--color-text-subtle) mt-1">Complete o processo de configuração inicial.</p>
+    <div class="mb-5 md:mb-6">
+      <h3 class="<%= section_label_cls %>">Serviço de cobrança</h3>
+      <div class="md:bg-(--color-surface) md:border md:rounded-xl md:border-(--color-border) px-4 py-6 text-center">
+        <i class="ph ph-invoice text-(--color-text-subtle) text-3xl block mb-2"></i>
+        <p class="text-sm text-(--color-text-muted)">Nenhuma cobrança configurada ainda.</p>
+        <p class="text-xs text-(--color-text-subtle) mt-1">Complete o processo de configuração inicial.</p>
+      </div>
     </div>
   <% end %>
 
   <%# ── WhatsApp ────────────────────────────────────────────────── %>
-  <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-6">
-    <h3 class="font-semibold text-(--color-text) mb-4">WhatsApp</h3>
+  <div class="mb-5 md:mb-6">
+    <h3 class="<%= section_label_cls %>">WhatsApp</h3>
 
-    <% if @chip %>
-      <%
-        connected = @chip.working?
-        status_label = connected ? "Conectado" : (@chip.waha_status&.humanize || "Desconectado")
-        status_color = connected ? "--color-success" : "--color-warning"
-        status_bg    = connected ? "--color-success-light" : "--color-warning-light"
-        status_icon  = connected ? "ph-check-circle" : "ph-warning-circle"
-      %>
-      <div class="flex items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-(<%= status_bg %>) flex items-center justify-center flex-shrink-0">
-            <i class="ph <%= status_icon %> text-(<%= status_color %>) text-xl"></i>
+    <div class="px-4 md:p-5 md:bg-(--color-surface) md:border md:rounded-xl md:border-(--color-border)">
+      <% if @chip %>
+        <%
+          connected = @chip.working?
+          status_label = connected ? "Conectado" : (@chip.waha_status&.humanize || "Desconectado")
+          status_color = connected ? "--color-success" : "--color-warning"
+          status_bg    = connected ? "--color-success-light" : "--color-warning-light"
+          status_icon  = connected ? "ph-check-circle" : "ph-warning-circle"
+        %>
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-9 h-9 rounded-full bg-(<%= status_bg %>) flex items-center justify-center flex-shrink-0">
+              <i class="ph <%= status_icon %> text-(<%= status_color %>) text-lg"></i>
+            </div>
+            <div class="min-w-0">
+              <p class="text-sm font-medium text-(--color-text) truncate">
+                <%= @chip.formatted_number || @chip.name %>
+              </p>
+              <p class="text-xs text-(<%= status_color %>)"><%= status_label %></p>
+            </div>
           </div>
-          <div>
-            <p class="text-sm font-medium text-(--color-text)">
-              <%= @chip.formatted_number || @chip.name %>
-            </p>
-            <p class="text-xs text-(<%= status_color %>)"><%= status_label %></p>
-          </div>
+          <%= link_to chip_path(@chip),
+                class: "inline-flex items-center gap-1.5 px-3 py-1.5 border border-(--color-border) text-xs font-medium text-(--color-text-muted) rounded-lg hover:text-(--color-text) transition-colors flex-shrink-0" do %>
+            <i class="ph ph-sliders-horizontal text-sm"></i>
+            Gerenciar
+          <% end %>
         </div>
-        <%= link_to chip_path(@chip),
-              class: "inline-flex items-center gap-2 px-3 py-2 border border-(--color-border) text-sm font-medium text-(--color-text-muted) rounded-lg hover:text-(--color-text) transition-colors" do %>
-          <i class="ph ph-sliders-horizontal text-sm"></i>
-          Gerenciar
-        <% end %>
-      </div>
-    <% else %>
-      <p class="text-sm text-(--color-text-muted)">Nenhum número WhatsApp configurado.</p>
-    <% end %>
+      <% else %>
+        <p class="text-sm text-(--color-text-muted)">Nenhum número WhatsApp configurado.</p>
+      <% end %>
+    </div>
   </div>
 
 </div>
+

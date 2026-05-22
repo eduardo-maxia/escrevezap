@@ -302,15 +302,55 @@
 
     </div>
 
-    <%# WhatsApp connection panel %>
+    <%# WhatsApp status card %>
     <div>
       <% if @chip %>
-        <%= render "shared/chip_connection_panel",
-              chip: @chip,
-              redirect_url: authenticated_root_path,
-              after_disconnect: disconnect_chip_path(@chip),
-              show_swap_button: true,
-              source: "dashboard" %>
+        <%
+          working = @chip.waha_status == "working"
+          status_label, status_icon, status_fg, status_bg =
+            case @chip.waha_status
+            when "working"      then ["Conectado",       "ph-check-circle",   "--color-success",      "--color-success-light"]
+            when "scan_qr_code" then ["Aguardando QR",   "ph-qr-code",        "--color-warning",      "--color-warning-light"]
+            when "starting"     then ["Iniciando...",    "ph-circle-dashed",  "--color-warning",      "--color-warning-light"]
+            when "failed"       then ["Falha",           "ph-warning-circle", "--color-danger",       "--color-danger-light"]
+            when "stopped"      then ["Parado",          "ph-pause-circle",   "--color-text-muted",   "--color-surface-raised"]
+            else                     ["Não configurado", "ph-plug",           "--color-text-muted",   "--color-surface-raised"]
+            end
+        %>
+        <%= link_to chip_path(@chip),
+              class: "block bg-(--color-surface) rounded-xl border border-(--color-border) p-5 hover:border-(--color-brand-light) hover:shadow-sm transition-all" do %>
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-semibold text-(--color-text) text-sm">WhatsApp</h3>
+            <i class="ph ph-caret-right text-(--color-text-subtle)"></i>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <% if working && current_user.company&.profile_picture&.attached? %>
+              <%= image_tag current_user.company.profile_picture,
+                    class: "w-14 h-14 rounded-full object-cover ring-2 ring-(--color-success-light) flex-shrink-0" %>
+            <% else %>
+              <div class="w-14 h-14 rounded-full bg-(<%= status_bg %>) flex items-center justify-center flex-shrink-0">
+                <i class="ph ph-whatsapp-logo text-(<%= status_fg %>) text-2xl"></i>
+              </div>
+            <% end %>
+
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-semibold text-(--color-text) truncate">
+                <%= @chip.formatted_number || "Não conectado" %>
+              </p>
+              <span class="inline-flex items-center gap-1.5 mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-(<%= status_bg %>) text-(<%= status_fg %>)">
+                <i class="ph <%= status_icon %>"></i>
+                <%= status_label %>
+              </span>
+            </div>
+          </div>
+
+          <% unless working %>
+            <p class="text-xs text-(--color-text-muted) mt-4 leading-relaxed">
+              Toque para <%= @chip.waha_status == "scan_qr_code" ? "ler o QR code" : "conectar agora" %> e voltar a enviar cobranças.
+            </p>
+          <% end %>
+        <% end %>
       <% else %>
         <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-6 text-center">
           <i class="ph ph-device-mobile text-(--color-text-subtle) text-4xl block mb-2"></i>

@@ -2,7 +2,9 @@
 
 <turbo-frame id="modal">
   <dialog data-controller="modal"
-          class="m-auto w-full max-w-md rounded-2xl border border-(--color-border) bg-(--color-surface) shadow-2xl p-0 backdrop:bg-black/40 backdrop:backdrop-blur-sm open:flex open:flex-col">
+          class="app-modal md:max-w-md">
+
+    <div class="app-modal-handle"></div>
 
     <%# ── Header ── %>
     <div class="flex items-start justify-between gap-4 px-6 py-5 border-b border-(--color-border) flex-shrink-0">
@@ -28,9 +30,11 @@
       <% end %>
 
       <%= form_with model: @installment, url: installment_path(@installment), method: :patch,
+            html: { multipart: true },
             data: { turbo_frame: "_top" } do |f| %>
         <div class="space-y-4">
 
+          <%# Valor %>
           <div data-controller="amount-input">
             <label class="block text-xs font-medium text-(--color-text-muted) mb-1.5">
               Valor <span class="text-(--color-danger)">*</span>
@@ -51,12 +55,55 @@
             </div>
           </div>
 
+          <%# Vencimento %>
+          <div>
+            <label class="block text-xs font-medium text-(--color-text-muted) mb-1.5">
+              Vencimento <span class="text-(--color-danger)">*</span>
+            </label>
+            <%= f.date_field :due_date, required: true, value: @installment.due_date, class: input_cls %>
+          </div>
+
+          <%# Status %>
           <div>
             <label class="block text-xs font-medium text-(--color-text-muted) mb-1.5">Status</label>
             <%= f.select :status,
                   [["Pendente", "pending"], ["Paga", "paid"], ["Cancelada", "cancelled"]],
                   { selected: @installment.status },
                   class: input_cls %>
+          </div>
+
+          <%# Comprovante %>
+          <div>
+            <label class="block text-xs font-medium text-(--color-text-muted) mb-1.5">Comprovante</label>
+            <% if @installment.proof_image.attached? %>
+              <div class="flex items-start gap-3 p-2 border border-(--color-border) rounded-lg">
+                <%= link_to url_for(@installment.proof_image), target: "_blank",
+                      class: "block flex-shrink-0 rounded-md overflow-hidden border border-(--color-border) hover:border-(--color-brand) transition-colors" do %>
+                  <% if @installment.proof_image.image? %>
+                    <%= image_tag @installment.proof_image.variant(resize_to_fill: [96, 96]).processed,
+                          class: "w-20 h-20 object-cover" %>
+                  <% else %>
+                    <div class="w-20 h-20 flex items-center justify-center bg-(--color-surface-muted)">
+                      <i class="ph ph-file-text text-2xl text-(--color-text-muted)"></i>
+                    </div>
+                  <% end %>
+                <% end %>
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs text-(--color-text) truncate"><%= @installment.proof_image.filename %></p>
+                  <p class="text-xs text-(--color-text-subtle) mt-0.5">
+                    <%= number_to_human_size(@installment.proof_image.byte_size) %>
+                  </p>
+                  <label class="inline-flex items-center gap-1 mt-2 px-2 py-1 border border-(--color-border) rounded-md text-xs text-(--color-text-muted) hover:text-(--color-text) cursor-pointer">
+                    <i class="ph ph-upload-simple text-xs"></i> Substituir
+                    <%= f.file_field :proof_image, accept: "image/*,application/pdf", class: "hidden" %>
+                  </label>
+                </div>
+              </div>
+            <% else %>
+              <%= f.file_field :proof_image, accept: "image/*,application/pdf",
+                    class: "block w-full text-xs text-(--color-text-muted) file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border file:border-(--color-border) file:bg-(--color-surface-muted) file:text-(--color-text) file:cursor-pointer hover:file:bg-(--color-surface-raised)" %>
+              <p class="text-xs text-(--color-text-subtle) mt-1.5">Anexe um comprovante. Marque a parcela como <strong>Paga</strong> para mantê-lo salvo.</p>
+            <% end %>
           </div>
 
         </div>

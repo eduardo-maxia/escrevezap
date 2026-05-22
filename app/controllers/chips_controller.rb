@@ -1,8 +1,8 @@
 class ChipsController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_company!
-  before_action :require_campaigns!
-  before_action :set_chip, only: [:show, :destroy, :start_session, :request_pairing_code, :qr_code, :disconnect]
+  before_action :require_campaigns!, only: [:index, :new, :destroy]
+  before_action :set_chip, only: [:show, :destroy, :start_session, :request_pairing_code, :qr_code, :status, :disconnect]
   layout "authenticated"
 
   def index
@@ -94,17 +94,22 @@ class ChipsController < ApplicationController
     render json: { error: "QR code indisponível." }, status: :service_unavailable
   end
 
+  # GET /chips/:id/status
+  def status
+    render json: { status: @chip.waha_status }
+  end
+
   # POST /chips/:id/disconnect
   def disconnect
     if @chip.waha_session.present?
       begin
-        Waha::Client.new(session: @chip.waha_session).sessions.stop
+        Waha::Client.new(session: @chip.waha_session).sessions.logout
       rescue StandardError
         # ignore
       end
     end
 
-    @chip.update(waha_status: :stopped, waha_chat_id: nil)
+    @chip.update(waha_chat_id: nil)
     redirect_url = params[:source] == "dashboard" ? authenticated_root_path : chip_path(@chip)
     redirect_to redirect_url, notice: "Chip desconectado."
   end

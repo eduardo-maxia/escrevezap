@@ -79,6 +79,7 @@ Rails.application.configure do
   # config.generators.apply_rubocop_autocorrect_after_generate!
   config.hosts << "host.docker.internal"
   config.hosts << "eduardo-nitro-an517-51.tail244278.ts.net"
+  config.hosts << "www.cobrancaemdia.com.br"
 
   # Use SolidQueue as the Active Job backend in development.
   config.active_job.queue_adapter     = :solid_queue

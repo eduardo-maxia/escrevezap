@@ -7,11 +7,34 @@ export default class extends Controller {
   static values = { checkWhatsappUrl: String }
 
   connect() {
-    if (typeof window.intlTelInput !== "function") {
-      console.warn("intlTelInput not found — CDN script not loaded yet")
-      return
-    }
+    this.#whenItiReady().then((ready) => {
+      if (!ready || !this.element.isConnected) return
+      this.#init()
+    })
+  }
 
+  #whenItiReady() {
+    return new Promise((resolve) => {
+      if (typeof window.intlTelInput === "function") return resolve(true)
+
+      const start = Date.now()
+      const timeoutMs = 8000
+      this._waitTimer = setInterval(() => {
+        if (typeof window.intlTelInput === "function") {
+          clearInterval(this._waitTimer)
+          this._waitTimer = null
+          resolve(true)
+        } else if (Date.now() - start > timeoutMs) {
+          clearInterval(this._waitTimer)
+          this._waitTimer = null
+          console.warn("intlTelInput not found after waiting — CDN script may have failed to load")
+          resolve(false)
+        }
+      }, 100)
+    })
+  }
+
+  #init() {
     this.iti = window.intlTelInput(this.inputTarget, {
       initialCountry: "br",
       strictMode: true,
@@ -25,6 +48,10 @@ export default class extends Controller {
   }
 
   disconnect() {
+    if (this._waitTimer) {
+      clearInterval(this._waitTimer)
+      this._waitTimer = null
+    }
     if (this._sync) {
       this.inputTarget.removeEventListener("input", this._sync)
       this.inputTarget.removeEventListener("countrychange", this._sync)

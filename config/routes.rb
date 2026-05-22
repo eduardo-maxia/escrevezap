@@ -1,10 +1,10 @@
 Rails.application.routes.draw do
   root "pages#home"
   get "up" => "rails/health#show", as: :rails_health_check
+  
+  mount SolidQueueDashboard::Engine, at: "/jobs"
 
   scope "/app" do
-    mount SolidQueueDashboard::Engine, at: "/jobs"
-
     devise_for :users
 
     authenticated :user do
@@ -44,6 +44,7 @@ Rails.application.routes.draw do
         post :start_session
         post :request_pairing_code
         get  :qr_code
+        get  :status
         post :disconnect
       end
     end

@@ -8,8 +8,8 @@
 
     <%= yield :head %>
 
-    <link rel="icon" href="/logo.jpeg" type="image/jpeg">
-    <link rel="apple-touch-icon" href="/logo.jpeg">
+    <link rel="icon" href="/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="/logo.png">
 
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
@@ -18,14 +18,14 @@
 
   <body class="h-screen flex overflow-hidden bg-(--color-surface-muted) antialiased max-w-7xl">
 
-    <%# ── Sidebar ───────────────────────────────────────────────── %>
-    <aside class="w-60 flex flex-col flex-shrink-0 bg-(--color-sidebar-bg) border-r border-(--color-sidebar-border)">
+    <%# ── Sidebar (desktop only) ─────────────────────────────── %>
+    <aside class="hidden md:flex w-60 flex-col flex-shrink-0 bg-(--color-sidebar-bg) border-r border-(--color-sidebar-border)">
 
       <%# Logo %>
       <div class="w-full flex flex-row gap-2 border-b border-(--color-sidebar-border)">
         <div class="h-16 flex items-center ps-5 flex-shrink-0">
           <div class="flex items-center gap-2.5">
-            <%= image_tag "/logo.jpeg", alt: "Cobrança em Dia", class: "h-8 w-auto" %>
+            <%= image_tag "/logo.png", alt: "Cobrança em Dia", class: "h-8 w-auto" %>
           </div>
         </div>
         <div class="flex items-center gap-2.5 flex-shrink-0">
@@ -95,22 +95,40 @@
 
       <%# Flash messages %>
       <% if notice %>
-        <div class="mx-6 mt-4 flex items-center gap-3 bg-(--color-success-light) text-(--color-success) border border-(--color-success) rounded-lg px-4 py-3 text-sm font-medium" data-turbo-temporary>
+        <div class="mx-4 md:mx-6 mt-4 flex items-center gap-3 bg-(--color-success-light) text-(--color-success) border border-(--color-success) rounded-lg px-4 py-3 text-sm font-medium" data-turbo-temporary style="margin-top: max(1rem, env(safe-area-inset-top));">
           <i class="ph ph-check-circle text-lg flex-shrink-0"></i>
           <span><%= notice %></span>
         </div>
       <% end %>
       <% if alert %>
-        <div class="mx-6 mt-4 flex items-center gap-3 bg-(--color-danger-light) text-(--color-danger) border border-(--color-danger) rounded-lg px-4 py-3 text-sm font-medium" data-turbo-temporary>
+        <div class="mx-4 md:mx-6 mt-4 flex items-center gap-3 bg-(--color-danger-light) text-(--color-danger) border border-(--color-danger) rounded-lg px-4 py-3 text-sm font-medium" data-turbo-temporary style="margin-top: max(1rem, env(safe-area-inset-top));">
           <i class="ph ph-warning-circle text-lg flex-shrink-0"></i>
           <span><%= alert %></span>
         </div>
       <% end %>
 
       <%# Page content %>
-      <main class="flex-1 overflow-y-auto">
+      <main class="flex-1 overflow-y-auto md:pt-0" style="padding-top: env(safe-area-inset-top);">
         <%= yield %>
       </main>
+
+      <%# Mobile bottom nav (mobile only) %>
+      <nav class="md:hidden bg-(--color-sidebar-bg) border-t border-(--color-sidebar-border) flex items-stretch flex-shrink-0 h-16" style="padding-bottom: env(safe-area-inset-bottom); height: calc(4rem + env(safe-area-inset-bottom));">
+        <% has_campanhas_mobile = current_user.company&.feature_campanhas? %>
+
+        <%= render "layouts/mobile_nav_item", icon: "house",          label: "Início",    path: authenticated_root_path, exact: true %>
+        <% if has_campanhas_mobile %>
+          <%= render "layouts/mobile_nav_item", icon: "megaphone",    label: "Campanhas", path: campaigns_path %>
+        <% end %>
+        <%= render "layouts/mobile_nav_item", icon: "users-three",    label: "Clientes",  path: clients_path %>
+        <% if has_campanhas_mobile %>
+          <%= render "layouts/mobile_nav_item", icon: "device-mobile", label: "Chips",    path: chips_path %>
+        <% else %>
+          <%= render "layouts/mobile_nav_item", icon: "invoice",       label: "Cobrança", path: settings_cobranca_path %>
+        <% end %>
+        <%= render "layouts/mobile_nav_item", icon: "gear-six",        label: "Ajustes",  path: settings_path,
+              unless_paths: (has_campanhas_mobile ? [] : [settings_cobranca_path]) %>
+      </nav>
 
     </div>
 

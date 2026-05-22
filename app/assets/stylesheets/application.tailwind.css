@@ -195,3 +195,88 @@
 .toast-item[data-expanded="false"][data-visible="false"][data-position*="bottom"] {
   --toast-top: auto; --toast-bottom: -200px; --toast-transform: translateY(0);
 }
+
+/* ── App Modal ───────────────────────────────────────────────────────────
+   Standard modal pattern used across the app.
+   - Mobile (<768px): bottom sheet, slides up from bottom, full width, rounded top.
+   - Desktop (≥768px): centered card, fades + scales in.
+   Apply the .app-modal class to the <dialog data-controller="modal"> element.
+*/
+@keyframes app-modal-slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+@keyframes app-modal-fade-scale {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes app-modal-backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.app-modal {
+  padding: 0;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  box-shadow: 0 20px 60px rgb(0 0 0 / 0.25);
+}
+.app-modal[open] {
+  display: flex;
+  flex-direction: column;
+}
+.app-modal::backdrop {
+  background-color: rgb(0 0 0 / 0.45);
+  backdrop-filter: blur(2px);
+}
+.app-modal[open]::backdrop {
+  animation: app-modal-backdrop-in 200ms ease forwards;
+}
+
+/* Desktop: centered card */
+@media (min-width: 768px) {
+  .app-modal {
+    margin: auto;
+    width: 100%;
+    max-width: 28rem; /* default; override per-modal with max-w-* utilities */
+    border-radius: 1rem;
+    max-height: calc(100vh - 2rem);
+  }
+  .app-modal[open] {
+    animation: app-modal-fade-scale 180ms cubic-bezier(.16,1,.3,1);
+  }
+}
+
+/* Mobile: bottom sheet */
+@media (max-width: 767px) {
+  .app-modal {
+    margin: auto 0 0 0;
+    width: 100%;
+    max-width: 100%;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-top-left-radius: 1.25rem;
+    border-top-right-radius: 1.25rem;
+    border-bottom: 0;
+    max-height: 92vh;
+  }
+  .app-modal[open] {
+    animation: app-modal-slide-up 280ms cubic-bezier(.32,.72,0,1);
+  }
+}
+
+/* Optional drag handle shown on mobile only */
+.app-modal-handle {
+  display: none;
+}
+@media (max-width: 767px) {
+  .app-modal-handle {
+    display: block;
+    width: 2.5rem;
+    height: 0.25rem;
+    border-radius: 9999px;
+    background-color: var(--color-border-strong);
+    margin: 0.5rem auto 0;
+    flex-shrink: 0;
+  }
+}

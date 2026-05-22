@@ -1,17 +1,18 @@
 <% content_for :page_title, "Clientes" %>
 
-<div class="p-6 space-y-5">
+<div class="p-4 md:p-6 space-y-5">
 
   <%# ── Header ── %>
-  <div class="flex items-center justify-between">
-    <div>
+  <div class="flex items-center justify-between gap-3">
+    <div class="min-w-0">
       <h2 class="text-2xl font-bold text-(--color-text)">Clientes</h2>
-      <p class="text-sm text-(--color-text-muted) mt-1">Gerencie os clientes da sua empresa</p>
+      <p class="hidden md:block text-sm text-(--color-text-muted) mt-1">Gerencie os clientes da sua empresa</p>
     </div>
     <%= link_to new_client_path,
-          class: "inline-flex items-center gap-2 px-4 py-2 bg-(--color-brand) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors" do %>
+          class: "inline-flex items-center gap-2 px-3 md:px-4 py-2 bg-(--color-brand) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors flex-shrink-0" do %>
       <i class="ph ph-plus text-sm"></i>
-      Novo cliente
+      <span class="hidden md:inline">Novo cliente</span>
+      <span class="md:hidden">Novo</span>
     <% end %>
   </div>
 
@@ -19,20 +20,20 @@
   <div data-controller="client-filter" class="space-y-4">
     <div class="flex items-center gap-3 flex-wrap">
       <%# Search input %>
-      <div class="relative flex-1 min-w-[16rem]">
+      <div class="relative flex-1 min-w-0 md:min-w-[16rem]">
         <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
           <i class="ph ph-magnifying-glass text-(--color-text-muted) text-sm"></i>
         </span>
         <input type="text"
                value="<%= params[:q] %>"
-               placeholder="Buscar por nome, e-mail ou telefone…"
+               placeholder="Buscar cliente…"
                data-client-filter-target="search"
                data-action="input->client-filter#filter"
                class="w-full pl-9 pr-3.5 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm placeholder:text-(--color-text-subtle) focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-(--color-brand) transition-colors">
       </div>
 
-      <%# WhatsApp filter %>
-      <div class="relative">
+      <%# WhatsApp filter — desktop only %>
+      <div class="hidden md:block relative">
         <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
           <i class="ph ph-device-mobile text-(--color-text-muted) text-xs"></i>
         </span>
@@ -74,7 +75,64 @@
         </div>
 
       <% else %>
-        <div class="bg-(--color-surface) rounded-xl border border-(--color-border) overflow-hidden">
+        <%# ── Mobile: card list ───────────────────────────────── %>
+        <div class="md:hidden bg-(--color-surface) rounded-xl border border-(--color-border) overflow-hidden divide-y divide-(--color-border)">
+          <% @clients.each do |client| %>
+            <% initials = client.name.split.first(2).map { |w| w[0] }.join.upcase %>
+            <%= link_to client_path(client),
+                  data: { turbo_frame: "_top" },
+                  class: "flex items-center gap-3 px-4 py-3 hover:bg-(--color-surface-muted) transition-colors active:bg-(--color-surface-raised)" do %>
+              <div class="w-10 h-10 rounded-full bg-(--color-brand-subtle) flex items-center justify-center flex-shrink-0 text-sm font-bold text-(--color-brand)">
+                <%= initials %>
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="font-medium text-(--color-text) truncate"><%= client.name %></p>
+                <div class="flex items-center gap-1.5 mt-0.5 text-xs text-(--color-text-muted)">
+                  <% if client.waha_chat_id.present? %>
+                    <i class="ph-fill ph-whatsapp-logo text-(--color-success) text-sm flex-shrink-0"></i>
+                  <% end %>
+                  <span class="truncate"><%= client.formatted_number || client.phone_number || "Sem telefone" %></span>
+                </div>
+              </div>
+              <i class="ph ph-caret-right text-(--color-text-subtle) text-sm flex-shrink-0"></i>
+            <% end %>
+          <% end %>
+
+          <%# ── Mobile pagination ── %>
+          <% if @pagy.pages > 1 %>
+            <div class="flex items-center justify-between px-4 py-3 bg-(--color-surface-muted) text-xs text-(--color-text-muted)">
+              <span><%= @pagy.from %>–<%= @pagy.to %> de <strong class="text-(--color-text)"><%= @pagy.count %></strong></span>
+              <div class="flex items-center gap-1">
+                <% if @pagy.prev %>
+                  <%= link_to pagy_url_for(@pagy, @pagy.prev),
+                        data: { turbo_frame: "clients-table" },
+                        class: "p-1.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text-muted)" do %>
+                    <i class="ph ph-caret-left text-sm"></i>
+                  <% end %>
+                <% else %>
+                  <span class="p-1.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text-subtle) opacity-40">
+                    <i class="ph ph-caret-left text-sm"></i>
+                  </span>
+                <% end %>
+                <span class="px-2 text-xs font-medium text-(--color-text)"><%= @pagy.page %> / <%= @pagy.pages %></span>
+                <% if @pagy.next %>
+                  <%= link_to pagy_url_for(@pagy, @pagy.next),
+                        data: { turbo_frame: "clients-table" },
+                        class: "p-1.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text-muted)" do %>
+                    <i class="ph ph-caret-right text-sm"></i>
+                  <% end %>
+                <% else %>
+                  <span class="p-1.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text-subtle) opacity-40">
+                    <i class="ph ph-caret-right text-sm"></i>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <%# ── Desktop: table ──────────────────────────────────── %>
+        <div class="hidden md:block bg-(--color-surface) rounded-xl border border-(--color-border) overflow-hidden">
           <table class="w-full text-sm">
             <thead class="border-b border-(--color-border) bg-(--color-surface-muted)">
               <tr>
@@ -132,14 +190,13 @@
             </tbody>
           </table>
 
-          <%# ── Pagination ── %>
+          <%# ── Desktop pagination ── %>
           <% if @pagy.pages > 1 %>
             <div class="flex items-center justify-between px-5 py-3.5 border-t border-(--color-border) bg-(--color-surface-muted)">
               <p class="text-xs text-(--color-text-muted)">
                 <%= @pagy.from %>–<%= @pagy.to %> de <strong class="text-(--color-text)"><%= @pagy.count %></strong> clientes
               </p>
               <div class="flex items-center gap-1">
-                <%# Previous %>
                 <% if @pagy.prev %>
                   <%= link_to pagy_url_for(@pagy, @pagy.prev),
                         data: { turbo_frame: "clients-table" },
@@ -152,7 +209,6 @@
                   </span>
                 <% end %>
 
-                <%# Page numbers %>
                 <% @pagy.series.each do |item| %>
                   <% if item == :gap %>
                     <span class="px-2 py-1.5 text-xs text-(--color-text-muted)">…</span>
@@ -167,7 +223,6 @@
                   <% end %>
                 <% end %>
 
-                <%# Next %>
                 <% if @pagy.next %>
                   <%= link_to pagy_url_for(@pagy, @pagy.next),
                         data: { turbo_frame: "clients-table" },
@@ -182,7 +237,6 @@
               </div>
             </div>
           <% end %>
-
         </div>
       <% end %>
 

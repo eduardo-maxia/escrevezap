@@ -24,6 +24,6 @@ class InstallmentsController < ApplicationController
   end
 
   def installment_params
-    params.require(:installment).permit(:amount, :status)
+    params.require(:installment).permit(:amount, :status, :due_date, :proof_image)
   end
 end

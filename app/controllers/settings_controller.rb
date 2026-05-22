@@ -3,9 +3,7 @@ class SettingsController < ApplicationController
   before_action :ensure_company!
   layout "authenticated"
 
-  def show
-    redirect_to settings_empresa_path
-  end
+  def show; end
 
   # ── Empresa ────────────────────────────────────────────────────────
   def empresa

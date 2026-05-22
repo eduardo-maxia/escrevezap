@@ -1,0 +1,9 @@
+<% exact         = local_assigns.fetch(:exact, false) %>
+<% unless_paths  = local_assigns.fetch(:unless_paths, []) %>
+<% active = path != "#" && (request.path == path || (!exact && request.path.start_with?("#{path}/"))) %>
+<% active &&= unless_paths.none? { |p| request.path == p || request.path.start_with?("#{p}/") } %>
+<%= link_to path,
+      class: "flex-1 flex flex-col items-center justify-center gap-0.5 text-[11px] font-medium transition-colors #{active ? 'text-(--color-sidebar-text-hover)' : 'text-(--color-sidebar-text) hover:text-(--color-sidebar-text-hover)'}" do %>
+  <i class="ph<%= active ? "-fill" : "" %> ph-<%= icon %> text-xl"></i>
+  <span><%= label %></span>
+<% end %>

@@ -1,138 +1,121 @@
-<% content_for :page_title, "Configurações" %>
+<% content_for :page_title, "Ajustes" %>
 
 <%
-  input_cls = "w-full px-3 py-2.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors"
-  label_cls = "block text-sm font-medium text-(--color-text) mb-1.5"
-  card_cls  = "bg-(--color-surface) rounded-xl border border-(--color-border) p-6 space-y-5"
-  section_title_cls = "text-base font-semibold text-(--color-text)"
-  section_desc_cls  = "text-sm text-(--color-text-muted) mt-0.5"
+  has_campanhas = current_user.company&.feature_campanhas?
+  company_chip  = has_campanhas ? nil : current_user.company&.chips&.first
+  chip_alert    = company_chip && !company_chip.working?
+
+  item_cls      = "flex items-center gap-3 px-4 py-3.5 hover:bg-(--color-surface-muted) transition-colors group"
+  icon_wrap_cls = "w-9 h-9 rounded-lg bg-(--color-brand-subtle) flex items-center justify-center flex-shrink-0"
+  icon_cls      = "ph text-lg text-(--color-brand)"
 %>
 
-<div class="p-6 max-w-2xl space-y-8">
+<div class="md:p-6 md:max-w-2xl md:mx-auto">
 
-  <div>
-    <h2 class="text-2xl font-bold text-(--color-text)">Configurações</h2>
-    <p class="text-sm text-(--color-text-muted) mt-1">Gerencie os dados da sua empresa e do seu perfil.</p>
+  <%# Desktop header %>
+  <div class="hidden md:block mb-6">
+    <h1 class="text-2xl font-bold text-(--color-text)">Ajustes</h1>
+    <p class="text-sm text-(--color-text-muted) mt-1">Gerencie sua conta, equipe e preferências.</p>
   </div>
 
-  <%# ── Flash ───────────────────────────────────────────────────────── %>
-  <% if notice.present? %>
-    <div class="flex items-center gap-3 px-4 py-3 bg-(--color-success-light) border border-(--color-success) rounded-lg text-sm text-(--color-text)">
-      <i class="ph ph-check-circle text-(--color-success)"></i>
-      <%= notice %>
-    </div>
-  <% end %>
-
-  <%# ─────────────────────────────────────────────────────────────────
-      1. Empresa
-  ───────────────────────────────────────────────────────────────────── %>
-  <div class="<%= card_cls %>">
-    <div>
-      <p class="<%= section_title_cls %>">Empresa</p>
-      <p class="<%= section_desc_cls %>">Nome da empresa exibido na plataforma.</p>
-    </div>
-
-    <% if @company_errors&.any? %>
-      <div class="flex items-start gap-3 px-4 py-3 bg-(--color-danger-light) border border-(--color-danger) rounded-lg text-sm text-(--color-danger)">
-        <i class="ph ph-warning-circle flex-shrink-0 mt-0.5"></i>
-        <span><%= @company_errors.to_sentence %></span>
-      </div>
-    <% end %>
-
-    <%= form_with model: @company, url: settings_company_path, method: :patch, class: "space-y-4" do |f| %>
-      <div>
-        <%= f.label :name, "Nome da empresa", class: label_cls %>
-        <%= f.text_field :name,
-              class: input_cls,
-              placeholder: "Minha Empresa Ltda.",
-              required: true %>
-      </div>
-      <div class="flex justify-end">
-        <%= f.submit "Salvar empresa",
-              class: "px-5 py-2.5 bg-(--color-brand) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors cursor-pointer" %>
-      </div>
-    <% end %>
+  <%# Mobile header %>
+  <div class="md:hidden px-5 pt-6 pb-3">
+    <h1 class="text-2xl font-bold text-(--color-text)">Ajustes</h1>
   </div>
 
-  <%# ─────────────────────────────────────────────────────────────────
-      2. Perfil
-  ───────────────────────────────────────────────────────────────────── %>
-  <div class="<%= card_cls %>">
-    <div>
-      <p class="<%= section_title_cls %>">Perfil</p>
-      <p class="<%= section_desc_cls %>">Seu nome e e-mail de acesso.</p>
+  <div class="px-4 pb-8 md:px-0 space-y-3">
+
+    <%# ── Profile hero card ────────────────────────────────────────── %>
+    <%= link_to settings_perfil_path,
+          class: "bg-(--color-surface) rounded-2xl border border-(--color-border) p-4 flex items-center gap-4 hover:bg-(--color-surface-muted) transition-colors" do %>
+      <div class="w-14 h-14 rounded-full bg-(--color-brand-subtle) flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-(--color-brand-light)">
+        <% if current_user.company&.profile_picture&.attached? %>
+          <%= image_tag current_user.company.profile_picture, class: "w-full h-full object-cover" %>
+        <% else %>
+          <i class="ph ph-user text-(--color-brand) text-2xl"></i>
+        <% end %>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="font-semibold text-(--color-text) truncate"><%= current_user.name.presence || "Sem nome" %></p>
+        <p class="text-sm text-(--color-text-muted) truncate"><%= current_user.email %></p>
+        <% if current_user.company %>
+          <div class="flex items-center gap-1.5 mt-1">
+            <i class="ph ph-buildings text-xs text-(--color-text-subtle)"></i>
+            <p class="text-xs text-(--color-text-subtle) truncate"><%= current_user.company.name %></p>
+          </div>
+        <% end %>
+      </div>
+      <i class="ph ph-caret-right text-(--color-text-subtle) flex-shrink-0"></i>
+    <% end %>
+
+    <%# ── Section: Conta ───────────────────────────────────────────── %>
+    <p class="text-[11px] font-semibold text-(--color-text-subtle) uppercase tracking-wider px-2 pt-3 pb-1">Conta</p>
+    <div class="bg-(--color-surface) rounded-2xl border border-(--color-border) overflow-hidden divide-y divide-(--color-border)">
+      <%= link_to settings_perfil_path, class: item_cls do %>
+        <span class="<%= icon_wrap_cls %>"><i class="<%= icon_cls %> ph-user-circle"></i></span>
+        <span class="flex-1 text-sm font-medium text-(--color-text)">Perfil</span>
+        <i class="ph ph-caret-right text-xs text-(--color-text-subtle)"></i>
+      <% end %>
+
+      <%= link_to settings_empresa_path, class: item_cls do %>
+        <span class="<%= icon_wrap_cls %>"><i class="<%= icon_cls %> ph-buildings"></i></span>
+        <span class="flex-1 text-sm font-medium text-(--color-text)">Empresa</span>
+        <i class="ph ph-caret-right text-xs text-(--color-text-subtle)"></i>
+      <% end %>
+
+      <%= link_to settings_senha_path, class: item_cls do %>
+        <span class="<%= icon_wrap_cls %>"><i class="<%= icon_cls %> ph-lock-key"></i></span>
+        <span class="flex-1 text-sm font-medium text-(--color-text)">Segurança</span>
+        <i class="ph ph-caret-right text-xs text-(--color-text-subtle)"></i>
+      <% end %>
     </div>
 
-    <% if @profile_errors&.any? %>
-      <div class="flex items-start gap-3 px-4 py-3 bg-(--color-danger-light) border border-(--color-danger) rounded-lg text-sm text-(--color-danger)">
-        <i class="ph ph-warning-circle flex-shrink-0 mt-0.5"></i>
-        <span><%= @profile_errors.to_sentence %></span>
-      </div>
-    <% end %>
+    <%# ── Section: Equipe & Recursos ───────────────────────────────── %>
+    <p class="text-[11px] font-semibold text-(--color-text-subtle) uppercase tracking-wider px-2 pt-3 pb-1">Equipe & recursos</p>
+    <div class="bg-(--color-surface) rounded-2xl border border-(--color-border) overflow-hidden divide-y divide-(--color-border)">
+      <%= link_to users_path, class: item_cls do %>
+        <span class="<%= icon_wrap_cls %>"><i class="<%= icon_cls %> ph-users"></i></span>
+        <span class="flex-1 text-sm font-medium text-(--color-text)">Usuários</span>
+        <i class="ph ph-caret-right text-xs text-(--color-text-subtle)"></i>
+      <% end %>
 
-    <%= form_with model: current_user, url: settings_profile_path, method: :patch, class: "space-y-4" do |f| %>
-      <div>
-        <%= f.label :name, "Nome", class: label_cls %>
-        <%= f.text_field :name,
-              class: input_cls,
-              placeholder: "Seu nome" %>
-      </div>
-      <div>
-        <%= f.label :email, "E-mail", class: label_cls %>
-        <%= f.email_field :email,
-              class: input_cls,
-              required: true %>
-      </div>
-      <div class="flex justify-end">
-        <%= f.submit "Salvar perfil",
-              class: "px-5 py-2.5 bg-(--color-brand) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors cursor-pointer" %>
-      </div>
-    <% end %>
-  </div>
-
-  <%# ─────────────────────────────────────────────────────────────────
-      3. Segurança — trocar senha
-  ───────────────────────────────────────────────────────────────────── %>
-  <div class="<%= card_cls %>">
-    <div>
-      <p class="<%= section_title_cls %>">Segurança</p>
-      <p class="<%= section_desc_cls %>">Altere sua senha de acesso.</p>
+      <% if has_campanhas %>
+        <%= link_to chips_path, class: item_cls do %>
+          <span class="<%= icon_wrap_cls %>"><i class="<%= icon_cls %> ph-device-mobile"></i></span>
+          <span class="flex-1 text-sm font-medium text-(--color-text)">Chips</span>
+          <i class="ph ph-caret-right text-xs text-(--color-text-subtle)"></i>
+        <% end %>
+      <% elsif company_chip %>
+        <%= link_to chip_path(company_chip), class: item_cls do %>
+          <span class="<%= icon_wrap_cls %> relative">
+            <i class="<%= icon_cls %> ph-whatsapp-logo"></i>
+            <% if chip_alert %>
+              <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-(--color-warning) flex items-center justify-center ring-2 ring-(--color-surface)">
+                <i class="ph-fill ph-exclamation-mark text-[10px] text-(--color-text-inverse)"></i>
+              </span>
+            <% end %>
+          </span>
+          <span class="flex-1 text-sm font-medium text-(--color-text)">WhatsApp</span>
+          <% if chip_alert %>
+            <span class="text-[11px] font-medium text-(--color-warning) mr-1">Desconectado</span>
+          <% end %>
+          <i class="ph ph-caret-right text-xs text-(--color-text-subtle)"></i>
+        <% end %>
+      <% end %>
     </div>
 
-    <% if @password_errors&.any? %>
-      <div class="flex items-start gap-3 px-4 py-3 bg-(--color-danger-light) border border-(--color-danger) rounded-lg text-sm text-(--color-danger)">
-        <i class="ph ph-warning-circle flex-shrink-0 mt-0.5"></i>
-        <span><%= @password_errors.to_sentence %></span>
-      </div>
-    <% end %>
+    <%# ── Sair ─────────────────────────────────────────────────────── %>
+    <div class="pt-4">
+      <%= button_to destroy_user_session_path, method: :delete,
+            class: "w-full flex items-center justify-center gap-2 px-5 py-3.5 bg-(--color-surface) border border-(--color-border) rounded-2xl text-sm font-semibold text-(--color-danger) hover:bg-(--color-danger-light) hover:border-(--color-danger) transition-colors cursor-pointer" do %>
+        <i class="ph ph-sign-out text-lg"></i>
+        <span>Sair</span>
+      <% end %>
+    </div>
 
-    <%= form_with model: current_user, url: settings_password_path, method: :patch, class: "space-y-4" do |f| %>
-      <div>
-        <%= f.label :current_password, "Senha atual", class: label_cls %>
-        <%= f.password_field :current_password,
-              class: input_cls,
-              autocomplete: "current-password",
-              required: true %>
-      </div>
-      <div>
-        <%= f.label :password, "Nova senha", class: label_cls %>
-        <%= f.password_field :password,
-              class: input_cls,
-              autocomplete: "new-password",
-              required: true %>
-      </div>
-      <div>
-        <%= f.label :password_confirmation, "Confirmar nova senha", class: label_cls %>
-        <%= f.password_field :password_confirmation,
-              class: input_cls,
-              autocomplete: "new-password",
-              required: true %>
-      </div>
-      <div class="flex justify-end">
-        <%= f.submit "Alterar senha",
-              class: "px-5 py-2.5 bg-(--color-brand) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors cursor-pointer" %>
-      </div>
-    <% end %>
+    <p class="text-center text-xs text-(--color-text-subtle) pt-2">
+      Cobrança em Dia
+    </p>
   </div>
-
 </div>
+

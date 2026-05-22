@@ -1,24 +1,4 @@
 services:
-  tailscale:
-    image: tailscale/tailscale:latest
-    hostname: cobrancaemdia
-    env_file:
-      - .env.tailscale
-    volumes:
-      - tailscale-state:/var/lib/tailscale
-      - ./tailscale/config:/config
-    devices:
-      - /dev/net/tun:/dev/net/tun
-    cap_add:
-      - NET_ADMIN
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "10"
-    networks:
-      - appnet
-    restart: unless-stopped
 
   web:
     build: .
@@ -29,8 +9,6 @@ services:
     depends_on:
       - db
       - redis
-      - tailscale
-    network_mode: service:tailscale
     logging:
       driver: "json-file"
       options:
@@ -48,8 +26,6 @@ services:
     depends_on:
       - db
       - redis
-      - tailscale
-    network_mode: service:tailscale
     logging:
       driver: "json-file"
       options:
@@ -70,8 +46,6 @@ services:
       options:
         max-size: "10m"
         max-file: "10"
-    networks:
-      - appnet
     restart: unless-stopped
 
   redis:
@@ -83,8 +57,6 @@ services:
       options:
         max-size: "10m"
         max-file: "10"
-    networks:
-      - appnet
     restart: unless-stopped
 
   waha:
@@ -95,7 +67,6 @@ services:
       - .env.waha
     volumes:
       - waha-media:/waha/media
-    network_mode: service:tailscale
     depends_on:
       - redis
       - db-waha
@@ -107,10 +78,15 @@ services:
       POSTGRES_DB: waha
       POSTGRES_USER: waha
       POSTGRES_PASSWORD: changeme
-    networks:
-      - appnet
     volumes:
       - db-waha-volume:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=eyJhIjoiNGJiN2RkY2JhMTMyMjg1NmVlNWMzNzViMzBmZWMzOTIiLCJ0IjoiNmQ0NDg4NTItYjIxNC00MWViLWE3MzktMjdiYzdlZWM2NjRjIiwicyI6Ik5EVmpZV1l6WWpRdE5UZ3hZeTAwTnpBNUxUaGxNVFF0TVdReVpEQTJZMlkwTXpFMSJ9
     restart: unless-stopped
 
   # loki:
@@ -184,7 +160,3 @@ volumes:
   waha-media:
   db-waha-volume:
   tailscale-state:
-
-networks:
-  appnet:
-    driver: bridge

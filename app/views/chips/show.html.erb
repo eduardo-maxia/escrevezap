@@ -1,6 +1,8 @@
 <% content_for :page_title, @chip.name %>
 
 <%
+  has_campanhas = current_user.company&.feature_campanhas?
+
   status_label, status_color, status_bg, status_icon =
     case @chip.waha_status
     when "working"      then ["Conectado",       "--color-success",     "--color-success-light",  "ph-check-circle"]
@@ -11,8 +13,10 @@
     else                     ["Não configurado", "--color-text-muted",  "--color-surface-raised", "ph-plug"]
     end
   input_cls = "w-full px-3 py-2 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors"
+  section_label_cls = "text-[11px] font-semibold text-(--color-text-subtle) uppercase tracking-wider px-4 mb-2"
 %>
 
+<% if has_campanhas %>
 <div class="p-6 space-y-5">
 
   <%# ── Breadcrumb + title ──────────────────────────────────────────── %>
@@ -153,3 +157,216 @@
   </div>
 
 </div>
+<% else %>
+
+<% content_for :head do %>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@28.1.0/dist/css/intlTelInput.css">
+  <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@28.1.0/dist/js/intlTelInputWithUtils.min.js"></script>
+<% end %>
+
+<%# ─────────────────────────────────────────────────────────────────── %>
+<%# Simplified view (no-campaigns flow) — mobile-first, no cards        %>
+<%# ─────────────────────────────────────────────────────────────────── %>
+<div class="md:p-6 md:max-w-2xl md:mx-auto"
+     data-controller="chip-show"
+     data-chip-show-chip-id-value="<%= @chip.id %>"
+     data-chip-show-initial-status-value="<%= @chip.waha_status %>"
+     data-chip-show-start-url-value="<%= start_session_chip_path(@chip) %>"
+     data-chip-show-qr-url-value="<%= qr_code_chip_path(@chip) %>"
+     data-chip-show-status-url-value="<%= status_chip_path(@chip) %>"
+     data-chip-show-request-code-url-value="<%= request_pairing_code_chip_path(@chip) %>">
+
+  <%# Header — back button + title + status %>
+  <div class="px-4 pt-3 pb-4 md:px-0 md:pt-0">
+    <nav class="hidden md:flex items-center gap-1.5 text-xs text-(--color-text-muted) mb-2">
+      <%= link_to "Ajustes", settings_path, class: "hover:text-(--color-text) transition-colors" %>
+      <i class="ph ph-caret-right text-xs"></i>
+      <span class="text-(--color-text)">WhatsApp</span>
+    </nav>
+    <div class="flex items-center gap-2 flex-wrap">
+      <%= link_to settings_path,
+            class: "md:hidden inline-flex items-center justify-center -ml-1.5 w-8 h-8 rounded-lg text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-surface-raised) transition-colors" do %>
+        <i class="ph ph-caret-left text-lg"></i>
+      <% end %>
+      <h2 class="text-xl md:text-2xl font-bold text-(--color-text)">WhatsApp</h2>
+      <span data-chip-show-target="statusPill"
+            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-(<%= status_bg %>) text-(<%= status_color %>)">
+        <i class="ph <%= status_icon %>"></i>
+        <%= status_label %>
+      </span>
+    </div>
+  </div>
+
+  <div class="px-4 md:px-0 pb-8">
+
+    <%# ── Connected ─────────────────────────────────────────────────── %>
+    <div data-chip-show-target="connectedPanel"
+         class="<%= "hidden" unless @chip.working? %> flex flex-col items-center text-center py-4">
+      <% if current_user.company&.profile_picture&.attached? %>
+        <%= image_tag current_user.company.profile_picture,
+              class: "w-24 h-24 rounded-full object-cover ring-4 ring-(--color-success-light) mb-3" %>
+      <% else %>
+        <div class="w-24 h-24 rounded-full bg-(--color-success-light) flex items-center justify-center ring-4 ring-(--color-success-light) mb-3">
+          <i class="ph ph-whatsapp-logo text-(--color-success) text-5xl"></i>
+        </div>
+      <% end %>
+
+      <p class="text-base font-semibold text-(--color-text)">
+        <%= @chip.formatted_number || "Número não identificado" %>
+      </p>
+      <div class="inline-flex items-center gap-1.5 text-xs text-(--color-success) mt-1">
+        <i class="ph-fill ph-check-circle"></i>
+        <span>Conectado e funcionando</span>
+      </div>
+
+      <%= button_to disconnect_chip_path(@chip), method: :post,
+            class: "mt-5 inline-flex items-center gap-2 px-4 py-2 border border-(--color-border) text-sm font-medium text-(--color-text-muted) rounded-lg hover:border-(--color-danger) hover:text-(--color-danger) hover:bg-(--color-danger-light) transition-colors cursor-pointer",
+            data: { turbo_confirm: "Tem certeza que deseja desconectar? As cobranças serão interrompidas." } do %>
+        <i class="ph ph-plug text-sm"></i>
+        Desconectar
+      <% end %>
+    </div>
+
+    <%# ── Idle (pending / stopped) ──────────────────────────────────── %>
+    <div data-chip-show-target="idlePanel"
+         class="<%= "hidden" if @chip.working? || @chip.waha_status == "scan_qr_code" || @chip.starting? || @chip.failed? %> flex flex-col items-center text-center py-6">
+      <div class="w-20 h-20 rounded-full bg-(--color-brand-subtle) flex items-center justify-center mb-3">
+        <i class="ph ph-whatsapp-logo text-(--color-brand) text-4xl"></i>
+      </div>
+      <h3 class="text-base font-semibold text-(--color-text) mb-1.5">Conecte seu WhatsApp</h3>
+      <p class="text-sm text-(--color-text-muted) max-w-sm leading-relaxed">
+        Vincule um número de WhatsApp para começar a enviar lembretes de cobrança para os seus clientes.
+      </p>
+      <button type="button"
+              data-action="click->chip-show#startConnect"
+              class="mt-5 inline-flex items-center gap-2 px-5 py-2.5 bg-(--color-brand) hover:bg-(--color-brand-dark) text-(--color-text-inverse) text-sm font-semibold rounded-lg transition-colors cursor-pointer">
+        <i class="ph ph-plug-charging text-base"></i>
+        Conectar agora
+      </button>
+    </div>
+
+    <%# ── Connecting (starting) ─────────────────────────────────────── %>
+    <div data-chip-show-target="connectingPanel"
+         class="<%= "hidden" unless @chip.starting? %> flex flex-col items-center text-center py-8">
+      <div class="w-14 h-14 rounded-full border-4 border-(--color-brand-light) border-t-(--color-brand) animate-spin mb-4"></div>
+      <p class="text-sm font-medium text-(--color-text)">Preparando conexão...</p>
+      <p class="text-xs text-(--color-text-muted) mt-1">Isso pode levar alguns segundos.</p>
+    </div>
+
+    <%# ── QR / Pairing section ──────────────────────────────────────── %>
+    <div data-chip-show-target="qrSection"
+         class="<%= "hidden" unless @chip.waha_status == "scan_qr_code" %>">
+
+      <%# Tab toggle %>
+      <div class="flex gap-1 bg-(--color-surface-raised) p-1 rounded-lg mb-5">
+        <button type="button"
+                data-action="click->chip-show#switchToQr"
+                data-chip-show-target="qrTab"
+                class="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-all duration-200 cursor-pointer bg-(--color-brand) text-(--color-text-inverse)">
+          <i class="ph ph-qr-code text-base"></i>
+          QR Code
+        </button>
+        <button type="button"
+                data-action="click->chip-show#switchToCode"
+                data-chip-show-target="codeTab"
+                class="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-all duration-200 cursor-pointer text-(--color-text-muted) hover:text-(--color-text)">
+          <i class="ph ph-device-mobile text-base"></i>
+          Código
+        </button>
+      </div>
+
+      <%# QR panel %>
+      <div data-chip-show-target="qrPanel">
+        <div class="flex flex-col items-center gap-4">
+          <div class="w-56 h-56 rounded-xl border-2 border-(--color-border) flex items-center justify-center bg-(--color-surface-raised) relative overflow-hidden">
+            <div data-chip-show-target="qrSpinner" class="flex flex-col items-center gap-3">
+              <div class="w-8 h-8 border-2 border-(--color-brand) border-t-transparent rounded-full animate-spin"></div>
+              <p class="text-xs text-(--color-text-muted)">Preparando QR...</p>
+            </div>
+            <img data-chip-show-target="qrImage"
+                 class="hidden absolute inset-0 w-full h-full object-contain p-2"
+                 alt="QR Code WhatsApp" />
+          </div>
+          <p class="text-xs text-(--color-text-muted) text-center max-w-xs leading-relaxed">
+            Abra o WhatsApp → Configurações → Aparelhos Conectados → Conectar novo aparelho
+          </p>
+        </div>
+      </div>
+
+      <%# Pairing code panel %>
+      <div data-chip-show-target="codePanel" class="hidden">
+        <div class="space-y-4">
+          <div class="flex items-start gap-3 text-sm text-(--color-text-muted) bg-(--color-surface-raised) rounded-lg p-3.5">
+            <ol class="list-none space-y-1.5 text-xs leading-relaxed">
+              <li><span class="font-bold text-(--color-brand) mr-1">1.</span>Abra o WhatsApp → <strong>Configurações</strong></li>
+              <li><span class="font-bold text-(--color-brand) mr-1">2.</span><strong>Aparelhos Conectados</strong></li>
+              <li><span class="font-bold text-(--color-brand) mr-1">3.</span><strong>Vincular com número de telefone</strong></li>
+              <li><span class="font-bold text-(--color-brand) mr-1">4.</span>Digite o código exibido abaixo</li>
+            </ol>
+          </div>
+
+          <div data-chip-show-target="phoneForm">
+            <label class="block text-sm font-medium text-(--color-text) mb-2">Seu número do WhatsApp</label>
+            <div class="flex gap-2 items-start">
+              <div class="flex-1 min-w-0" data-controller="phone-input">
+                <input type="tel"
+                       data-phone-input-target="input"
+                       class="w-full px-3 py-2 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm placeholder:text-(--color-text-subtle) focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-(--color-brand) transition-colors">
+                <input type="hidden"
+                       data-phone-input-target="hidden"
+                       data-chip-show-target="phoneInput">
+              </div>
+              <button type="button"
+                      data-action="click->chip-show#requestCode"
+                      data-chip-show-target="requestCodeBtn"
+                      class="px-4 py-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-(--color-text-inverse) text-sm font-medium rounded-lg transition-colors cursor-pointer whitespace-nowrap disabled:opacity-50">
+                Gerar
+              </button>
+            </div>
+            <p data-chip-show-target="codeError" class="hidden text-xs text-(--color-danger) mt-1.5"></p>
+          </div>
+
+          <div data-chip-show-target="codeDisplay" class="hidden text-center">
+            <p class="text-xs text-(--color-text-subtle) mb-3">Digite este código no WhatsApp</p>
+            <div class="flex items-center justify-center gap-1.5 mb-3" data-chip-show-target="codeBoxes"></div>
+            <button type="button"
+                    data-action="click->chip-show#copyCode"
+                    data-chip-show-target="copyBtn"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-(--color-brand) text-(--color-brand) text-sm font-medium hover:bg-(--color-brand-light) transition-colors cursor-pointer disabled:opacity-50">
+              <i class="ph ph-copy text-sm"></i>
+              Copiar código
+            </button>
+            <p class="text-xs text-(--color-text-subtle) mt-3">
+              Expira em <span data-chip-show-target="countdown" class="font-medium text-(--color-warning)">5:00</span>
+            </p>
+            <button type="button"
+                    data-action="click->chip-show#resetCode"
+                    class="mt-3 text-xs text-(--color-text-muted) hover:text-(--color-text) underline cursor-pointer block mx-auto">
+              Usar outro número
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%# ── Failed ────────────────────────────────────────────────────── %>
+    <div data-chip-show-target="failedPanel"
+         class="<%= "hidden" unless @chip.failed? %> flex flex-col items-center text-center py-8">
+      <div class="w-16 h-16 rounded-full bg-(--color-danger-light) flex items-center justify-center mb-3">
+        <i class="ph ph-warning-circle text-(--color-danger) text-4xl"></i>
+      </div>
+      <h3 class="text-base font-semibold text-(--color-text) mb-1">Falha na conexão</h3>
+      <p class="text-sm text-(--color-text-muted) max-w-sm" data-chip-show-target="errorMessage">
+        Não foi possível estabelecer conexão com o WhatsApp.
+      </p>
+      <button type="button"
+              data-action="click->chip-show#retry"
+              class="mt-5 inline-flex items-center gap-2 px-5 py-2.5 bg-(--color-brand) hover:bg-(--color-brand-dark) text-(--color-text-inverse) text-sm font-semibold rounded-lg transition-colors cursor-pointer">
+        <i class="ph ph-arrow-clockwise text-base"></i>
+        Tentar novamente
+      </button>
+    </div>
+
+  </div>
+</div>
+<% end %>

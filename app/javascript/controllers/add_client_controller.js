@@ -198,10 +198,25 @@ export default class extends Controller {
 
   #initPhoneInput() {
     if (this.#iti) return
-    if (typeof window.intlTelInput !== "function") {
-      console.warn("intlTelInput not loaded — CDN script missing")
+    if (typeof window.intlTelInput === "function") {
+      this.#buildIti()
       return
     }
+    // CDN script may not be loaded yet — poll briefly.
+    const start = Date.now()
+    const timeoutMs = 8000
+    const timer = setInterval(() => {
+      if (typeof window.intlTelInput === "function") {
+        clearInterval(timer)
+        if (!this.#iti && this.hasPhoneInputTarget) this.#buildIti()
+      } else if (Date.now() - start > timeoutMs) {
+        clearInterval(timer)
+        console.warn("intlTelInput not found after waiting — CDN script may have failed to load")
+      }
+    }, 100)
+  }
+
+  #buildIti() {
     this.#iti = window.intlTelInput(this.phoneInputTarget, {
       initialCountry: "br",
       strictMode: true,
