@@ -25,7 +25,7 @@ export default class extends Controller {
     this.subscription = null
     this.countdownTimer = null
     this.pollTimer = null
-    this.#resolved = false
+    this._resolved = false
     this.startSession()
   }
 
@@ -79,7 +79,7 @@ export default class extends Controller {
   #startPolling() {
     if (!this.statusUrlValue) return
     this.pollTimer = setInterval(async () => {
-      if (this.#resolved) { clearInterval(this.pollTimer); return }
+      if (this._resolved) { clearInterval(this.pollTimer); return }
       try {
         const resp = await fetch(this.statusUrlValue, { headers: { "Accept": "application/json" } })
         if (!resp.ok) return
@@ -100,16 +100,16 @@ export default class extends Controller {
         this.#fetchQr()
         break
       case "working":
-        if (this.#resolved) return
-        this.#resolved = true
+        if (this._resolved) return
+        this._resolved = true
         clearInterval(this.pollTimer)
         this.#setStatus("Conectado!", "success")
         this.#showSuccess()
         setTimeout(() => { window.location.href = this.step4UrlValue }, 1500)
         break
       case "failed":
-        if (this.#resolved) return
-        this.#resolved = true
+        if (this._resolved) return
+        this._resolved = true
         clearInterval(this.pollTimer)
         this.#setStatus("Falha na conexão", "error")
         this.#showErrorPanel("A sessão falhou. Tente reiniciar ou entre em contato com o suporte.")
