@@ -99,6 +99,7 @@ services:
     depends_on:
       - redis
       - db-waha
+    restart: unless-stopped
 
   db-waha:
     image: postgres:15-alpine
@@ -110,6 +111,7 @@ services:
       - appnet
     volumes:
       - db-waha-volume:/var/lib/postgresql/data
+    restart: unless-stopped
 
   # loki:
   #   image: grafana/loki:3.1.0
