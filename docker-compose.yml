@@ -39,6 +39,15 @@ services:
     volumes:
       - db-waha-volume:/var/lib/postgresql/data
 
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    # Should forward to localhost:3001
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=eyJhIjoiNGJiN2RkY2JhMTMyMjg1NmVlNWMzNzViMzBmZWMzOTIiLCJ0IjoiNmQ0NDg4NTItYjIxNC00MWViLWE3MzktMjdiYzdlZWM2NjRjIiwicyI6Ik5EVmpZV1l6WWpRdE5UZ3hZeTAwTnpBNUxUaGxNVFF0TVdReVpEQTJZMlkwTXpFMSJ9
+    restart: unless-stopped
+    network_mode: "host"
+
 volumes:
   db-waha-volume:
   redis-volume:

@@ -22,6 +22,11 @@ class ApplicationController < ActionController::Base
     redirect_to current_user.company.nil? ? onboarding_step1_path : onboarding_step2_path
   end
 
+  def require_campaigns!
+    return if current_user&.company&.feature_campanhas?
+    redirect_to authenticated_root_path, alert: "Funcionalidade de campanhas não disponível nesta conta."
+  end
+
   def ensure_company!
     redirect_to onboarding_step1_path unless current_user&.company
   end

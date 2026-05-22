@@ -1,6 +1,7 @@
 class ChipsController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_company!
+  before_action :require_campaigns!
   before_action :set_chip, only: [:show, :destroy, :start_session, :request_pairing_code, :qr_code, :disconnect]
   layout "authenticated"
 

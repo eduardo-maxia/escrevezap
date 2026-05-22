@@ -1,6 +1,7 @@
 class CampaignsController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_company!
+  before_action :require_campaigns!
   before_action :set_campaign, only: [:show, :update, :destroy]
   layout "authenticated"
 
