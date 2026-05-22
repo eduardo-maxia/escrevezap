@@ -1,14 +1,86 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" prefix="og: https://ogp.me/ns#">
   <head>
-    <title>Cobrança em Dia — Cobranças via WhatsApp no piloto automático</title>
+    <%# ── Primary ─────────────────────────────────────────────────────────── %>
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="Automatize o envio de lembretes de vencimento pelo WhatsApp, acompanhe pagamentos e mantenha seus clientes em dia.">
+    <title>Cobrança em Dia — Cobranças automáticas via WhatsApp</title>
+    <meta name="title"       content="Cobrança em Dia — Cobranças automáticas via WhatsApp">
+    <meta name="description" content="Pare de cobrar manualmente. Envie lembretes de vencimento pelo WhatsApp de forma automática, acompanhe quem pagou e mantenha seus clientes em dia. Configure em menos de 5 minutos.">
+    <meta name="keywords"    content="cobrança automática whatsapp, lembrete de vencimento whatsapp, cobrar clientes pelo whatsapp, automatizar cobrança, gestão de inadimplência, cobranças recorrentes">
+    <meta name="robots"      content="index, follow">
+    <meta name="author"      content="Cobrança em Dia">
+    <meta name="theme-color" content="#0D2E67">
+    <link rel="canonical"    href="https://cobrancaemdia.com.br/">
+
+    <%# ── Open Graph (WhatsApp / Facebook / LinkedIn) ─────────────────────── %>
+    <meta property="og:type"        content="website">
+    <meta property="og:url"         content="https://cobrancaemdia.com.br/">
+    <meta property="og:site_name"   content="Cobrança em Dia">
+    <meta property="og:locale"      content="pt_BR">
+    <meta property="og:title"       content="Cobranças automáticas via WhatsApp — Cobrança em Dia">
+    <meta property="og:description" content="Pare de cobrar manualmente. Configure uma vez e deixe a plataforma enviar os lembretes, acompanhar os pagamentos e organizar tudo por você.">
+    <meta property="og:image"       content="<%= "#{request.base_url}/og-image.png" %>">
+    <meta property="og:image:secure_url" content="<%= "#{request.base_url}/og-image.png" %>">
+    <meta property="og:image:type"  content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt"   content="Cobrança em Dia — Cobranças automáticas via WhatsApp">
+
+    <%# ── Twitter Card ────────────────────────────────────────────────────── %>
+    <meta name="twitter:card"        content="summary_large_image">
+    <meta name="twitter:title"       content="Cobranças automáticas via WhatsApp — Cobrança em Dia">
+    <meta name="twitter:description" content="Pare de cobrar manualmente. Configure uma vez e deixe a plataforma fazer o resto.">
+    <meta name="twitter:image"       content="<%= "#{request.base_url}/og-image.png" %>">
+    <meta name="twitter:image:alt"   content="Cobrança em Dia — Cobranças automáticas via WhatsApp">
+
+    <%# ── Favicon ─────────────────────────────────────────────────────────── %>
+    <link rel="icon"             href="/logo.jpeg" type="image/jpeg">
+    <link rel="apple-touch-icon" href="/logo.jpeg">
+
+    <%# ── Structured Data ────────────────────────────────────────────────── %>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://cobrancaemdia.com.br/#organization",
+          "name": "Cobrança em Dia",
+          "url": "https://cobrancaemdia.com.br",
+          "logo": "<%= "#{request.base_url}/logo.jpeg" %>",
+          "sameAs": []
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://cobrancaemdia.com.br/#website",
+          "url": "https://cobrancaemdia.com.br",
+          "name": "Cobrança em Dia",
+          "publisher": { "@id": "https://cobrancaemdia.com.br/#organization" },
+          "inLanguage": "pt-BR"
+        },
+        {
+          "@type": "SoftwareApplication",
+          "name": "Cobrança em Dia",
+          "url": "https://cobrancaemdia.com.br",
+          "description": "Plataforma de cobranças automáticas via WhatsApp para pequenas e médias empresas. Envie lembretes de vencimento, acompanhe pagamentos e gerencie inadimplência sem esforço manual.",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web",
+          "inLanguage": "pt-BR",
+          "publisher": { "@id": "https://cobrancaemdia.com.br/#organization" },
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "BRL",
+            "description": "Crie sua conta gratuitamente"
+          }
+        }
+      ]
+    }
+    </script>
+
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
-    <link rel="icon" href="/logo.jpeg" type="image/jpeg">
-    <link rel="apple-touch-icon" href="/logo.jpeg">
 
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
