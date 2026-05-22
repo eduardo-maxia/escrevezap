@@ -1,0 +1,36 @@
+<% content_for :page_title, "Empresa" %>
+<% input_cls = "w-full px-3 py-2.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors" %>
+
+<div class="p-6 max-w-xl space-y-6">
+  <div>
+    <h2 class="text-2xl font-bold text-(--color-text)">Empresa</h2>
+    <p class="text-sm text-(--color-text-muted) mt-1">Dados da sua empresa na plataforma.</p>
+  </div>
+
+  <% if @company.errors.any? %>
+    <div class="flex items-start gap-3 px-4 py-3 bg-(--color-danger-light) border border-(--color-danger) rounded-lg text-sm text-(--color-danger)">
+      <i class="ph ph-warning-circle flex-shrink-0 mt-0.5"></i>
+      <span><%= @company.errors.full_messages.to_sentence %></span>
+    </div>
+  <% end %>
+
+  <% if notice.present? %>
+    <div class="flex items-center gap-3 px-4 py-3 bg-(--color-success-light) border border-(--color-success) rounded-lg text-sm text-(--color-text)">
+      <i class="ph ph-check-circle text-(--color-success)"></i>
+      <%= notice %>
+    </div>
+  <% end %>
+
+  <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-6">
+    <%= form_with model: @company, url: settings_empresa_path, method: :patch, class: "space-y-4" do |f| %>
+      <div>
+        <%= f.label :name, "Nome da empresa", class: "block text-sm font-medium text-(--color-text) mb-1.5" %>
+        <%= f.text_field :name, class: input_cls, placeholder: "Minha Empresa Ltda.", required: true, autofocus: true %>
+      </div>
+      <div class="flex justify-end">
+        <%= f.submit "Salvar",
+              class: "px-5 py-2.5 bg-(--color-brand) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+</div>

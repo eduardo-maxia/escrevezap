@@ -1,0 +1,202 @@
+<%
+  input_cls  = "w-full px-3 py-2 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors"
+  status_colors = {
+    "active"    => "bg-(--color-success-light) text-(--color-success)",
+    "paused"    => "bg-(--color-warning-light) text-(--color-warning)",
+    "completed" => "bg-(--color-info-light) text-(--color-info)",
+    "inactive"  => "bg-(--color-surface-raised) text-(--color-text-muted)"
+  }
+  inst_colors = {
+    "pending"   => "bg-(--color-warning-light) text-(--color-warning)",
+    "paid"      => "bg-(--color-success-light) text-(--color-success)",
+    "cancelled" => "bg-(--color-surface-raised) text-(--color-text-muted)"
+  }
+  notif_colors = {
+    "sent"      => "bg-(--color-info-light) text-(--color-info)",
+    "delivered" => "bg-(--color-success-light) text-(--color-success)",
+    "read"      => "bg-(--color-success-light) text-(--color-success)",
+    "failed"    => "bg-(--color-danger-light) text-(--color-danger)",
+    "pending"   => "bg-(--color-surface-raised) text-(--color-text-muted)",
+    "sending"   => "bg-(--color-warning-light) text-(--color-warning)"
+  }
+  notif_labels = {
+    "sent" => "Enviado", "delivered" => "Entregue", "read" => "Lido",
+    "failed" => "Falhou", "pending" => "Pendente", "sending" => "Enviando"
+  }
+  event_icons = { "message" => "ph-whatsapp-logo", "email" => "ph-envelope", "call" => "ph-phone" }
+%>
+
+<turbo-frame id="modal">
+  <dialog data-controller="modal"
+          class="m-auto w-full max-w-2xl rounded-2xl border border-(--color-border) bg-(--color-surface) shadow-2xl p-0 backdrop:bg-black/40 backdrop:backdrop-blur-sm open:flex open:flex-col">
+
+    <%# ── Header ── %>
+    <div class="flex items-start justify-between gap-4 px-6 py-5 border-b border-(--color-border) flex-shrink-0">
+      <div>
+        <p class="text-xs text-(--color-text-muted) mb-0.5">
+          <%= link_to @campaign_client.campaign.name, campaign_path(@campaign_client.campaign),
+                data: { turbo_frame: "_top" },
+                class: "hover:text-(--color-brand) transition-colors" %>
+          <span class="mx-1">·</span>
+          <%= link_to @campaign_client.client.name, client_path(@campaign_client.client),
+                data: { turbo_frame: "_top" },
+                class: "hover:text-(--color-brand) transition-colors" %>
+        </p>
+        <h2 class="text-base font-bold text-(--color-text)">
+          Detalhes da cobrança
+        </h2>
+      </div>
+      <button data-action="click->modal#close"
+              class="p-1.5 rounded-lg text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-surface-raised) transition-colors flex-shrink-0 mt-0.5">
+        <i class="ph ph-x text-sm"></i>
+      </button>
+    </div>
+
+    <%# ── Scrollable body ── %>
+    <div class="overflow-y-auto" style="max-height: min(75vh, 640px)">
+
+      <%# ── Edit form ── %>
+      <div class="px-6 py-5 border-b border-(--color-border)">
+        <h3 class="text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider mb-4">Configurações</h3>
+
+        <% if @campaign_client.errors.any? %>
+          <div class="mb-4 p-3 bg-(--color-danger-light) border border-(--color-danger) rounded-lg text-sm text-(--color-danger)">
+            <%= @campaign_client.errors.full_messages.to_sentence %>
+          </div>
+        <% end %>
+
+        <%= form_with model: @campaign_client, url: campaign_client_path(@campaign_client), method: :patch do |f| %>
+          <div class="grid grid-cols-3 gap-4">
+            <div data-controller="amount-input">
+              <label class="block text-xs font-medium text-(--color-text-muted) mb-1.5">Valor <span class="text-(--color-danger)">*</span></label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-3 flex items-center text-sm text-(--color-text-muted) pointer-events-none select-none">R$</span>
+                <input type="text"
+                       inputmode="numeric"
+                       placeholder="0,00"
+                       required
+                       data-amount-input-target="display"
+                       data-action="input->amount-input#format"
+                       class="<%= input_cls %> pl-9">
+                <input type="hidden"
+                       name="campaign_client[amount]"
+                       value="<%= @campaign_client.amount %>"
+                       data-amount-input-target="hidden">
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-(--color-text-muted) mb-1.5">Próx. vencimento <span class="text-(--color-danger)">*</span></label>
+              <%= f.date_field :next_due_date,
+                    min: Date.today.to_s,
+                    required: true,
+                    class: input_cls %>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-(--color-text-muted) mb-1.5">Status</label>
+              <%= f.select :status,
+                    [["Ativo", "active"], ["Pausado", "paused"], ["Concluído", "completed"]],
+                    { selected: @campaign_client.status },
+                    class: input_cls %>
+            </div>
+          </div>
+          <div class="flex justify-end mt-4">
+            <%= f.submit "Salvar alterações",
+                  class: "px-4 py-2 bg-(--color-brand) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors cursor-pointer" %>
+          </div>
+        <% end %>
+      </div>
+
+      <%# ── Installments ── %>
+      <div class="px-6 py-5 border-b border-(--color-border)">
+        <div class="flex items-center gap-2 mb-4">
+          <h3 class="text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Parcelas</h3>
+          <span class="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-(--color-surface-raised) text-(--color-text-muted) text-xs font-medium">
+            <%= @installments.count %>
+          </span>
+        </div>
+
+        <% if @installments.empty? %>
+          <p class="text-sm text-(--color-text-subtle) text-center py-4">Nenhuma parcela registrada</p>
+        <% else %>
+          <div class="rounded-lg border border-(--color-border) overflow-hidden">
+            <table class="w-full text-sm">
+              <thead class="bg-(--color-surface-muted) border-b border-(--color-border)">
+                <tr>
+                  <th class="text-left px-4 py-2.5 text-xs font-medium text-(--color-text-muted)">#</th>
+                  <th class="text-right px-4 py-2.5 text-xs font-medium text-(--color-text-muted)">Valor</th>
+                  <th class="text-left px-4 py-2.5 text-xs font-medium text-(--color-text-muted)">Vencimento</th>
+                  <th class="text-left px-4 py-2.5 text-xs font-medium text-(--color-text-muted)">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-(--color-border)">
+                <% @installments.each_with_index do |inst, i| %>
+                  <tr class="hover:bg-(--color-surface-muted) transition-colors">
+                    <td class="px-4 py-3 text-(--color-text-muted) text-xs"><%= i + 1 %></td>
+                    <td class="px-4 py-3 text-right font-medium text-(--color-text) whitespace-nowrap">
+                      <%= number_to_currency(inst.amount, unit: "R$\u00a0", separator: ",", delimiter: ".", precision: 2) %>
+                    </td>
+                    <td class="px-4 py-3 text-(--color-text-muted) text-xs whitespace-nowrap">
+                      <%= inst.due_date&.strftime("%d/%m/%Y") || "—" %>
+                    </td>
+                    <td class="px-4 py-3">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium <%= inst_colors[inst.status] %>">
+                        <%= { "pending" => "Pendente", "paid" => "Pago", "cancelled" => "Cancelado" }[inst.status] || inst.status %>
+                      </span>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% end %>
+      </div>
+
+      <%# ── Notifications ── %>
+      <div class="px-6 py-5">
+        <div class="flex items-center gap-2 mb-4">
+          <h3 class="text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Notificações</h3>
+          <span class="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-(--color-surface-raised) text-(--color-text-muted) text-xs font-medium">
+            <%= @notifications.count %>
+          </span>
+        </div>
+
+        <% if @notifications.empty? %>
+          <p class="text-sm text-(--color-text-subtle) text-center py-4">Nenhuma notificação enviada</p>
+        <% else %>
+          <div class="rounded-lg border border-(--color-border) overflow-hidden">
+            <table class="w-full text-sm">
+              <thead class="bg-(--color-surface-muted) border-b border-(--color-border)">
+                <tr>
+                  <th class="text-left px-4 py-2.5 text-xs font-medium text-(--color-text-muted)">Canal</th>
+                  <th class="text-left px-4 py-2.5 text-xs font-medium text-(--color-text-muted)">Enviado em</th>
+                  <th class="text-left px-4 py-2.5 text-xs font-medium text-(--color-text-muted)">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-(--color-border)">
+                <% @notifications.each do |notif| %>
+                  <tr class="hover:bg-(--color-surface-muted) transition-colors">
+                    <td class="px-4 py-3">
+                      <span class="inline-flex items-center gap-1.5 text-xs text-(--color-text)">
+                        <i class="<%= event_icons[notif.event_type] || "ph-bell" %> text-(--color-text-muted)"></i>
+                        <%= { "message" => "WhatsApp", "email" => "E-mail", "call" => "Ligação" }[notif.event_type] || notif.event_type %>
+                      </span>
+                    </td>
+                    <td class="px-4 py-3 text-(--color-text-muted) text-xs whitespace-nowrap">
+                      <%= notif.sent_at ? notif.sent_at.strftime("%d/%m/%Y %H:%M") : "—" %>
+                    </td>
+                    <td class="px-4 py-3">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium <%= notif_colors[notif.notification_status] || "bg-(--color-surface-raised) text-(--color-text-muted)" %>">
+                        <%= notif_labels[notif.notification_status] || notif.notification_status %>
+                      </span>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% end %>
+      </div>
+
+    </div><%# end scrollable %>
+  </dialog>
+</turbo-frame>

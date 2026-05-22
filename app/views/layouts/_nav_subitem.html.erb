@@ -1,0 +1,6 @@
+<% active = request.path == path %>
+<%= link_to path,
+      class: "flex items-center gap-2 pl-8 pr-3 py-1.5 rounded-lg text-xs font-medium transition-colors #{active ? 'bg-(--color-sidebar-item-active) text-(--color-sidebar-text-hover)' : 'text-(--color-sidebar-text) hover:text-(--color-sidebar-text-hover) hover:bg-(--color-sidebar-item-hover)'}" do %>
+  <span class="w-1 h-1 rounded-full bg-current opacity-50 flex-shrink-0"></span>
+  <span><%= label %></span>
+<% end %>

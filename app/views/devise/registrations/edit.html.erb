@@ -1,0 +1,78 @@
+<% content_for :page_title, "Minha Conta" %>
+
+<div class="p-6 max-w-2xl">
+  <div class="bg-(--color-surface) rounded-2xl border border-(--color-border) shadow-sm p-8">
+    <div class="flex items-center gap-3 mb-8">
+      <div class="w-10 h-10 rounded-xl bg-(--color-brand-light) flex items-center justify-center">
+        <i class="ph ph-user text-(--color-brand) text-xl"></i>
+      </div>
+      <div>
+        <h2 class="text-xl font-semibold text-(--color-text)">Editar perfil</h2>
+        <p class="text-sm text-(--color-text-muted)">Atualize suas informações de acesso</p>
+      </div>
+    </div>
+
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <div class="space-y-5">
+        <div>
+          <%= f.label :email, "E-mail", class: "block text-sm font-medium text-(--color-text) mb-1.5" %>
+          <%= f.email_field :email, autofocus: true, autocomplete: "email",
+                class: "w-full px-3.5 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-(--color-brand) transition-colors" %>
+          <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+            <p class="mt-1.5 text-sm text-(--color-warning) flex items-center gap-1.5">
+              <i class="ph ph-clock text-sm"></i>
+              Aguardando confirmação de: <%= resource.unconfirmed_email %>
+            </p>
+          <% end %>
+        </div>
+
+        <div class="pt-4 border-t border-(--color-border)">
+          <h3 class="text-sm font-semibold text-(--color-text) mb-4">Alterar senha</h3>
+          <div class="space-y-5">
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <%= f.label :password, "Nova senha", class: "text-sm font-medium text-(--color-text)" %>
+                <% if @minimum_password_length %>
+                  <span class="text-xs text-(--color-text-subtle)">mín. <%= @minimum_password_length %> caracteres</span>
+                <% end %>
+              </div>
+              <%= f.password_field :password, autocomplete: "new-password",
+                    class: "w-full px-3.5 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm placeholder:text-(--color-text-subtle) focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-(--color-brand) transition-colors",
+                    placeholder: "Deixe em branco para não alterar" %>
+            </div>
+            <div>
+              <%= f.label :password_confirmation, "Confirmar nova senha", class: "block text-sm font-medium text-(--color-text) mb-1.5" %>
+              <%= f.password_field :password_confirmation, autocomplete: "new-password",
+                    class: "w-full px-3.5 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm placeholder:text-(--color-text-subtle) focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-(--color-brand) transition-colors",
+                    placeholder: "••••••••" %>
+            </div>
+            <div>
+              <%= f.label :current_password, "Senha atual", class: "block text-sm font-medium text-(--color-text) mb-1.5" %>
+              <p class="text-xs text-(--color-text-muted) mb-1.5">Necessária para confirmar as alterações</p>
+              <%= f.password_field :current_password, autocomplete: "current-password",
+                    class: "w-full px-3.5 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm placeholder:text-(--color-text-subtle) focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-(--color-brand) transition-colors",
+                    placeholder: "••••••••" %>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-2">
+          <%= f.submit "Salvar alterações",
+                class: "bg-(--color-brand) hover:bg-(--color-brand-dark) text-(--color-text-inverse) font-semibold py-2.5 px-6 rounded-lg text-sm transition-colors cursor-pointer" %>
+          <%= link_to "Cancelar", :back, class: "text-sm text-(--color-text-muted) hover:text-(--color-text) font-medium" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <%# Danger zone %>
+  <div class="mt-6 bg-(--color-surface) rounded-2xl border border-(--color-danger-light) p-6">
+    <h3 class="text-sm font-semibold text-(--color-danger) mb-1">Zona de perigo</h3>
+    <p class="text-sm text-(--color-text-muted) mb-4">Esta ação é permanente e não pode ser desfeita.</p>
+    <%= button_to "Cancelar minha conta", registration_path(resource_name),
+          data: { turbo_confirm: "Tem certeza? Esta ação é irreversível." }, method: :delete,
+          class: "inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-(--color-danger) text-(--color-danger) hover:bg-(--color-danger-light) text-sm font-medium transition-colors cursor-pointer" %>
+  </div>
+</div>

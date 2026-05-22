@@ -1,0 +1,108 @@
+<% content_for :page_title, "Campanhas" %>
+
+<div class="p-6 space-y-5">
+
+  <%# ── Header ──────────────────────────────────────────────────────── %>
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-2xl font-bold text-(--color-text)">Campanhas</h2>
+      <p class="text-sm text-(--color-text-muted) mt-1">Gerencie suas campanhas de cobrança mensal</p>
+    </div>
+    <%= link_to new_campaign_path,
+          class: "inline-flex items-center gap-2 px-4 py-2 bg-(--color-brand) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors" do %>
+      <i class="ph ph-plus text-sm"></i>
+      Nova campanha
+    <% end %>
+  </div>
+
+  <%# ── Empty state ──────────────────────────────────────────────────── %>
+  <% if @campaigns.empty? %>
+    <div class="bg-(--color-surface) rounded-xl border border-(--color-border) py-16 text-center">
+      <div class="w-14 h-14 rounded-full bg-(--color-surface-raised) flex items-center justify-center mx-auto mb-4">
+        <i class="ph ph-megaphone text-(--color-text-subtle) text-2xl"></i>
+      </div>
+      <p class="text-(--color-text-muted) font-medium">Nenhuma campanha ainda</p>
+      <p class="text-(--color-text-subtle) text-sm mt-1">Crie sua primeira campanha para começar os disparos</p>
+      <%= link_to "Criar campanha", new_campaign_path,
+            class: "inline-flex items-center gap-1.5 mt-5 px-4 py-2 bg-(--color-brand) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors" %>
+    </div>
+
+  <%# ── Campaigns table ──────────────────────────────────────────────── %>
+  <% else %>
+    <div class="bg-(--color-surface) rounded-xl border border-(--color-border) overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="border-b border-(--color-border) bg-(--color-surface-muted)">
+          <tr>
+            <th class="text-left px-5 py-3 font-medium text-(--color-text-muted) w-full">Nome</th>
+            <th class="text-left px-4 py-3 font-medium text-(--color-text-muted) whitespace-nowrap">Chip</th>
+            <th class="text-center px-4 py-3 font-medium text-(--color-text-muted)">Clientes</th>
+            <th class="text-left px-4 py-3 font-medium text-(--color-text-muted) whitespace-nowrap">Horário</th>
+            <th class="text-left px-4 py-3 font-medium text-(--color-text-muted)">Status</th>
+            <th class="text-right px-5 py-3"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-(--color-border)">
+          <% @campaigns.each do |campaign| %>
+            <%
+              status_class = case campaign.status
+              when "active"   then "bg-(--color-success-light) text-(--color-success)"
+              when "paused"   then "bg-(--color-warning-light) text-(--color-warning)"
+              when "finished" then "bg-(--color-surface-raised) text-(--color-text-muted)"
+              else                 "bg-(--color-info-light) text-(--color-info)"
+              end
+              status_label = { "draft" => "Rascunho", "active" => "Ativa", "paused" => "Pausada", "finished" => "Finalizada" }[campaign.status] || campaign.status
+            %>
+            <tr class="hover:bg-(--color-surface-muted) transition-colors group">
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-(--color-brand-subtle) flex items-center justify-center flex-shrink-0">
+                    <i class="ph ph-megaphone text-(--color-brand) text-sm"></i>
+                  </div>
+                  <div>
+                    <%= link_to campaign.name, campaign_path(campaign),
+                          class: "font-medium text-(--color-text) hover:text-(--color-brand) transition-colors" %>
+                    <p class="text-xs text-(--color-text-subtle) mt-0.5">Mensal</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-4 text-(--color-text-muted) whitespace-nowrap">
+                <div class="flex items-center gap-1.5 text-xs">
+                  <i class="ph ph-device-mobile"></i>
+                  <%= campaign.chip&.formatted_number || campaign.chip&.name || "—" %>
+                </div>
+              </td>
+              <td class="px-4 py-4 text-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-(--color-surface-raised) text-(--color-text-muted) font-medium text-xs">
+                  <%= campaign.clients.count %>
+                </span>
+              </td>
+              <td class="px-4 py-4 text-(--color-text-muted) whitespace-nowrap text-xs">
+                <% if campaign.start_time && campaign.end_time %>
+                  <%= campaign.start_time.strftime("%H:%M") %> – <%= campaign.end_time.strftime("%H:%M") %>
+                <% else %>
+                  —
+                <% end %>
+              </td>
+              <td class="px-4 py-4">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium <%= status_class %>">
+                  <%= status_label %>
+                </span>
+              </td>
+              <td class="px-5 py-4">
+                <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <%= button_to campaign_path(campaign), method: :delete,
+                        class: "p-1.5 rounded-lg hover:bg-(--color-danger-light) text-(--color-text-muted) hover:text-(--color-danger) transition-colors",
+                        title: "Excluir",
+                        data: { turbo_confirm: "Tem certeza que deseja remover \"#{campaign.name}\"?" } do %>
+                    <i class="ph ph-trash text-sm"></i>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+
+</div>

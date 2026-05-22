@@ -1,0 +1,154 @@
+<turbo-frame id="campaign-notifications" data-turbo-action="advance">
+  <% if @notifications.empty? %>
+    <div class="py-16 flex flex-col items-center gap-3 text-center">
+      <div class="w-12 h-12 rounded-full bg-(--color-surface-raised) flex items-center justify-center">
+        <i class="ph ph-bell-slash text-(--color-text-subtle) text-2xl"></i>
+      </div>
+      <div>
+        <p class="text-sm font-medium text-(--color-text-muted)">Nenhuma notificação encontrada</p>
+        <p class="text-xs text-(--color-text-subtle) mt-0.5">Tente ajustar os filtros acima</p>
+      </div>
+    </div>
+  <% else %>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-(--color-border) bg-(--color-surface-muted)">
+            <th class="px-5 py-3 text-left text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Cliente</th>
+            <th class="px-5 py-3 text-left text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Tipo</th>
+            <th class="px-5 py-3 text-left text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Status</th>
+            <th class="px-5 py-3 text-left text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Parcela</th>
+            <th class="px-5 py-3 text-left text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Enviado em</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-(--color-border)">
+          <% @notifications.each do |n| %>
+            <%
+              client = n.campaign_client.client
+
+              status_cls, status_icon, status_label = case n.notification_status
+              when "failed"    then ["bg-(--color-danger-light) text-(--color-danger)",   "ph-x-circle",         "Falhou"]
+              when "pending"   then ["bg-(--color-surface-raised) text-(--color-text-muted)", "ph-clock",        "Pendente"]
+              when "sending"   then ["bg-(--color-info-light) text-(--color-info)",       "ph-paper-plane-tilt", "Enviando"]
+              when "sent"      then ["bg-(--color-info-light) text-(--color-info)",       "ph-check",            "Enviado"]
+              when "delivered" then ["bg-(--color-success-light) text-(--color-success)", "ph-checks",           "Entregue"]
+              when "read"      then ["bg-(--color-success-light) text-(--color-success)", "ph-eye",              "Lido"]
+              else                  ["bg-(--color-surface-raised) text-(--color-text-muted)", "ph-question",     n.notification_status]
+              end
+
+              type_icon, type_cls, type_label = case n.event_type
+              when "message" then ["ph-whatsapp-logo", "text-[#25D366]",          "WhatsApp"]
+              when "email"   then ["ph-envelope",      "text-(--color-info)",     "E-mail"]
+              when "call"    then ["ph-phone",          "text-(--color-warning)", "Ligação"]
+              else                ["ph-bell",           "text-(--color-text-muted)", n.event_type.to_s]
+              end
+            %>
+            <tr class="hover:bg-(--color-surface-muted) transition-colors">
+              <%# Cliente %>
+              <td class="px-5 py-3.5">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <div class="w-7 h-7 rounded-full bg-(--color-brand-subtle) flex items-center justify-center flex-shrink-0">
+                    <span class="text-xs font-semibold text-(--color-brand)"><%= client.name[0].upcase %></span>
+                  </div>
+                  <span class="font-medium text-(--color-text) truncate"><%= client.name %></span>
+                </div>
+              </td>
+
+              <%# Tipo %>
+              <td class="px-5 py-3.5 whitespace-nowrap">
+                <div class="flex items-center gap-1.5">
+                  <i class="ph <%= type_icon %> text-base <%= type_cls %>"></i>
+                  <span class="text-(--color-text-muted)"><%= type_label %></span>
+                </div>
+              </td>
+
+              <%# Status %>
+              <td class="px-5 py-3.5 whitespace-nowrap">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium <%= status_cls %><%= n.notification_status == "sending" ? " animate-pulse" : "" %>">
+                  <i class="ph <%= status_icon %> text-xs"></i>
+                  <%= status_label %>
+                </span>
+              </td>
+
+              <%# Parcela %>
+              <td class="px-5 py-3.5 whitespace-nowrap text-(--color-text-muted) text-xs">
+                <% if n.installment.present? %>
+                  <span class="inline-flex items-center gap-1">
+                    <i class="ph ph-receipt text-xs"></i>
+                    #<%= n.installment_id %>
+                  </span>
+                <% else %>
+                  <span class="text-(--color-text-subtle)">—</span>
+                <% end %>
+              </td>
+
+              <%# Enviado em %>
+              <td class="px-5 py-3.5 whitespace-nowrap text-(--color-text-muted) text-xs tabular-nums">
+                <% if n.sent_at.present? %>
+                  <span title="<%= n.sent_at.strftime("%d/%m/%Y %H:%M") %>">
+                    <%= n.sent_at.strftime("%d/%m/%Y") %>
+                    <span class="text-(--color-text-subtle)"><%= n.sent_at.strftime("%H:%M") %></span>
+                  </span>
+                <% else %>
+                  <span class="text-(--color-text-subtle)">—</span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <%# ── Pagination ── %>
+    <% if @pagy_notif.pages > 1 %>
+      <div class="flex items-center justify-between px-5 py-3.5 border-t border-(--color-border) bg-(--color-surface-muted)">
+        <p class="text-xs text-(--color-text-muted)">
+          <%= @pagy_notif.from %>–<%= @pagy_notif.to %> de
+          <strong class="text-(--color-text)"><%= @pagy_notif.count %></strong> notificações
+        </p>
+        <div class="flex items-center gap-1">
+          <%# Previous %>
+          <% if @pagy_notif.prev %>
+            <%= link_to pagy_url_for(@pagy_notif, @pagy_notif.prev),
+                  data: { turbo_frame: "campaign-notifications" },
+                  class: "p-1.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-surface-raised) transition-colors" do %>
+              <i class="ph ph-caret-left text-sm"></i>
+            <% end %>
+          <% else %>
+            <span class="p-1.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text-subtle) opacity-40 cursor-not-allowed">
+              <i class="ph ph-caret-left text-sm"></i>
+            </span>
+          <% end %>
+
+          <%# Page numbers %>
+          <% @pagy_notif.series.each do |item| %>
+            <% if item == :gap %>
+              <span class="px-2 py-1.5 text-xs text-(--color-text-muted)">…</span>
+            <% elsif item == @pagy_notif.page %>
+              <span class="px-3 py-1.5 rounded-lg bg-(--color-brand) text-(--color-text-inverse) text-xs font-semibold min-w-[2rem] text-center">
+                <%= item %>
+              </span>
+            <% else %>
+              <%= link_to item, pagy_url_for(@pagy_notif, item),
+                    data: { turbo_frame: "campaign-notifications" },
+                    class: "px-3 py-1.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text-muted) text-xs hover:text-(--color-text) hover:bg-(--color-surface-raised) transition-colors min-w-[2rem] text-center" %>
+            <% end %>
+          <% end %>
+
+          <%# Next %>
+          <% if @pagy_notif.next %>
+            <%= link_to pagy_url_for(@pagy_notif, @pagy_notif.next),
+                  data: { turbo_frame: "campaign-notifications" },
+                  class: "p-1.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-surface-raised) transition-colors" do %>
+              <i class="ph ph-caret-right text-sm"></i>
+            <% end %>
+          <% else %>
+            <span class="p-1.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text-subtle) opacity-40 cursor-not-allowed">
+              <i class="ph ph-caret-right text-sm"></i>
+            </span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+</turbo-frame>

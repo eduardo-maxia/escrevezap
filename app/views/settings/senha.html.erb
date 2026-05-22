@@ -1,0 +1,46 @@
+<% content_for :page_title, "Segurança" %>
+<% input_cls = "w-full px-3 py-2.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors" %>
+
+<div class="p-6 max-w-xl space-y-6">
+  <div>
+    <h2 class="text-2xl font-bold text-(--color-text)">Segurança</h2>
+    <p class="text-sm text-(--color-text-muted) mt-1">Altere sua senha de acesso.</p>
+  </div>
+
+  <% if current_user.errors.any? %>
+    <div class="flex items-start gap-3 px-4 py-3 bg-(--color-danger-light) border border-(--color-danger) rounded-lg text-sm text-(--color-danger)">
+      <i class="ph ph-warning-circle flex-shrink-0 mt-0.5"></i>
+      <span><%= current_user.errors.full_messages.to_sentence %></span>
+    </div>
+  <% end %>
+
+  <% if notice.present? %>
+    <div class="flex items-center gap-3 px-4 py-3 bg-(--color-success-light) border border-(--color-success) rounded-lg text-sm text-(--color-text)">
+      <i class="ph ph-check-circle text-(--color-success)"></i>
+      <%= notice %>
+    </div>
+  <% end %>
+
+  <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-6">
+    <%= form_with model: current_user, url: settings_senha_path, method: :patch, class: "space-y-4" do |f| %>
+      <div>
+        <%= f.label :current_password, "Senha atual", class: "block text-sm font-medium text-(--color-text) mb-1.5" %>
+        <%= f.password_field :current_password, class: input_cls, autocomplete: "current-password",
+              required: true, autofocus: true %>
+      </div>
+      <div>
+        <%= f.label :password, "Nova senha", class: "block text-sm font-medium text-(--color-text) mb-1.5" %>
+        <%= f.password_field :password, class: input_cls, autocomplete: "new-password", required: true %>
+      </div>
+      <div>
+        <%= f.label :password_confirmation, "Confirmar nova senha",
+              class: "block text-sm font-medium text-(--color-text) mb-1.5" %>
+        <%= f.password_field :password_confirmation, class: input_cls, autocomplete: "new-password", required: true %>
+      </div>
+      <div class="flex justify-end">
+        <%= f.submit "Alterar senha",
+              class: "px-5 py-2.5 bg-(--color-brand) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+</div>

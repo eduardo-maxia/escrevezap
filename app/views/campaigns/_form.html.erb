@@ -1,0 +1,91 @@
+<%= form_with model: @campaign, class: "space-y-5" do |f| %>
+
+  <%# ── Errors ──────────────────────────────────────────────────────── %>
+  <% if @campaign.errors.any? %>
+    <div class="bg-(--color-danger-light) border border-(--color-danger) rounded-lg px-4 py-3 text-sm text-(--color-danger)">
+      <p class="font-medium mb-1">Por favor, corrija os erros:</p>
+      <ul class="list-disc list-inside space-y-0.5">
+        <% @campaign.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%# ── Nome ───────────────────────────────────────────────────────── %>
+  <div>
+    <label class="block text-sm font-medium text-(--color-text) mb-1.5">
+      Nome da campanha <span class="text-(--color-danger)">*</span>
+    </label>
+    <%= f.text_field :name,
+          placeholder: "Ex: Cobrança Mensal – Plano Básico",
+          class: "w-full px-3 py-2.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) placeholder:text-(--color-text-subtle) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors" %>
+  </div>
+
+  <%# ── Chip ───────────────────────────────────────────────────────── %>
+  <div>
+    <label class="block text-sm font-medium text-(--color-text) mb-1.5">
+      Chip de envio <span class="text-(--color-danger)">*</span>
+    </label>
+    <%= f.select :chip_id,
+          @chips.map { |c| [c.formatted_number || c.name, c.id] },
+          { include_blank: "Selecione o chip…" },
+          class: "w-full px-3 py-2.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors" %>
+    <% if @chips.empty? %>
+      <p class="text-xs text-(--color-warning) mt-1.5 flex items-center gap-1">
+        <i class="ph ph-warning"></i>
+        Nenhum chip conectado. <%= link_to "Conecte um chip", onboarding_step3_path, class: "underline" %>.
+      </p>
+    <% end %>
+  </div>
+
+  <%# ── Mensagem ────────────────────────────────────────────────────── %>
+  <div>
+    <label class="block text-sm font-medium text-(--color-text) mb-1.5">Mensagem</label>
+    <textarea name="campaign[template][body]"
+              rows="5"
+              placeholder="Olá {{nome}}, sua mensalidade de {{valor}} vence em {{vencimento}}."
+              class="w-full px-3 py-2.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) placeholder:text-(--color-text-subtle) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors resize-none"><%= @campaign.template&.dig("body") %></textarea>
+    <p class="text-xs text-(--color-text-subtle) mt-1.5">
+      Variáveis disponíveis:
+      <code class="bg-(--color-surface-raised) px-1 py-0.5 rounded">{{nome}}</code>
+      <code class="bg-(--color-surface-raised) px-1 py-0.5 rounded">{{valor}}</code>
+      <code class="bg-(--color-surface-raised) px-1 py-0.5 rounded">{{vencimento}}</code>
+    </p>
+  </div>
+
+  <%# ── Janela de envio ────────────────────────────────────────────── %>
+  <div class="grid grid-cols-2 gap-4">
+    <div>
+      <label class="block text-sm font-medium text-(--color-text) mb-1.5">Início dos envios</label>
+      <%= f.time_field :start_time,
+            class: "w-full px-3 py-2.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors" %>
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-(--color-text) mb-1.5">Fim dos envios</label>
+      <%= f.time_field :end_time,
+            class: "w-full px-3 py-2.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors" %>
+    </div>
+  </div>
+
+  <%# ── Status (somente na edição) ────────────────────────────────── %>
+  <% if @campaign.persisted? %>
+    <div>
+      <label class="block text-sm font-medium text-(--color-text) mb-1.5">Status</label>
+      <%= f.select :status,
+            [["Rascunho", "draft"], ["Ativa", "active"], ["Pausada", "paused"], ["Finalizada", "finished"]],
+            {},
+            class: "w-full px-3 py-2.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors" %>
+    </div>
+  <% end %>
+
+  <%# ── Submit ─────────────────────────────────────────────────────── %>
+  <div class="flex items-center gap-3 pt-1">
+    <%= f.submit @campaign.persisted? ? "Salvar alterações" : "Criar campanha",
+          class: "px-5 py-2.5 bg-(--color-brand) text-(--color-text-inverse) text-sm font-semibold rounded-lg hover:bg-(--color-brand-dark) transition-colors cursor-pointer" %>
+    <%= link_to "Cancelar",
+          @campaign.persisted? ? campaign_path(@campaign) : campaigns_path,
+          class: "px-5 py-2.5 border border-(--color-border) text-sm font-medium text-(--color-text-muted) rounded-lg hover:text-(--color-text) transition-colors" %>
+  </div>
+
+<% end %>

@@ -1,0 +1,11 @@
+<div class="min-h-screen flex flex-col items-center justify-center gap-8 px-4">
+  <%= image_tag "/logo.jpeg", alt: "Cobrança em Dia", class: "h-20 w-auto" %>
+
+  <h1 class="text-3xl font-bold text-(--color-text) tracking-tight">Cobrança em Dia</h1>
+
+  <%= link_to new_user_session_path,
+        class: "mt-2 inline-flex items-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-(--color-text-inverse) font-semibold py-3 px-8 rounded-xl text-sm transition-colors" do %>
+    Entrar
+    <i class="ph ph-arrow-right text-base"></i>
+  <% end %>
+</div>

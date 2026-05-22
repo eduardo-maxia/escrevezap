@@ -1,0 +1,30 @@
+{
+  "TCP": {
+    "443": {
+      "HTTPS": true
+    },
+    "10000": {
+      "HTTPS": true
+    }
+  },
+  "Web": {
+    "cobrancaemdia.tail244278.ts.net:443": {
+      "Handlers": {
+        "/": {
+          "Proxy": "http://127.0.0.1:80"
+        }
+      }
+    },
+    "cobrancaemdia.tail244278.ts.net:10000": {
+      "Handlers": {
+        "/": {
+          "Proxy": "http://127.0.0.1:3000"
+        }
+      }
+    }
+  },
+  "AllowFunnel": {
+    "cobrancaemdia.tail244278.ts.net:443": true,
+    "cobrancaemdia.tail244278.ts.net:10000": true
+  }
+}

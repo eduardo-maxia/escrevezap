@@ -1,0 +1,48 @@
+<% content_for :page_title, "Novo Chip" %>
+
+<div class="p-6 max-w-lg">
+
+  <nav class="flex items-center gap-1.5 text-xs text-(--color-text-muted) mb-4">
+    <%= link_to "Chips", chips_path, class: "hover:text-(--color-text) transition-colors" %>
+    <i class="ph ph-caret-right text-xs"></i>
+    <span class="text-(--color-text)">Novo chip</span>
+  </nav>
+
+  <h2 class="text-2xl font-bold text-(--color-text) mb-1">Adicionar chip</h2>
+  <p class="text-sm text-(--color-text-muted) mb-6">
+    Após criar, você será direcionado para conectar o número de WhatsApp.
+  </p>
+
+  <%= form_with model: @chip, url: chips_path,
+        class: "bg-(--color-surface) rounded-xl border border-(--color-border) p-6 space-y-5" do |f| %>
+
+    <% if @chip.errors.any? %>
+      <div class="flex items-start gap-3 px-4 py-3 bg-(--color-danger-light) border border-(--color-danger) rounded-lg text-sm text-(--color-danger)">
+        <i class="ph ph-warning-circle flex-shrink-0 mt-0.5"></i>
+        <span><%= @chip.errors.full_messages.to_sentence %></span>
+      </div>
+    <% end %>
+
+    <div>
+      <%= f.label :name, class: "block text-sm font-medium text-(--color-text) mb-1.5" do %>
+        Nome do chip <span class="text-(--color-danger)">*</span>
+      <% end %>
+      <%= f.text_field :name,
+            placeholder: "Ex: Chip Principal, WhatsApp Comercial...",
+            class: "w-full px-3 py-2.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors",
+            required: true, autofocus: true %>
+      <p class="text-xs text-(--color-text-subtle) mt-1.5">
+        Um nome para identificar este número dentro da plataforma.
+      </p>
+    </div>
+
+    <div class="flex items-center justify-between gap-3 pt-1">
+      <%= link_to "Cancelar", chips_path,
+            class: "px-4 py-2.5 border border-(--color-border) text-sm font-medium text-(--color-text-muted) rounded-lg hover:text-(--color-text) transition-colors" %>
+      <%= f.submit "Criar e conectar →",
+            class: "px-5 py-2.5 bg-(--color-brand) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors cursor-pointer" %>
+    </div>
+
+  <% end %>
+
+</div>

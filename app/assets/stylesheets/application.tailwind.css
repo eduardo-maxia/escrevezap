@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand – navy + gold (trust + premium finance) */
+  --color-brand:        #0D2E67;
+  --color-brand-dark:   #0A224E;
+  --color-brand-light:  #DCE8F8;
+  --color-brand-subtle: #F4F8FD;
+
+  /* Accent – gold/caramel */
+  --color-accent:        #C88437;
+  --color-accent-dark:   #A86A25;
+  --color-accent-light:  #F4E3D0;
+  --color-accent-subtle: #FBF6F0;
+
+  /* Surfaces */
+  --color-surface:        #FFFFFF;
+  --color-surface-muted:  #F8FAFC;
+  --color-surface-raised: #EEF2F7;
+
+  /* Borders */
+  --color-border:        #E2E8F0;
+  --color-border-strong: #CBD5E1;
+
+  /* Text */
+  --color-text:          #111827;
+  --color-text-muted:    #64748B;
+  --color-text-subtle:   #94A3B8;
+  --color-text-inverse:  #FFFFFF;
+
+  /* Semantic */
+  --color-danger:         #DC2626;
+  --color-danger-light:   #FEE2E2;
+
+  --color-warning:        #D97706;
+  --color-warning-light:  #FEF3C7;
+
+  --color-success:        #15803D;
+  --color-success-light:  #DCFCE7;
+
+  --color-info:           #1E4B8F;
+  --color-info-light:     #DBEAFE;
+
+  /* Sidebar */
+  --color-sidebar-bg:          #0A224E;
+  --color-sidebar-border:      #16325F;
+  --color-sidebar-text:        #94A3B8;
+  --color-sidebar-text-hover:  #F8FAFC;
+  --color-sidebar-item-hover:  #16325F;
+  --color-sidebar-item-active: #1E4B8F;
+}
+
+/* ── intl-tel-input overrides ─────────────────────────────────────────── */
+.iti {
+  width: 100%;
+}
+.iti__selected-country {
+  background-color: transparent;
+  border-right: 1px solid var(--color-border);
+  padding-inline: 0.75rem;
+}
+.iti__selected-country:hover,
+.iti__selected-country[aria-expanded="true"] {
+  background-color: var(--color-surface-raised);
+}
+.iti__country-container {
+  padding: 0;
+}
+.iti__dropdown-content {
+  border-color: var(--color-border);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.08);
+  overflow: hidden;
+}
+.iti__search-input {
+  border-bottom-color: var(--color-border);
+  font-size: 0.875rem;
+}
+.iti__country.iti__highlight {
+  background-color: var(--color-brand-light);
+}

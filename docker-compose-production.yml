@@ -1,0 +1,190 @@
+services:
+  tailscale:
+    image: tailscale/tailscale:latest
+    hostname: cobrancaemdia
+    env_file:
+      - .env.tailscale
+    volumes:
+      - tailscale-state:/var/lib/tailscale
+      - ./tailscale/config:/config
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "10"
+    networks:
+      - appnet
+    restart: unless-stopped
+
+  web:
+    build: .
+    volumes:
+      - storage-volume:/rails/storage
+    env_file:
+      - .env.production
+    depends_on:
+      - db
+      - redis
+      - tailscale
+    network_mode: service:tailscale
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "10"
+    restart: unless-stopped
+
+  worker:
+    build: .
+    command: ["./bin/jobs", "start"]
+    volumes:
+      - storage-volume:/rails/storage
+    env_file:
+      - .env.production
+    depends_on:
+      - db
+      - redis
+      - tailscale
+    network_mode: service:tailscale
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "10"
+    restart: unless-stopped
+
+  db:
+    image: postgis/postgis:18-3.6-alpine
+    volumes:
+      - db-volume:/var/lib/postgresql
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "10"
+    networks:
+      - appnet
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis-volume:/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "10"
+    networks:
+      - appnet
+    restart: unless-stopped
+
+  waha:
+    # image: hsiereveld/waha-plus:latest # 2026.1.1
+    # image: tanujempiricinfotech/waha-plus:latest # 2026.1.3
+    image: contatomyvillage/waha-plus:gows # 2026.3.4
+    env_file:
+      - .env.waha
+    volumes:
+      - waha-media:/waha/media
+    network_mode: service:tailscale
+    depends_on:
+      - redis
+      - db-waha
+    logging:
+      driver: "none"
+
+  db-waha:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: waha
+      POSTGRES_USER: waha
+      POSTGRES_PASSWORD: changeme
+    networks:
+      - appnet
+    volumes:
+      - db-waha-volume:/var/lib/postgresql/data
+
+  # loki:
+  #   image: grafana/loki:3.1.0
+  #   command: -config.file=/etc/loki/loki-config.yaml
+  #   volumes:
+  #     - ./observability/loki/loki-config.yaml:/etc/loki/loki-config.yaml:ro
+  #     - loki-data:/loki
+  #   ports:
+  #     - "3100:3100"
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: "10m"
+  #       max-file: "10"
+  #   networks:
+  #     - appnet
+  #   restart: unless-stopped
+
+  # alloy:
+  #   image: grafana/alloy:latest
+  #   command: run --server.http.listen-addr=0.0.0.0:12345 --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy
+  #   volumes:
+  #     - ./observability/alloy/config.prod.alloy:/etc/alloy/config.alloy:ro
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #     - /var/log:/var/log:ro
+  #     - alloy-data:/var/lib/alloy/data
+  #   depends_on:
+  #     - loki
+  #   ports:
+  #     - "12345:12345"
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: "10m"
+  #       max-file: "10"
+  #   networks:
+  #     - appnet
+  #   restart: unless-stopped
+
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   volumes:
+  #     - grafana-data:/var/lib/grafana
+  #     - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+  #   depends_on:
+  #     - loki
+  #   environment:
+  #     - GF_SERVER_HTTP_PORT=10000
+  #   network_mode: service:tailscale
+  #   restart: unless-stopped
+
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: "10m"
+  #       max-file: "10"
+
+    # admin | 12345678
+
+volumes:
+  db-volume:
+  redis-volume:
+  tmp-volume:
+  log-volume:
+  bundle-volume:
+  storage-volume:
+  # loki-data:
+  # alloy-data:
+  # grafana-data:
+  waha-media:
+  db-waha-volume:
+  tailscale-state:
+
+networks:
+  appnet:
+    driver: bridge

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Cobrança em Dia · Configuração" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= action_cable_meta_tag %>
+    <%= yield :head %>
+
+    <link rel="icon" href="/logo.jpeg" type="image/jpeg">
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
+  </head>
+
+  <body class="min-h-screen bg-(--color-surface-muted) flex flex-col antialiased">
+
+    <main class="flex-1 flex items-center justify-center px-4 pt-10 pb-12">
+      <div class="w-full max-w-md mb-10">
+        <% current_step_num = (yield(:current_step) || "1").to_i %>
+
+        <%# Page card %>
+        <%= yield %>
+
+        <%# Step dots + skip — visually attached to card bottom %>
+        <div class="relative z-10 bg-(--color-surface) border-x border-b border-(--color-border) rounded-b-2xl -mt-3 pt-4 pb-4 px-6 flex items-center justify-center">
+          <div class="flex items-center gap-2">
+            <% [1,2,3].each do |n| %>
+              <% if n == current_step_num %>
+                <div class="w-5 h-1.5 rounded-full bg-(--color-brand)"></div>
+              <% elsif n < current_step_num %>
+                <div class="w-1.5 h-1.5 rounded-full bg-(--color-success)"></div>
+              <% else %>
+                <div class="w-1.5 h-1.5 rounded-full bg-(--color-border)"></div>
+              <% end %>
+            <% end %>
+          </div>
+
+          <% if current_step_num > 1 %>
+            <%= button_to skip_onboarding_path, method: :post,
+                  class: "text-xs text-(--color-text-subtle) hover:text-(--color-text-muted) transition-colors cursor-pointer absolute right-6 bottom-4" do %>
+              Pular configuração →
+            <% end %>
+          <% end %>
+        </div>
+
+      </div>
+    </main>
+
+  </body>
+</html>

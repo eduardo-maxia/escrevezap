@@ -1,0 +1,435 @@
+<% content_for :page_title, @client.name %>
+
+<% edit_btn_cls = "opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md hover:bg-(--color-surface-raised) text-(--color-text-subtle) hover:text-(--color-text-muted) flex-shrink-0" %>
+<% save_cls    = "px-2.5 py-1.5 bg-(--color-brand) text-(--color-text-inverse) text-xs font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors cursor-pointer whitespace-nowrap" %>
+<% cancel_cls  = "px-2.5 py-1.5 border border-(--color-border) text-xs font-medium text-(--color-text-muted) rounded-lg hover:text-(--color-text) transition-colors whitespace-nowrap" %>
+<% input_cls   = "w-full px-3 py-2 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors" %>
+
+<div class="p-6 space-y-5">
+
+  <%# ── Header ── %>
+  <div class="flex items-start justify-between gap-4">
+    <div class="min-w-0 flex-1">
+      <nav class="flex items-center gap-1.5 text-xs text-(--color-text-muted) mb-2">
+        <%= link_to "Clientes", clients_path, class: "hover:text-(--color-text) transition-colors" %>
+        <i class="ph ph-caret-right text-xs"></i>
+        <span class="text-(--color-text)"><%= @client.name %></span>
+      </nav>
+
+      <div data-controller="inline-edit" class="group">
+        <div data-inline-edit-target="view" class="flex items-center gap-3 flex-wrap">
+          <h2 class="text-2xl font-bold text-(--color-text)"><%= @client.name %></h2>
+          <% if @client.waha_chat_id.present? %>
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-(--color-success-light) text-(--color-success)">
+              <i class="ph ph-check-circle"></i> WhatsApp verificado
+            </span>
+          <% else %>
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-(--color-surface-raised) text-(--color-text-muted)">
+              <i class="ph ph-warning"></i> Sem WhatsApp
+            </span>
+          <% end %>
+          <button data-action="click->inline-edit#edit" class="<%= edit_btn_cls %>">
+            <i class="ph ph-pencil-simple text-sm"></i>
+          </button>
+        </div>
+        <div data-inline-edit-target="editor" class="hidden mt-1">
+          <%= form_with url: client_path(@client), method: :patch, class: "flex items-center gap-2 flex-wrap" do |f| %>
+            <%= f.text_field :name, data: { inline_edit_target: "field" },
+                  class: "px-3 py-1.5 text-xl font-bold border border-(--color-border) rounded-lg focus:outline-none focus:border-(--color-brand) text-(--color-text) bg-(--color-surface) min-w-[14rem]" %>
+            <%= f.submit "Salvar", class: save_cls %>
+            <button type="button" data-action="click->inline-edit#cancel" class="<%= cancel_cls %>">Cancelar</button>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-shrink-0 pt-6">
+      <%= button_to client_path(@client), method: :delete,
+            class: "p-2 px-3 rounded-lg text-(--color-danger) hover:border-(--color-danger) hover:bg-(--color-danger-light) transition-colors cursor-pointer",
+            title: "Excluir cliente",
+            data: { turbo_confirm: "Tem certeza que deseja remover \"#{@client.name}\"?" } do %>
+        <i class="ph ph-trash text-sm"></i>
+      <% end %>
+    </div>
+  </div>
+
+  <%# ── Main grid ── %>
+  <div class="grid grid-cols-1 lg:grid-cols-[1fr_296px] gap-5 items-start">
+
+    <%# ── LEFT: Cobrança + Parcelas ── %>
+    <div class="space-y-5">
+
+      <%# Cobrança card %>
+      <div class="bg-(--color-surface) rounded-xl border border-(--color-border) overflow-hidden">
+        <div class="px-5 py-4 border-b border-(--color-border)">
+          <h3 class="font-semibold text-(--color-text)">Cobrança</h3>
+        </div>
+
+        <% if @campaign_client %>
+          <%
+            cc_status_label = {
+              "active"    => "Ativo",
+              "paused"    => "Pausado",
+              "completed" => "Concluído",
+              "inactive"  => "Inativo"
+            }[@campaign_client.status] || @campaign_client.status&.humanize
+
+            cc_status_color = case @campaign_client.status
+            when "active"    then "bg-(--color-success-light) text-(--color-success)"
+            when "paused"    then "bg-(--color-warning-light) text-(--color-warning)"
+            when "completed" then "bg-(--color-info-light) text-(--color-info)"
+            else "bg-(--color-surface-raised) text-(--color-text-muted)"
+            end
+
+            pencil_cls = "opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md hover:bg-(--color-surface-raised) text-(--color-text-subtle) hover:text-(--color-text-muted) flex-shrink-0 cursor-pointer"
+          %>
+          <dl class="divide-y divide-(--color-border)">
+
+            <%# Valor row %>
+            <div class="group px-5 py-3 text-sm" data-controller="inline-edit">
+              <div data-inline-edit-target="view" class="flex items-center justify-between gap-2">
+                <span class="text-(--color-text-muted)">Valor</span>
+                <div class="flex items-center gap-2">
+                  <span class="font-semibold text-(--color-text)">
+                    <%= number_to_currency(@campaign_client.amount, unit: "R$\u00a0", separator: ",", delimiter: ".", precision: 2) %>
+                  </span>
+                  <button type="button" data-action="click->inline-edit#edit" class="<%= pencil_cls %>">
+                    <i class="ph ph-pencil-simple text-xs"></i>
+                  </button>
+                </div>
+              </div>
+              <div data-inline-edit-target="editor" class="hidden">
+                <%= form_with url: campaign_client_path(@campaign_client), method: :patch,
+                      class: "flex items-center gap-2" do |f| %>
+                  <%= hidden_field_tag :from_client, "1" %>
+                  <span class="text-(--color-text-muted)">Valor</span>
+                  <div data-controller="amount-input" class="relative ms-auto">
+                    <span class="absolute inset-y-0 left-3 flex items-center text-sm text-(--color-text-muted) pointer-events-none select-none">R$</span>
+                    <input type="text"
+                           inputmode="numeric"
+                           placeholder="0,00"
+                           required
+                           data-amount-input-target="display"
+                           data-action="input->amount-input#format"
+                           data-inline-edit-target="field"
+                           class="w-full pl-9 pr-3 py-1 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand)">
+                    <input type="hidden"
+                           name="campaign_client[amount]"
+                           value="<%= @campaign_client.amount %>"
+                           data-amount-input-target="hidden">
+                  </div>
+                  <%= f.submit "Salvar", class: save_cls %>
+                  <button type="button" data-action="click->inline-edit#cancel" class="<%= cancel_cls %>">Cancelar</button>
+                <% end %>
+              </div>
+            </div>
+
+            <%# Próximo vencimento row %>
+            <div class="group px-5 py-3 text-sm" data-controller="inline-edit">
+              <div data-inline-edit-target="view" class="flex items-center justify-between gap-2">
+                <span class="text-(--color-text-muted)">Próximo vencimento</span>
+                <div class="flex items-center gap-2">
+                  <span class="font-medium text-(--color-text)">
+                    <%= @campaign_client.next_due_date.strftime("%d/%m/%Y") %>
+                  </span>
+                  <button type="button" data-action="click->inline-edit#edit" class="<%= pencil_cls %>">
+                    <i class="ph ph-pencil-simple text-xs"></i>
+                  </button>
+                </div>
+              </div>
+              <div data-inline-edit-target="editor" class="hidden">
+                <%= form_with model: @campaign_client, url: campaign_client_path(@campaign_client), method: :patch,
+                      class: "flex items-center gap-2" do |f| %>
+                  <%= hidden_field_tag :from_client, "1" %>
+                  <span class="text-(--color-text-muted)">Próximo vencimento</span>
+                  <%= f.date_field :next_due_date, value: @campaign_client.next_due_date,
+                        data: { inline_edit_target: "field" },
+                        class: "ms-auto px-3 py-1 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand)" %>
+                  <%= f.submit "Salvar", class: save_cls %>
+                  <button type="button" data-action="click->inline-edit#cancel" class="<%= cancel_cls %>">Cancelar</button>
+                <% end %>
+              </div>
+            </div>
+
+            <%# Status row %>
+            <div class="group px-5 py-3 text-sm" data-controller="inline-edit">
+              <div data-inline-edit-target="view" class="flex items-center justify-between gap-2">
+                <span class="text-(--color-text-muted)">Status</span>
+                <div class="flex items-center gap-2">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium <%= cc_status_color %>">
+                    <%= cc_status_label %>
+                  </span>
+                  <button type="button" data-action="click->inline-edit#edit" class="<%= pencil_cls %>">
+                    <i class="ph ph-pencil-simple text-xs"></i>
+                  </button>
+                </div>
+              </div>
+              <div data-inline-edit-target="editor" class="hidden">
+                <%= form_with model: @campaign_client, url: campaign_client_path(@campaign_client), method: :patch,
+                      class: "flex items-center gap-2" do |f| %>
+                  <%= hidden_field_tag :from_client, "1" %>
+                  <span class="text-(--color-text-muted)">Status</span>
+                  <%= f.select :status,
+                        [["Ativo", "active"], ["Pausado", "paused"], ["Concluído", "completed"]],
+                        { selected: @campaign_client.status },
+                        data: { inline_edit_target: "field" },
+                        class: "ms-auto px-3 py-1 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand)" %>
+                  <%= f.submit "Salvar", class: save_cls %>
+                  <button type="button" data-action="click->inline-edit#cancel" class="<%= cancel_cls %>">Cancelar</button>
+                <% end %>
+              </div>
+            </div>
+
+          </dl>
+        <% else %>
+          <div class="py-10 text-center">
+            <i class="ph ph-invoice text-(--color-text-subtle) text-3xl block mb-2"></i>
+            <p class="text-sm text-(--color-text-muted)">Nenhuma cobrança configurada para este cliente.</p>
+          </div>
+        <% end %>
+      </div>
+
+      <%# Parcelas card %>
+      <% if @campaign_client %>
+        <div class="bg-(--color-surface) rounded-xl border border-(--color-border) overflow-hidden">
+          <div class="px-5 py-4 border-b border-(--color-border) flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <h3 class="font-semibold text-(--color-text)">Parcelas</h3>
+              <span class="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-(--color-surface-raised) text-(--color-text-muted) text-xs font-medium">
+                <%= @installments.size %>
+              </span>
+            </div>
+            <%= link_to client_path(@client, show_cancelled: @show_cancelled ? nil : "1"),
+                  class: "flex items-center gap-1 text-xs text-(--color-text-subtle) hover:text-(--color-text-muted) transition-colors" do %>
+              <% if @show_cancelled %>
+                <i class="ph ph-eye-slash text-sm"></i>
+                <span>Ocultar canceladas</span>
+              <% else %>
+                <i class="ph ph-eye text-sm"></i>
+                <span>Ver canceladas</span>
+              <% end %>
+            <% end %>
+          </div>
+
+          <% if @installments.empty? %>
+            <div class="py-10 text-center">
+              <i class="ph ph-receipt text-(--color-text-subtle) text-3xl block mb-2"></i>
+              <p class="text-sm text-(--color-text-muted)">Nenhuma parcela gerada ainda.</p>
+            </div>
+          <% else %>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead class="border-b border-(--color-border) bg-(--color-surface-muted)">
+                  <tr>
+                    <th class="text-left px-5 py-3 font-medium text-(--color-text-muted)">Referência</th>
+                    <th class="text-left px-5 py-3 font-medium text-(--color-text-muted)">Vencimento</th>
+                    <th class="text-left px-5 py-3 font-medium text-(--color-text-muted)">Valor</th>
+                    <th class="text-left px-5 py-3 font-medium text-(--color-text-muted)">Status</th>
+                    <th class="text-right px-5 py-3 font-medium text-(--color-text-muted)">Ações</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-(--color-border)">
+                  <% @installments.each do |installment| %>
+                    <%
+                      i_label = {
+                        "pending"   => "Pendente",
+                        "paid"      => "Paga",
+                        "overdue"   => "Atrasada",
+                        "cancelled" => "Cancelada"
+                      }[installment.status] || installment.status&.humanize
+
+                      i_color = case installment.status
+                      when "paid"     then "bg-(--color-success-light) text-(--color-success)"
+                      when "overdue"  then "bg-(--color-danger-light) text-(--color-danger)"
+                      when "cancelled" then "bg-(--color-surface-raised) text-(--color-text-muted)"
+                      else "bg-(--color-warning-light) text-(--color-warning)"
+                      end
+                    %>
+                    <tr>
+                    <td class="px-5 py-3.5 text-(--color-text)"><%= I18n.l(installment.due_date, format: "%B de %Y") %></td>
+                      <td class="px-5 py-3.5 text-(--color-text)">
+                        <%= installment.due_date.strftime("%d/%m") %>
+                      </td>
+                      <td class="px-5 py-3.5 font-medium text-(--color-text)">
+                        <%= number_to_currency(installment.amount, unit: "R$\u00a0", separator: ",", delimiter: ".", precision: 2) %>
+                      </td>
+                      <td class="px-5 py-3.5">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium <%= i_color %>">
+                          <%= i_label %>
+                        </span>
+                      </td>
+                      <td class="px-5 py-3.5">
+                        <div class="flex items-center justify-end gap-3">
+                          <% if installment.proof_image.attached? %>
+                            <%= link_to url_for(installment.proof_image), target: "_blank",
+                                  class: "inline-flex items-center gap-1 text-xs text-(--color-brand) hover:text-(--color-brand-dark) transition-colors",
+                                  title: "Ver comprovante" do %>
+                              <i class="ph ph-image text-base"></i>
+                            <% end %>
+                          <% end %>
+                          <%= link_to edit_installment_path(installment),
+                                data: { turbo_frame: "modal" },
+                                class: "inline-flex items-center gap-1 text-xs text-(--color-text-muted) hover:text-(--color-brand) transition-colors",
+                                title: "Editar detalhes" do %>
+                            <i class="ph ph-pencil-simple text-base"></i>
+                          <% end %>
+                        </div>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <%# Notificações card %>
+      <% if @campaign_client %>
+        <div class="bg-(--color-surface) rounded-xl border border-(--color-border) overflow-hidden">
+          <div class="px-5 py-4 border-b border-(--color-border) flex items-center gap-2">
+            <h3 class="font-semibold text-(--color-text)">Notificações</h3>
+            <span class="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-(--color-surface-raised) text-(--color-text-muted) text-xs font-medium">
+              <%= @notif_total %>
+            </span>
+          </div>
+
+          <% if @notifications.empty? %>
+            <div class="py-10 text-center">
+              <i class="ph ph-bell-slash text-(--color-text-subtle) text-3xl block mb-2"></i>
+              <p class="text-sm text-(--color-text-muted)">Nenhuma notificação enviada ainda.</p>
+            </div>
+          <% else %>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead class="border-b border-(--color-border) bg-(--color-surface-muted)">
+                  <tr>
+                    <th class="text-left px-5 py-3 font-medium text-(--color-text-muted)">Data/hora</th>
+                    <th class="text-left px-5 py-3 font-medium text-(--color-text-muted)">Tipo</th>
+                    <th class="text-left px-5 py-3 font-medium text-(--color-text-muted)">Status</th>
+                    <th class="text-left px-5 py-3 font-medium text-(--color-text-muted)">Parcela</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-(--color-border)">
+                  <% @notifications.each do |notif| %>
+                    <%
+                      n_type_label = { "message" => "WhatsApp", "email" => "E-mail", "call" => "Ligação" }[notif.event_type] || notif.event_type&.humanize
+                      n_type_icon  = { "message" => "ph-whatsapp-logo", "email" => "ph-envelope", "call" => "ph-phone" }[notif.event_type] || "ph-bell"
+
+                      n_status_label = {
+                        "pending"   => "Pendente",
+                        "sending"   => "Enviando",
+                        "sent"      => "Enviado",
+                        "delivered" => "Entregue",
+                        "read"      => "Lido",
+                        "failed"    => "Falhou"
+                      }[notif.notification_status] || notif.notification_status&.humanize
+
+                      n_status_color = case notif.notification_status
+                      when "read"      then "bg-(--color-success-light) text-(--color-success)"
+                      when "delivered" then "bg-(--color-info-light) text-(--color-info)"
+                      when "sent"      then "bg-(--color-brand-light) text-(--color-brand)"
+                      when "sending"   then "bg-(--color-warning-light) text-(--color-warning)"
+                      when "failed"    then "bg-(--color-danger-light) text-(--color-danger)"
+                      else "bg-(--color-surface-raised) text-(--color-text-muted)"
+                      end
+                    %>
+                    <tr>
+                      <td class="px-5 py-3.5 text-(--color-text-muted) whitespace-nowrap">
+                        <% if notif.sent_at %>
+                          <%= notif.sent_at.strftime("%d/%m %H:%M") %>
+                        <% elsif notif.scheduled_at && notif.scheduled_at > Time.current %>
+                          Agendada para <%= notif.scheduled_at.strftime("%d/%m %H:%M") %>
+                        <% else %>
+                          —
+                        <% end %>
+                      </td>
+                      <td class="px-5 py-3.5">
+                        <span class="inline-flex items-center gap-1.5 text-(--color-text)">
+                          <i class="ph <%= n_type_icon %> text-base text-(--color-text-muted)"></i>
+                          <%= n_type_label %>
+                        </span>
+                      </td>
+                      <td class="px-5 py-3.5">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium <%= n_status_color %>">
+                          <%= n_status_label %>
+                        </span>
+                      </td>
+                      <td class="px-5 py-3.5 text-(--color-text-muted)">
+                        <% if notif.installment %>
+                          <%= I18n.l(notif.installment.due_date, format: "%B de %Y") %>
+                        <% else %>
+                          <span class="text-(--color-text-subtle)">—</span>
+                        <% end %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+
+            <%# Pagination %>
+            <% if @notif_total_pages > 1 %>
+              <div class="px-5 py-4 border-t border-(--color-border) flex items-center justify-between gap-4 text-sm">
+                <span class="text-(--color-text-muted)">
+                  Página <%= @notif_page %> de <%= @notif_total_pages %>
+                </span>
+                <div class="flex items-center gap-2">
+                  <% if @notif_page > 1 %>
+                    <%= link_to client_path(@client, notif_page: @notif_page - 1),
+                          class: "inline-flex items-center gap-1 px-3 py-1.5 border border-(--color-border) rounded-lg text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-surface-raised) transition-colors" do %>
+                      <i class="ph ph-caret-left text-xs"></i>
+                      Anterior
+                    <% end %>
+                  <% end %>
+                  <% if @notif_page < @notif_total_pages %>
+                    <%= link_to client_path(@client, notif_page: @notif_page + 1),
+                          class: "inline-flex items-center gap-1 px-3 py-1.5 border border-(--color-border) rounded-lg text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-surface-raised) transition-colors" do %>
+                      Próxima
+                      <i class="ph ph-caret-right text-xs"></i>
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <%# ── RIGHT: Contact info ── %>
+    <div class="space-y-4">
+
+      <%# Contact card %>
+      <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-5">
+        <h4 class="font-semibold text-(--color-text) mb-4">Contato</h4>
+        <dl class="space-y-3 text-sm">
+          <div class="flex items-start gap-3">
+            <i class="ph ph-phone text-(--color-text-muted) text-base mt-0.5 flex-shrink-0"></i>
+            <div>
+              <dt class="text-xs text-(--color-text-subtle)">Telefone</dt>
+              <dd class="font-medium text-(--color-text) mt-0.5"><%= @client.formatted_number %></dd>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <i class="ph ph-envelope text-(--color-text-muted) text-base mt-0.5 flex-shrink-0"></i>
+            <div>
+              <dt class="text-xs text-(--color-text-subtle)">E-mail</dt>
+              <dd class="font-medium text-(--color-text) mt-0.5"><%= @client.email.presence || "—" %></dd>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <i class="ph ph-calendar text-(--color-text-muted) text-base mt-0.5 flex-shrink-0"></i>
+            <div>
+              <dt class="text-xs text-(--color-text-subtle)">Cliente desde</dt>
+              <dd class="font-medium text-(--color-text) mt-0.5">
+                <%= @client.created_at.strftime("%d/%m/%Y") %>
+              </dd>
+            </div>
+          </div>
+        </dl>
+      </div>
+
+    </div>
+  </div>
+</div>

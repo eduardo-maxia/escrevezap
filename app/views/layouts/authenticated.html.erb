@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Cobrança em Dia" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="icon" href="/logo.jpeg" type="image/jpeg">
+    <link rel="apple-touch-icon" href="/logo.jpeg">
+
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
+  </head>
+
+  <body class="h-screen flex overflow-hidden bg-(--color-surface-muted) antialiased max-w-7xl">
+
+    <%# ── Sidebar ───────────────────────────────────────────────── %>
+    <aside class="w-60 flex flex-col flex-shrink-0 bg-(--color-sidebar-bg) border-r border-(--color-sidebar-border)">
+
+      <%# Logo %>
+      <div class="w-full flex flex-row gap-2 border-b border-(--color-sidebar-border)">
+        <div class="h-16 flex items-center ps-5 flex-shrink-0">
+          <div class="flex items-center gap-2.5">
+            <%= image_tag "/logo.jpeg", alt: "Cobrança em Dia", class: "h-8 w-auto" %>
+          </div>
+        </div>
+        <div class="flex items-center gap-2.5 flex-shrink-0">
+          <span class="text-sm font-medium text-(--color-sidebar-text)">Cobrança em Dia</span>
+        </div>
+      </div>
+
+      <%# Navigation %>
+      <nav class="flex-1 py-4 px-3 space-y-0.5 overflow-y-auto">
+        <% has_campanhas = current_user.company&.feature_campanhas? %>
+
+        <%= render "layouts/nav_item", icon: "squares-four",  label: "Dashboard", path: authenticated_root_path %>
+        <% if has_campanhas %>
+          <%= render "layouts/nav_item", icon: "megaphone",     label: "Campanhas", path: campaigns_path %>
+        <% end %>
+        <%= render "layouts/nav_item", icon: "users-three",   label: "Clientes",  path: clients_path %>
+        <% if has_campanhas %>
+          <%= render "layouts/nav_item", icon: "device-mobile", label: "Chips",     path: chips_path %>
+        <% end %>
+        <%= render "layouts/nav_item", icon: "users",         label: "Usuários",  path: users_path %>
+
+        <div class="pt-3 mt-3 border-t border-(--color-sidebar-border)">
+          <%= render "layouts/nav_item", icon: "gear", label: "Configurações", path: settings_empresa_path %>
+          <% if request.path.start_with?("/settings") %>
+            <div class="mt-0.5 space-y-0.5">
+              <%= render "layouts/nav_subitem", label: "Empresa",   path: settings_empresa_path %>
+              <%= render "layouts/nav_subitem", label: "Perfil",    path: settings_perfil_path %>
+              <%= render "layouts/nav_subitem", label: "Segurança", path: settings_senha_path %>
+              <% unless has_campanhas %>
+                <%= render "layouts/nav_subitem", label: "Cobrança", path: settings_cobranca_path %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </nav>
+
+      <%# User info + logout %>
+      <div class="p-3 border-t border-(--color-sidebar-border) flex-shrink-0">
+        <div class="flex items-center gap-3 px-3 py-2 mb-1">
+          <div class="w-8 h-8 rounded-full bg-(--color-sidebar-item-hover) flex items-center justify-center flex-shrink-0">
+            <i class="ph ph-user text-(--color-sidebar-text) text-sm"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-(--color-sidebar-text-hover) truncate"><%= current_user.email %></p>
+            <% if current_user.company %>
+              <p class="text-xs text-(--color-sidebar-text) truncate"><%= current_user.company.name %></p>
+            <% else %>
+              <p class="text-xs text-(--color-sidebar-text) truncate"><%= current_user.role&.capitalize || "Usuário" %></p>
+            <% end %>
+          </div>
+        </div>
+        <%= button_to destroy_user_session_path, method: :delete,
+              class: "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-(--color-sidebar-text) hover:text-(--color-sidebar-text-hover) hover:bg-(--color-sidebar-item-hover) text-sm font-medium transition-colors cursor-pointer" do %>
+          <i class="ph ph-sign-out text-lg"></i>
+          <span>Sair</span>
+        <% end %>
+      </div>
+
+    </aside>
+
+    <%# ── Main content ────────────────────────────────────────────── %>
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+      <%# Flash messages %>
+      <% if notice %>
+        <div class="mx-6 mt-4 flex items-center gap-3 bg-(--color-success-light) text-(--color-success) border border-(--color-success) rounded-lg px-4 py-3 text-sm font-medium" data-turbo-temporary>
+          <i class="ph ph-check-circle text-lg flex-shrink-0"></i>
+          <span><%= notice %></span>
+        </div>
+      <% end %>
+      <% if alert %>
+        <div class="mx-6 mt-4 flex items-center gap-3 bg-(--color-danger-light) text-(--color-danger) border border-(--color-danger) rounded-lg px-4 py-3 text-sm font-medium" data-turbo-temporary>
+          <i class="ph ph-warning-circle text-lg flex-shrink-0"></i>
+          <span><%= alert %></span>
+        </div>
+      <% end %>
+
+      <%# Page content %>
+      <main class="flex-1 overflow-y-auto">
+        <%= yield %>
+      </main>
+
+    </div>
+
+    <%# ── Modal Turbo Frame (shared across all pages) ── %>
+    <turbo-frame id="modal"></turbo-frame>
+
+    <%# ── Toast container (Turbo Stream notifications) ── %>
+    <div id="flash-toast" class="fixed top-5 right-5 z-[200]"></div>
+
+  </body>
+</html>

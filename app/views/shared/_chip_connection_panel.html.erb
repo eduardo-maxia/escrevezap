@@ -1,0 +1,214 @@
+<%
+  redirect_url      = local_assigns[:redirect_url]      || chip_path(chip)
+  after_disconnect  = local_assigns[:after_disconnect]  || chip_path(chip)
+  show_swap_button  = local_assigns[:show_swap_button]  || false
+%>
+
+<% if chip.working? %>
+
+  <%# ── Connected state ──────────────────────────────────────────── %>
+  <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-6 space-y-5">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <h3 class="font-semibold text-(--color-text) mb-2">WhatsApp Conectado</h3>
+        <div class="flex items-center gap-2">
+          <i class="ph ph-device-mobile text-(--color-text-muted) text-lg"></i>
+          <span class="text-2xl font-bold text-(--color-text)">
+            <%= chip.formatted_number || "Número não identificado" %>
+          </span>
+        </div>
+      </div>
+      <div class="w-14 h-14 rounded-full bg-(--color-success-light) flex items-center justify-center flex-shrink-0">
+        <i class="ph ph-whatsapp-logo text-(--color-success) text-3xl"></i>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 text-sm text-(--color-success) bg-(--color-success-light) rounded-lg px-4 py-3">
+      <i class="ph ph-check-circle flex-shrink-0 text-base"></i>
+      <span>Sessão ativa e funcionando normalmente.</span>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <%= button_to after_disconnect, method: :post,
+            class: "inline-flex items-center gap-2 px-4 py-2 border border-(--color-border) text-sm font-medium text-(--color-text-muted) rounded-lg hover:border-(--color-danger) hover:text-(--color-danger) hover:bg-(--color-danger-light) transition-colors cursor-pointer",
+            params: { source: local_assigns[:source] },
+            data: { turbo_confirm: "Tem certeza que deseja desconectar? As cobranças serão interrompidas." } do %>
+        <i class="ph ph-plug text-sm"></i>
+        Desconectar
+      <% end %>
+
+      <% if show_swap_button %>
+        <%= button_to after_disconnect, method: :post,
+              class: "inline-flex items-center gap-2 px-4 py-2 border border-(--color-border) text-sm font-medium text-(--color-text-muted) rounded-lg hover:border-(--color-brand) hover:text-(--color-brand) hover:bg-(--color-brand-light) transition-colors cursor-pointer",
+              params: { source: local_assigns[:source] },
+              data: { turbo_confirm: "Isso vai desconectar o número atual. Você poderá conectar um novo número em seguida. Continuar?" } do %>
+          <i class="ph ph-arrows-clockwise text-sm"></i>
+          Trocar
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+<% else %>
+
+  <%# ── Connect panel ─────────────────────────────────────────────── %>
+  <div class="bg-(--color-surface) rounded-xl border border-(--color-border) overflow-hidden"
+       data-controller="chip-auth"
+       data-chip-auth-start-url-value="<%= start_session_chip_path(chip) %>"
+       data-chip-auth-request-code-url-value="<%= request_pairing_code_chip_path(chip) %>"
+       data-chip-auth-qr-url-value="<%= qr_code_chip_path(chip) %>"
+       data-chip-auth-step4-url-value="<%= redirect_url %>">
+
+    <%# Card header %>
+    <div class="px-6 py-4 flex items-center gap-3 border-b border-(--color-border) bg-(--color-brand-subtle)">
+      <div class="w-9 h-9 rounded-xl bg-(--color-brand) flex items-center justify-center flex-shrink-0">
+        <i class="ph ph-whatsapp-logo text-(--color-text-inverse) text-base"></i>
+      </div>
+      <div>
+        <h3 class="text-base font-bold text-(--color-text) leading-tight">Conectar WhatsApp</h3>
+        <p class="text-(--color-text-muted) text-xs">Escaneie o QR code ou use o código de pareamento.</p>
+      </div>
+    </div>
+
+    <div class="p-6">
+
+      <%# Status badge %>
+      <div class="flex items-center justify-center gap-2 mb-6" data-chip-auth-target="statusBadge">
+        <div class="w-2 h-2 rounded-full bg-(--color-warning) animate-pulse"></div>
+        <span class="text-sm text-(--color-text-muted)" data-chip-auth-target="statusText">Iniciando sessão...</span>
+      </div>
+
+      <%# Tab toggle %>
+      <div class="flex gap-1 bg-(--color-surface-raised) p-1 rounded-lg mb-6">
+        <button type="button"
+                data-action="click->chip-auth#switchToQr"
+                data-chip-auth-target="qrTab"
+                class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-md text-sm font-medium transition-all duration-200 cursor-pointer bg-(--color-brand) text-(--color-text-inverse)">
+          <i class="ph ph-qr-code text-base"></i>
+          QR Code
+        </button>
+        <button type="button"
+                data-action="click->chip-auth#switchToCode"
+                data-chip-auth-target="codeTab"
+                class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-md text-sm font-medium transition-all duration-200 cursor-pointer text-(--color-text-muted) hover:text-(--color-text)">
+          <i class="ph ph-device-mobile text-base"></i>
+          Código Direto
+        </button>
+      </div>
+
+      <%# QR panel %>
+      <div data-chip-auth-target="qrPanel">
+        <div class="flex flex-col items-center gap-4">
+          <div class="w-52 h-52 rounded-xl border-2 border-(--color-border) flex items-center justify-center bg-(--color-surface-raised) relative overflow-hidden">
+            <div data-chip-auth-target="qrSpinner" class="flex flex-col items-center gap-3">
+              <div class="w-8 h-8 border-2 border-(--color-brand) border-t-transparent rounded-full animate-spin"></div>
+              <p class="text-xs text-(--color-text-muted)">Preparando QR...</p>
+            </div>
+            <img data-chip-auth-target="qrImage"
+                 class="hidden absolute inset-0 w-full h-full object-contain p-2"
+                 alt="QR Code WhatsApp" />
+          </div>
+          <div class="flex items-start gap-2 text-sm text-(--color-text-muted) text-center max-w-xs">
+            <i class="ph ph-info text-base flex-shrink-0 mt-0.5"></i>
+            <p>Abra o WhatsApp → Configurações → Aparelhos Conectados → Conectar novo aparelho</p>
+          </div>
+          <div data-chip-auth-target="qrHint"
+               class="flex items-center gap-2 text-xs bg-(--color-warning-light) text-(--color-warning) px-3 py-2 rounded-lg">
+            <div class="w-2 h-2 rounded-full bg-(--color-warning) animate-pulse"></div>
+            <span>Aguardando leitura do QR code...</span>
+          </div>
+        </div>
+      </div>
+
+      <%# Pairing code panel %>
+      <div data-chip-auth-target="codePanel" class="hidden">
+        <div class="space-y-4">
+          <div class="flex items-start gap-3 text-sm text-(--color-text-muted) bg-(--color-surface-raised) rounded-lg p-4">
+            <i class="ph ph-list-numbers text-lg flex-shrink-0 text-(--color-brand) mt-0.5"></i>
+            <ol class="list-none space-y-2">
+              <li class="flex items-start gap-2">
+                <span class="font-bold text-(--color-brand) flex-shrink-0">1.</span>
+                Abra o WhatsApp e vá em <strong>Configurações</strong>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="font-bold text-(--color-brand) flex-shrink-0">2.</span>
+                Toque em <strong>Aparelhos Conectados</strong>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="font-bold text-(--color-brand) flex-shrink-0">3.</span>
+                Toque em <strong>Vincular com número de telefone</strong>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="font-bold text-(--color-brand) flex-shrink-0">4.</span>
+                Digite o código exibido abaixo
+              </li>
+            </ol>
+          </div>
+
+          <div data-chip-auth-target="phoneForm">
+            <label class="block text-sm font-medium text-(--color-text) mb-2">Seu número do WhatsApp</label>
+            <div class="flex gap-2">
+              <input type="tel"
+                     data-chip-auth-target="phoneInput"
+                     placeholder="+55 (11) 99999-9999"
+                     class="flex-1 border border-(--color-border) rounded-lg px-3 py-2.5 text-sm bg-(--color-surface) text-(--color-text) focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-(--color-brand)" />
+              <button type="button"
+                      data-action="click->chip-auth#requestCode"
+                      data-chip-auth-target="requestCodeBtn"
+                      class="px-4 py-2.5 bg-(--color-brand) hover:bg-(--color-brand-dark) text-(--color-text-inverse) text-sm font-medium rounded-lg transition-colors cursor-pointer whitespace-nowrap disabled:opacity-50">
+                Gerar código
+              </button>
+            </div>
+            <p data-chip-auth-target="codeError" class="hidden text-xs text-(--color-danger) mt-1.5"></p>
+            <p class="text-xs text-(--color-text-subtle) mt-1.5">
+              Formato internacional: <span class="font-medium">5511999999999</span>
+            </p>
+          </div>
+
+          <div data-chip-auth-target="codeDisplay" class="hidden text-center">
+            <p class="text-xs text-(--color-text-subtle) mb-3">Digite este código no WhatsApp</p>
+            <div class="inline-flex gap-2 mb-3" data-chip-auth-target="codeBoxes"></div>
+            <p class="text-xs text-(--color-text-subtle)">
+              Expira em <span data-chip-auth-target="countdown" class="font-medium text-(--color-warning)">5:00</span>
+            </p>
+            <button type="button"
+                    data-action="click->chip-auth#resetCode"
+                    class="mt-3 text-xs text-(--color-text-muted) hover:text-(--color-text) underline cursor-pointer block mx-auto">
+              Usar outro número
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <%# Success state %>
+      <div data-chip-auth-target="successPanel" class="hidden text-center py-4">
+        <div class="w-16 h-16 rounded-full bg-(--color-success-light) flex items-center justify-center mx-auto mb-4">
+          <i class="ph ph-check-circle text-(--color-success) text-4xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold text-(--color-text) mb-1">WhatsApp conectado!</h3>
+        <p class="text-sm text-(--color-text-muted)">Redirecionando...</p>
+      </div>
+
+      <%# Error state %>
+      <div data-chip-auth-target="errorPanel" class="hidden text-center py-4">
+        <div class="w-16 h-16 rounded-full bg-(--color-danger-light) flex items-center justify-center mx-auto mb-4">
+          <i class="ph ph-warning-circle text-(--color-danger) text-4xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold text-(--color-text) mb-1">Falha na conexão</h3>
+        <p class="text-sm text-(--color-text-muted) mb-4" data-chip-auth-target="errorMessage">
+          Não foi possível estabelecer conexão com o WhatsApp.
+        </p>
+        <button type="button"
+                data-action="click->chip-auth#retrySession"
+                class="px-5 py-2.5 bg-(--color-brand) hover:bg-(--color-brand-dark) text-(--color-text-inverse) text-sm font-medium rounded-lg transition-colors cursor-pointer">
+          <i class="ph ph-arrow-clockwise mr-1"></i>
+          Tentar novamente
+        </button>
+      </div>
+
+      <span data-chip-auth-target="skipLink" class="hidden"></span>
+
+    </div>
+  </div>
+
+<% end %>

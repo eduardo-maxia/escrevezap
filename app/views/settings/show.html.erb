@@ -1,0 +1,138 @@
+<% content_for :page_title, "Configurações" %>
+
+<%
+  input_cls = "w-full px-3 py-2.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors"
+  label_cls = "block text-sm font-medium text-(--color-text) mb-1.5"
+  card_cls  = "bg-(--color-surface) rounded-xl border border-(--color-border) p-6 space-y-5"
+  section_title_cls = "text-base font-semibold text-(--color-text)"
+  section_desc_cls  = "text-sm text-(--color-text-muted) mt-0.5"
+%>
+
+<div class="p-6 max-w-2xl space-y-8">
+
+  <div>
+    <h2 class="text-2xl font-bold text-(--color-text)">Configurações</h2>
+    <p class="text-sm text-(--color-text-muted) mt-1">Gerencie os dados da sua empresa e do seu perfil.</p>
+  </div>
+
+  <%# ── Flash ───────────────────────────────────────────────────────── %>
+  <% if notice.present? %>
+    <div class="flex items-center gap-3 px-4 py-3 bg-(--color-success-light) border border-(--color-success) rounded-lg text-sm text-(--color-text)">
+      <i class="ph ph-check-circle text-(--color-success)"></i>
+      <%= notice %>
+    </div>
+  <% end %>
+
+  <%# ─────────────────────────────────────────────────────────────────
+      1. Empresa
+  ───────────────────────────────────────────────────────────────────── %>
+  <div class="<%= card_cls %>">
+    <div>
+      <p class="<%= section_title_cls %>">Empresa</p>
+      <p class="<%= section_desc_cls %>">Nome da empresa exibido na plataforma.</p>
+    </div>
+
+    <% if @company_errors&.any? %>
+      <div class="flex items-start gap-3 px-4 py-3 bg-(--color-danger-light) border border-(--color-danger) rounded-lg text-sm text-(--color-danger)">
+        <i class="ph ph-warning-circle flex-shrink-0 mt-0.5"></i>
+        <span><%= @company_errors.to_sentence %></span>
+      </div>
+    <% end %>
+
+    <%= form_with model: @company, url: settings_company_path, method: :patch, class: "space-y-4" do |f| %>
+      <div>
+        <%= f.label :name, "Nome da empresa", class: label_cls %>
+        <%= f.text_field :name,
+              class: input_cls,
+              placeholder: "Minha Empresa Ltda.",
+              required: true %>
+      </div>
+      <div class="flex justify-end">
+        <%= f.submit "Salvar empresa",
+              class: "px-5 py-2.5 bg-(--color-brand) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+
+  <%# ─────────────────────────────────────────────────────────────────
+      2. Perfil
+  ───────────────────────────────────────────────────────────────────── %>
+  <div class="<%= card_cls %>">
+    <div>
+      <p class="<%= section_title_cls %>">Perfil</p>
+      <p class="<%= section_desc_cls %>">Seu nome e e-mail de acesso.</p>
+    </div>
+
+    <% if @profile_errors&.any? %>
+      <div class="flex items-start gap-3 px-4 py-3 bg-(--color-danger-light) border border-(--color-danger) rounded-lg text-sm text-(--color-danger)">
+        <i class="ph ph-warning-circle flex-shrink-0 mt-0.5"></i>
+        <span><%= @profile_errors.to_sentence %></span>
+      </div>
+    <% end %>
+
+    <%= form_with model: current_user, url: settings_profile_path, method: :patch, class: "space-y-4" do |f| %>
+      <div>
+        <%= f.label :name, "Nome", class: label_cls %>
+        <%= f.text_field :name,
+              class: input_cls,
+              placeholder: "Seu nome" %>
+      </div>
+      <div>
+        <%= f.label :email, "E-mail", class: label_cls %>
+        <%= f.email_field :email,
+              class: input_cls,
+              required: true %>
+      </div>
+      <div class="flex justify-end">
+        <%= f.submit "Salvar perfil",
+              class: "px-5 py-2.5 bg-(--color-brand) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+
+  <%# ─────────────────────────────────────────────────────────────────
+      3. Segurança — trocar senha
+  ───────────────────────────────────────────────────────────────────── %>
+  <div class="<%= card_cls %>">
+    <div>
+      <p class="<%= section_title_cls %>">Segurança</p>
+      <p class="<%= section_desc_cls %>">Altere sua senha de acesso.</p>
+    </div>
+
+    <% if @password_errors&.any? %>
+      <div class="flex items-start gap-3 px-4 py-3 bg-(--color-danger-light) border border-(--color-danger) rounded-lg text-sm text-(--color-danger)">
+        <i class="ph ph-warning-circle flex-shrink-0 mt-0.5"></i>
+        <span><%= @password_errors.to_sentence %></span>
+      </div>
+    <% end %>
+
+    <%= form_with model: current_user, url: settings_password_path, method: :patch, class: "space-y-4" do |f| %>
+      <div>
+        <%= f.label :current_password, "Senha atual", class: label_cls %>
+        <%= f.password_field :current_password,
+              class: input_cls,
+              autocomplete: "current-password",
+              required: true %>
+      </div>
+      <div>
+        <%= f.label :password, "Nova senha", class: label_cls %>
+        <%= f.password_field :password,
+              class: input_cls,
+              autocomplete: "new-password",
+              required: true %>
+      </div>
+      <div>
+        <%= f.label :password_confirmation, "Confirmar nova senha", class: label_cls %>
+        <%= f.password_field :password_confirmation,
+              class: input_cls,
+              autocomplete: "new-password",
+              required: true %>
+      </div>
+      <div class="flex justify-end">
+        <%= f.submit "Alterar senha",
+              class: "px-5 py-2.5 bg-(--color-brand) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+
+</div>

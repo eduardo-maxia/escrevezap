@@ -1,0 +1,55 @@
+<% content_for :page_title, "Convidar usuário" %>
+
+<div class="p-6 max-w-lg">
+
+  <nav class="flex items-center gap-1.5 text-xs text-(--color-text-muted) mb-4">
+    <%= link_to "Usuários", users_path, class: "hover:text-(--color-text) transition-colors" %>
+    <i class="ph ph-caret-right text-xs"></i>
+    <span class="text-(--color-text)">Convidar usuário</span>
+  </nav>
+
+  <h2 class="text-2xl font-bold text-(--color-text) mb-1">Convidar colaborador</h2>
+  <p class="text-sm text-(--color-text-muted) mb-6">
+    Uma senha temporária será gerada e exibida ao salvar. Compartilhe-a com o novo usuário para que ele acesse e altere nas configurações.
+  </p>
+
+  <%= form_with model: @user, url: users_path,
+        class: "bg-(--color-surface) rounded-xl border border-(--color-border) p-6 space-y-5" do |f| %>
+
+    <% if @user.errors.any? %>
+      <div class="flex items-start gap-3 px-4 py-3 bg-(--color-danger-light) border border-(--color-danger) rounded-lg text-sm text-(--color-danger)">
+        <i class="ph ph-warning-circle flex-shrink-0 mt-0.5"></i>
+        <span><%= @user.errors.full_messages.to_sentence %></span>
+      </div>
+    <% end %>
+
+    <div>
+      <%= f.label :name, class: "block text-sm font-medium text-(--color-text) mb-1.5" do %>
+        Nome
+      <% end %>
+      <%= f.text_field :name,
+            placeholder: "Nome completo",
+            class: "w-full px-3 py-2.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors",
+            autofocus: true %>
+    </div>
+
+    <div>
+      <%= f.label :email, class: "block text-sm font-medium text-(--color-text) mb-1.5" do %>
+        E-mail <span class="text-(--color-danger)">*</span>
+      <% end %>
+      <%= f.email_field :email,
+            placeholder: "colaborador@empresa.com",
+            class: "w-full px-3 py-2.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors",
+            required: true %>
+    </div>
+
+    <div class="flex items-center justify-between gap-3 pt-1">
+      <%= link_to "Cancelar", users_path,
+            class: "px-4 py-2.5 border border-(--color-border) text-sm font-medium text-(--color-text-muted) rounded-lg hover:text-(--color-text) transition-colors" %>
+      <%= f.submit "Criar usuário",
+            class: "px-5 py-2.5 bg-(--color-brand) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors cursor-pointer" %>
+    </div>
+
+  <% end %>
+
+</div>

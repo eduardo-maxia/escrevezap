@@ -1,0 +1,18 @@
+<%
+  type    = local_assigns.fetch(:type, :success)
+  icon    = type == :success ? "ph-check-circle" : "ph-warning-circle"
+  colors  = type == :success \
+    ? "bg-(--color-success-light) text-(--color-success) border-(--color-success)" \
+    : "bg-(--color-danger-light) text-(--color-danger) border-(--color-danger)"
+%>
+<div data-controller="toast"
+     data-toast-duration-value="4000"
+     style="opacity:0; transform:translateY(-8px); transition: opacity 0.25s ease, transform 0.25s ease;"
+     class="flex items-center gap-3 px-4 py-3.5 rounded-xl shadow-lg border text-sm font-medium min-w-[16rem] max-w-sm <%= colors %>">
+  <i class="ph <%= icon %> text-lg flex-shrink-0"></i>
+  <span class="flex-1"><%= message %></span>
+  <button data-action="click->toast#dismiss"
+          class="ml-1 p-0.5 rounded-md opacity-50 hover:opacity-100 cursor-pointer flex-shrink-0 transition-opacity">
+    <i class="ph ph-x text-xs"></i>
+  </button>
+</div>

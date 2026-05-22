@@ -1,0 +1,147 @@
+<% content_for :page_title, "Chips WhatsApp" %>
+
+<%
+  critical_chips = @chips.select do |c|
+    !c.working? && c.campaigns.any? { |ca| ca.status == "active" }
+  end
+%>
+
+<div class="p-6 space-y-5">
+
+  <%# ── Header ──────────────────────────────────────────────────────── %>
+  <div class="flex items-start justify-between gap-4">
+    <div>
+      <h2 class="text-2xl font-bold text-(--color-text)">Chips WhatsApp</h2>
+      <p class="text-sm text-(--color-text-muted) mt-1">Gerencie os números conectados às suas campanhas.</p>
+    </div>
+    <%= link_to new_chip_path,
+          class: "inline-flex items-center gap-2 px-4 py-2 bg-(--color-brand) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors" do %>
+      <i class="ph ph-plus text-sm"></i>
+      Novo chip
+    <% end %>
+  </div>
+
+  <%# ── Critical alert ──────────────────────────────────────────────── %>
+  <% if critical_chips.any? %>
+    <div class="flex items-start gap-4 bg-(--color-danger-light) border-2 border-(--color-danger) rounded-xl p-5">
+      <i class="ph ph-warning-octagon text-(--color-danger) text-2xl flex-shrink-0 mt-0.5"></i>
+      <div class="flex-1 min-w-0">
+        <p class="font-bold text-(--color-danger) text-base">Envio de cobranças comprometido</p>
+        <p class="text-sm text-(--color-text) mt-1">
+          Os chips abaixo estão <strong>desconectados</strong> mas possuem campanhas ativas.
+          As mensagens <strong>não serão enviadas</strong> enquanto o WhatsApp não for reconectado.
+        </p>
+        <ul class="mt-3 space-y-1.5">
+          <% critical_chips.each do |chip| %>
+            <li class="flex items-center gap-2 text-sm">
+              <i class="ph ph-sim-card text-(--color-danger) flex-shrink-0"></i>
+              <%= link_to chip.name, chip_path(chip),
+                    class: "font-semibold text-(--color-danger) underline hover:opacity-80 transition-opacity" %>
+              <span class="text-(--color-text-muted)">
+                — <%= chip.campaigns.count { |c| c.status == "active" } %> campanha(s) ativa(s)
+              </span>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+
+  <%# ── Chips grid ──────────────────────────────────────────────────── %>
+  <% if @chips.any? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <% @chips.each do |chip| %>
+        <%
+          is_critical   = !chip.working? && chip.campaigns.any? { |c| c.status == "active" }
+          active_count  = chip.campaigns.count { |c| c.status == "active" }
+          total_count   = chip.campaigns.size
+
+          status_label, status_color, status_bg, status_icon, status_pulse =
+            case chip.waha_status
+            when "working"      then ["Conectado",       "--color-success",     "--color-success-light",  "ph-check-circle",   false]
+            when "starting"     then ["Iniciando...",    "--color-warning",     "--color-warning-light",  "ph-circle-dashed",  true]
+            when "scan_qr_code" then ["Aguardando QR",  "--color-warning",     "--color-warning-light",  "ph-qr-code",        true]
+            when "failed"       then ["Falha",           "--color-danger",      "--color-danger-light",   "ph-warning-circle", false]
+            when "stopped"      then ["Parado",          "--color-text-muted",  "--color-surface-raised", "ph-pause-circle",   false]
+            else                     ["Não configurado", "--color-text-muted",  "--color-surface-raised", "ph-plug",           false]
+            end
+        %>
+        <div class="bg-(--color-surface) rounded-xl <%= is_critical ? "border-2 border-(--color-danger)" : "border border-(--color-border)" %> p-5 flex flex-col gap-4 hover:shadow-sm transition-shadow">
+
+          <%# Name + status %>
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <p class="font-semibold text-(--color-text) truncate"><%= chip.name %></p>
+              <% if chip.formatted_number %>
+                <p class="text-xs text-(--color-text-muted) mt-0.5"><%= chip.formatted_number %></p>
+              <% else %>
+                <p class="text-xs text-(--color-text-subtle) mt-0.5">Número não vinculado</p>
+              <% end %>
+            </div>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-(<%= status_bg %>) text-(<%= status_color %>) flex-shrink-0 <%= status_pulse ? "animate-pulse" : "" %>">
+              <i class="ph <%= status_icon %>"></i>
+              <%= status_label %>
+            </span>
+          </div>
+
+          <%# Campaigns count %>
+          <div class="flex items-center gap-4 text-sm">
+            <span class="flex items-center gap-1.5 text-(--color-text-muted)">
+              <i class="ph ph-megaphone text-base"></i>
+              <span><%= total_count %> campanha<%= total_count == 1 ? "" : "s" %></span>
+            </span>
+            <% if active_count > 0 %>
+              <span class="flex items-center gap-1.5 text-(--color-success)">
+                <i class="ph ph-radio-button text-base"></i>
+                <span><%= active_count %> ativa<%= active_count == 1 ? "" : "s" %></span>
+              </span>
+            <% end %>
+          </div>
+
+          <%# Critical inline warning %>
+          <% if is_critical %>
+            <div class="flex items-center gap-2 px-3 py-2 bg-(--color-danger-light) border border-(--color-danger) rounded-lg text-xs font-medium text-(--color-danger)">
+              <i class="ph ph-warning-octagon flex-shrink-0"></i>
+              Cobranças paradas — reconecte agora
+            </div>
+          <% end %>
+
+          <%# Actions %>
+          <div class="flex items-center gap-2 mt-auto pt-1">
+            <%= link_to chip_path(chip),
+                  class: "flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 border border-(--color-border) text-sm font-medium text-(--color-text-muted) rounded-lg hover:border-(--color-brand) hover:text-(--color-brand) transition-colors" do %>
+              <i class="ph ph-eye text-sm"></i>
+              Detalhes
+            <% end %>
+            <% unless chip.working? %>
+              <%= link_to chip_path(chip),
+                    class: "flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-(--color-brand) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors" do %>
+                <i class="ph ph-wifi-high text-sm"></i>
+                Reconectar
+              <% end %>
+            <% end %>
+          </div>
+
+        </div>
+      <% end %>
+    </div>
+
+  <% else %>
+    <%# Empty state %>
+    <div class="flex flex-col items-center justify-center py-24 text-center">
+      <div class="w-16 h-16 rounded-full bg-(--color-brand-light) flex items-center justify-center mb-4">
+        <i class="ph ph-sim-card text-(--color-brand) text-3xl"></i>
+      </div>
+      <h3 class="text-lg font-semibold text-(--color-text) mb-1">Nenhum chip cadastrado</h3>
+      <p class="text-sm text-(--color-text-muted) max-w-xs mb-6">
+        Adicione um número de WhatsApp para começar a enviar cobranças.
+      </p>
+      <%= link_to new_chip_path,
+            class: "inline-flex items-center gap-2 px-5 py-2.5 bg-(--color-brand) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors" do %>
+        <i class="ph ph-plus"></i>
+        Adicionar chip
+      <% end %>
+    </div>
+  <% end %>
+
+</div>

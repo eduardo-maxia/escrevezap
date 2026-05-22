@@ -1,0 +1,192 @@
+<% content_for :page_title, "Clientes" %>
+
+<div class="p-6 space-y-5">
+
+  <%# ── Header ── %>
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-2xl font-bold text-(--color-text)">Clientes</h2>
+      <p class="text-sm text-(--color-text-muted) mt-1">Gerencie os clientes da sua empresa</p>
+    </div>
+    <%= link_to new_client_path,
+          class: "inline-flex items-center gap-2 px-4 py-2 bg-(--color-brand) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors" do %>
+      <i class="ph ph-plus text-sm"></i>
+      Novo cliente
+    <% end %>
+  </div>
+
+  <%# ── Search + Filter bar ── %>
+  <div data-controller="client-filter" class="space-y-4">
+    <div class="flex items-center gap-3 flex-wrap">
+      <%# Search input %>
+      <div class="relative flex-1 min-w-[16rem]">
+        <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+          <i class="ph ph-magnifying-glass text-(--color-text-muted) text-sm"></i>
+        </span>
+        <input type="text"
+               value="<%= params[:q] %>"
+               placeholder="Buscar por nome, e-mail ou telefone…"
+               data-client-filter-target="search"
+               data-action="input->client-filter#filter"
+               class="w-full pl-9 pr-3.5 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm placeholder:text-(--color-text-subtle) focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-(--color-brand) transition-colors">
+      </div>
+
+      <%# WhatsApp filter %>
+      <div class="relative">
+        <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+          <i class="ph ph-device-mobile text-(--color-text-muted) text-xs"></i>
+        </span>
+        <select data-client-filter-target="whatsapp"
+                data-action="change->client-filter#immediate"
+                class="pl-8 pr-8 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-(--color-brand) transition-colors appearance-none cursor-pointer">
+          <option value="" <%= "selected" if params[:whatsapp].blank? %>>Todos os clientes</option>
+          <option value="verified" <%= "selected" if params[:whatsapp] == "verified" %>>WhatsApp verificado</option>
+          <option value="unverified" <%= "selected" if params[:whatsapp] == "unverified" %>>Sem WhatsApp</option>
+        </select>
+        <span class="absolute inset-y-0 right-2.5 flex items-center pointer-events-none">
+          <i class="ph ph-caret-down text-(--color-text-muted) text-xs"></i>
+        </span>
+      </div>
+    </div>
+
+    <%# ── Turbo Frame: table + pagination ── %>
+    <turbo-frame id="clients-table" data-turbo-action="advance">
+
+      <% if @clients.empty? %>
+        <div class="bg-(--color-surface) rounded-xl border border-(--color-border) py-16 text-center">
+          <div class="w-14 h-14 rounded-full bg-(--color-surface-raised) flex items-center justify-center mx-auto mb-4">
+            <% if params[:q].present? || params[:whatsapp].present? %>
+              <i class="ph ph-magnifying-glass text-(--color-text-subtle) text-2xl"></i>
+            <% else %>
+              <i class="ph ph-users-three text-(--color-text-subtle) text-2xl"></i>
+            <% end %>
+          </div>
+          <% if params[:q].present? || params[:whatsapp].present? %>
+            <p class="text-(--color-text-muted) font-medium">Nenhum cliente encontrado</p>
+            <p class="text-(--color-text-subtle) text-sm mt-1">Tente outros termos ou remova os filtros</p>
+          <% else %>
+            <p class="text-(--color-text-muted) font-medium">Nenhum cliente ainda</p>
+            <p class="text-(--color-text-subtle) text-sm mt-1">Cadastre seus clientes para usá-los nas campanhas</p>
+            <%= link_to "Cadastrar cliente", new_client_path,
+                  data: { turbo_frame: "_top" },
+                  class: "inline-flex items-center gap-1.5 mt-5 px-4 py-2 bg-(--color-brand) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors" %>
+          <% end %>
+        </div>
+
+      <% else %>
+        <div class="bg-(--color-surface) rounded-xl border border-(--color-border) overflow-hidden">
+          <table class="w-full text-sm">
+            <thead class="border-b border-(--color-border) bg-(--color-surface-muted)">
+              <tr>
+                <th class="text-left px-5 py-3 font-medium text-(--color-text-muted) w-full">Cliente</th>
+                <th class="text-left px-4 py-3 font-medium text-(--color-text-muted) whitespace-nowrap">Telefone</th>
+                <th class="text-left px-4 py-3 font-medium text-(--color-text-muted)">WhatsApp</th>
+                <th class="text-right px-5 py-3"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-(--color-border)">
+              <% @clients.each do |client| %>
+                <% initials = client.name.split.first(2).map { |w| w[0] }.join.upcase %>
+                <tr class="hover:bg-(--color-surface-muted) transition-colors group">
+                  <td class="px-5 py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 rounded-full bg-(--color-brand-subtle) flex items-center justify-center flex-shrink-0 text-xs font-bold text-(--color-brand)">
+                        <%= initials %>
+                      </div>
+                      <div>
+                        <%= link_to client.name, client_path(client),
+                              data: { turbo_frame: "_top" },
+                              class: "font-medium text-(--color-text) hover:text-(--color-brand) transition-colors" %>
+                        <% if client.email.present? %>
+                          <p class="text-xs text-(--color-text-subtle) mt-0.5"><%= client.email %></p>
+                        <% end %>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-(--color-text-muted) text-xs whitespace-nowrap">
+                    <%= client.formatted_number || client.phone_number || "—" %>
+                  </td>
+                  <td class="px-4 py-4">
+                    <% if client.waha_chat_id.present? %>
+                      <span class="inline-flex items-center gap-1 text-xs font-medium text-(--color-success)">
+                        <i class="ph ph-check-circle"></i> Verificado
+                      </span>
+                    <% else %>
+                      <span class="inline-flex items-center gap-1 text-xs text-(--color-text-subtle)">
+                        <i class="ph ph-minus-circle"></i> Não verificado
+                      </span>
+                    <% end %>
+                  </td>
+                  <td class="px-5 py-4">
+                    <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <%= button_to client_path(client), method: :delete,
+                            class: "pt-2 pb-1 px-2.5 cursor-pointer rounded-lg hover:bg-(--color-danger-light) text-(--color-text-muted) hover:text-(--color-danger) transition-colors",
+                            title: "Excluir",
+                            data: { turbo_confirm: "Tem certeza que deseja remover \"#{client.name}\"?" } do %>
+                        <i class="ph ph-trash text-md"></i>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+
+          <%# ── Pagination ── %>
+          <% if @pagy.pages > 1 %>
+            <div class="flex items-center justify-between px-5 py-3.5 border-t border-(--color-border) bg-(--color-surface-muted)">
+              <p class="text-xs text-(--color-text-muted)">
+                <%= @pagy.from %>–<%= @pagy.to %> de <strong class="text-(--color-text)"><%= @pagy.count %></strong> clientes
+              </p>
+              <div class="flex items-center gap-1">
+                <%# Previous %>
+                <% if @pagy.prev %>
+                  <%= link_to pagy_url_for(@pagy, @pagy.prev),
+                        data: { turbo_frame: "clients-table" },
+                        class: "p-1.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-surface-raised) transition-colors" do %>
+                    <i class="ph ph-caret-left text-sm"></i>
+                  <% end %>
+                <% else %>
+                  <span class="p-1.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text-subtle) opacity-40 cursor-not-allowed">
+                    <i class="ph ph-caret-left text-sm"></i>
+                  </span>
+                <% end %>
+
+                <%# Page numbers %>
+                <% @pagy.series.each do |item| %>
+                  <% if item == :gap %>
+                    <span class="px-2 py-1.5 text-xs text-(--color-text-muted)">…</span>
+                  <% elsif item == @pagy.page %>
+                    <span class="px-3 py-1.5 rounded-lg bg-(--color-brand) text-(--color-text-inverse) text-xs font-semibold min-w-[2rem] text-center">
+                      <%= item %>
+                    </span>
+                  <% else %>
+                    <%= link_to item, pagy_url_for(@pagy, item),
+                          data: { turbo_frame: "clients-table" },
+                          class: "px-3 py-1.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text-muted) text-xs hover:text-(--color-text) hover:bg-(--color-surface-raised) transition-colors min-w-[2rem] text-center" %>
+                  <% end %>
+                <% end %>
+
+                <%# Next %>
+                <% if @pagy.next %>
+                  <%= link_to pagy_url_for(@pagy, @pagy.next),
+                        data: { turbo_frame: "clients-table" },
+                        class: "p-1.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-surface-raised) transition-colors" do %>
+                    <i class="ph ph-caret-right text-sm"></i>
+                  <% end %>
+                <% else %>
+                  <span class="p-1.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text-subtle) opacity-40 cursor-not-allowed">
+                    <i class="ph ph-caret-right text-sm"></i>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+
+        </div>
+      <% end %>
+
+    </turbo-frame>
+  </div>
+
+</div>

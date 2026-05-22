@@ -1,0 +1,58 @@
+<% content_for :current_step, "1" %>
+
+<div class="bg-(--color-surface) rounded-2xl border border-(--color-border) shadow-sm overflow-hidden">
+
+  <%# Card header %>
+  <div class="px-6 py-4 flex items-center gap-3 border-b border-(--color-border) bg-(--color-brand-subtle)">
+    <div class="w-9 h-9 rounded-xl bg-(--color-brand) flex items-center justify-center flex-shrink-0">
+      <i class="ph ph-hand-waving text-(--color-text-inverse) text-base"></i>
+    </div>
+    <div class="text-left">
+      <h2 class="text-base font-bold text-(--color-text) leading-tight">Bem-vindo ao Cobrança em Dia! 🎉</h2>
+      <p class="text-(--color-text-muted) text-xs">Configure sua conta em menos de 2 minutos.</p>
+    </div>
+  </div>
+
+  <%# Form %>
+  <div class="p-8">
+    <% if @error %>
+      <div class="mb-5 flex items-start gap-3 bg-(--color-danger-light) border border-(--color-danger) rounded-lg px-4 py-3 text-sm text-(--color-danger)">
+        <i class="ph ph-warning-circle text-lg flex-shrink-0 mt-0.5"></i>
+        <span><%= @error %></span>
+      </div>
+    <% end %>
+
+    <%= form_with url: onboarding_step1_path, method: :post do |f| %>
+      <div class="space-y-5">
+        <div>
+          <label class="block text-sm font-medium text-(--color-text) mb-1.5">
+            Seu nome <span class="text-(--color-danger)">*</span>
+          </label>
+          <%= f.text_field :name,
+                value: @name,
+                placeholder: "Como podemos te chamar?",
+                autofocus: true,
+                class: "w-full px-3.5 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm placeholder:text-(--color-text-subtle) focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-(--color-brand) transition-colors" %>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-(--color-text) mb-1.5">
+            Nome da empresa <span class="text-(--color-danger)">*</span>
+          </label>
+          <%= f.text_field :company_name,
+                value: @company_name,
+                placeholder: "Ex: Academia Fit, Clínica Saúde...",
+                class: "w-full px-3.5 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm placeholder:text-(--color-text-subtle) focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-(--color-brand) transition-colors" %>
+          <p class="mt-1.5 text-xs text-(--color-text-subtle)">Este nome aparecerá para seus clientes.</p>
+        </div>
+
+        <button type="submit"
+          class="w-full flex items-center justify-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-(--color-text-inverse) font-semibold py-3 px-4 rounded-lg text-sm transition-colors cursor-pointer mt-2">
+          Começar configuração
+          <i class="ph ph-arrow-right text-base"></i>
+        </button>
+      </div>
+    <% end %>
+  </div>
+
+</div>

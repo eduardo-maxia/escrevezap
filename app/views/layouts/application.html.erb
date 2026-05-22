@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Cobrança em Dia" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Cobrança em Dia">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="icon" href="/logo.jpeg" type="image/jpeg">
+    <link rel="icon" href="/logo.jpeg" type="image/jpeg">
+    <link rel="apple-touch-icon" href="/logo.jpeg">
+
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
+  </head>
+
+  <body class="min-h-screen bg-(--color-surface-muted) antialiased">
+    <% if notice %>
+      <div class="fixed top-4 right-4 z-50 flex items-center gap-3 bg-(--color-success-light) text-(--color-success) border border-(--color-success) rounded-lg px-4 py-3 shadow-sm text-sm font-medium" data-turbo-temporary>
+        <i class="ph ph-check-circle text-lg"></i>
+        <span><%= notice %></span>
+      </div>
+    <% end %>
+    <% if alert %>
+      <div class="fixed top-4 right-4 z-50 flex items-center gap-3 bg-(--color-danger-light) text-(--color-danger) border border-(--color-danger) rounded-lg px-4 py-3 shadow-sm text-sm font-medium" data-turbo-temporary>
+        <i class="ph ph-warning-circle text-lg"></i>
+        <span><%= alert %></span>
+      </div>
+    <% end %>
+    <%= yield %>
+  </body>
+</html>

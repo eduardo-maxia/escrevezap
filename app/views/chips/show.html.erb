@@ -1,0 +1,155 @@
+<% content_for :page_title, @chip.name %>
+
+<%
+  status_label, status_color, status_bg, status_icon =
+    case @chip.waha_status
+    when "working"      then ["Conectado",       "--color-success",     "--color-success-light",  "ph-check-circle"]
+    when "starting"     then ["Iniciando...",    "--color-warning",     "--color-warning-light",  "ph-circle-dashed"]
+    when "scan_qr_code" then ["Aguardando QR",  "--color-warning",     "--color-warning-light",  "ph-qr-code"]
+    when "failed"       then ["Falha",           "--color-danger",      "--color-danger-light",   "ph-warning-circle"]
+    when "stopped"      then ["Parado",          "--color-text-muted",  "--color-surface-raised", "ph-pause-circle"]
+    else                     ["Não configurado", "--color-text-muted",  "--color-surface-raised", "ph-plug"]
+    end
+  input_cls = "w-full px-3 py-2 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors"
+%>
+
+<div class="p-6 space-y-5">
+
+  <%# ── Breadcrumb + title ──────────────────────────────────────────── %>
+  <div>
+    <nav class="flex items-center gap-1.5 text-xs text-(--color-text-muted) mb-2">
+      <%= link_to "Chips", chips_path, class: "hover:text-(--color-text) transition-colors" %>
+      <i class="ph ph-caret-right text-xs"></i>
+      <span class="text-(--color-text)"><%= @chip.name %></span>
+    </nav>
+    <div class="flex items-center gap-3 flex-wrap">
+      <h2 class="text-2xl font-bold text-(--color-text)"><%= @chip.name %></h2>
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-medium bg-(<%= status_bg %>) text-(<%= status_color %>)">
+        <i class="ph <%= status_icon %>"></i>
+        <%= status_label %>
+      </span>
+    </div>
+  </div>
+
+  <%# ── Critical banner ────────────────────────────────────────────── %>
+  <% if !@chip.working? && @active_campaigns.any? %>
+    <div class="flex items-start gap-4 bg-(--color-danger-light) border-2 border-(--color-danger) rounded-xl p-5">
+      <i class="ph ph-warning-octagon text-(--color-danger) text-2xl flex-shrink-0 mt-0.5"></i>
+      <div>
+        <p class="font-bold text-(--color-danger) text-base">Cobranças paralisadas</p>
+        <p class="text-sm text-(--color-text) mt-1">
+          Este chip está <strong>desconectado</strong> mas
+          <strong><%= @active_campaigns.count %> campanha(s) ativa(s)</strong> dependem dele.
+          Nenhuma mensagem será enviada até o WhatsApp ser reconectado abaixo.
+        </p>
+      </div>
+    </div>
+  <% end %>
+
+  <%# ── Main grid ───────────────────────────────────────────────────── %>
+  <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-5 items-start">
+
+    <%# ── LEFT: Connection panel ─────────────────────────────────────── %>
+    <%= render "shared/chip_connection_panel",
+          chip: @chip,
+          redirect_url: chip_path(@chip),
+          after_disconnect: disconnect_chip_path(@chip),
+          show_swap_button: false %>
+
+    <%# ── RIGHT: Info + Campaigns + Danger zone ───────────────────────── %>
+    <div class="space-y-4">
+
+      <%# Info card %>
+      <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-5">
+        <h4 class="font-semibold text-(--color-text) mb-4">Informações</h4>
+        <dl class="space-y-3 text-sm">
+          <div class="flex items-center justify-between gap-2">
+            <dt class="text-(--color-text-muted)">Provedor</dt>
+            <dd class="font-medium text-(--color-text) uppercase text-xs tracking-wide">WAHA</dd>
+          </div>
+          <div class="flex items-center justify-between gap-2">
+            <dt class="text-(--color-text-muted)">Número</dt>
+            <dd class="font-medium text-(--color-text)"><%= @chip.formatted_number || "—" %></dd>
+          </div>
+          <div class="flex items-center justify-between gap-2">
+            <dt class="text-(--color-text-muted)">Sessão WAHA</dt>
+            <dd class="font-mono text-xs text-(--color-text-subtle) truncate max-w-[140px]">
+              <%= @chip.waha_session || "—" %>
+            </dd>
+          </div>
+          <div class="flex items-center justify-between gap-2">
+            <dt class="text-(--color-text-muted)">Campanhas</dt>
+            <dd class="font-medium text-(--color-text)">
+              <%= @all_campaigns.count %> total
+              (<span class="text-(--color-success)"><%= @active_campaigns.count %> ativa<%= @active_campaigns.count == 1 ? "" : "s" %></span>)
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <%# Campaigns list %>
+      <% if @all_campaigns.any? %>
+        <div class="bg-(--color-surface) rounded-xl border border-(--color-border) overflow-hidden">
+          <div class="px-5 py-4 border-b border-(--color-border)">
+            <h4 class="font-semibold text-(--color-text)">Campanhas vinculadas</h4>
+          </div>
+          <ul class="divide-y divide-(--color-border)">
+            <% @all_campaigns.each do |campaign| %>
+              <% c_label, c_cls = case campaign.status
+                when "active"   then ["Ativa",     "bg-(--color-success-light) text-(--color-success)"]
+                when "paused"   then ["Pausada",   "bg-(--color-warning-light) text-(--color-warning)"]
+                when "finished" then ["Finalizada","bg-(--color-surface-raised) text-(--color-text-muted)"]
+                else                 ["Rascunho",  "bg-(--color-info-light) text-(--color-info)"]
+                end
+              %>
+              <li class="px-5 py-3 flex items-center justify-between gap-3">
+                <span class="text-sm font-medium text-(--color-text) truncate min-w-0"><%= campaign.name %></span>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                  <span class="text-xs px-2 py-0.5 rounded-full font-medium <%= c_cls %>"><%= c_label %></span>
+                  <%= link_to campaign_path(campaign),
+                        class: "p-1.5 rounded-md hover:bg-(--color-surface-raised) text-(--color-text-muted) hover:text-(--color-brand) transition-colors",
+                        title: "Ver campanha" do %>
+                    <i class="ph ph-arrow-square-out text-sm"></i>
+                  <% end %>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <%# Danger zone %>
+      <div class="bg-(--color-surface) rounded-xl border border-(--color-danger) overflow-hidden">
+        <div class="px-5 py-3 border-b border-(--color-danger) bg-(--color-danger-light)">
+          <h4 class="font-semibold text-(--color-danger) text-sm">Zona de perigo</h4>
+        </div>
+        <div class="p-5 space-y-3">
+          <p class="text-sm text-(--color-text-muted)">
+            Remover este chip irá desvincular todas as campanhas associadas. Essa ação não pode ser desfeita.
+          </p>
+          <% if @active_campaigns.any? %>
+            <div class="flex items-start gap-2 text-xs text-(--color-danger) bg-(--color-danger-light) border border-(--color-danger) px-3 py-2.5 rounded-lg">
+              <i class="ph ph-warning-octagon flex-shrink-0 mt-0.5 text-sm"></i>
+              <span>
+                Este chip tem <strong><%= @active_campaigns.count %> campanha(s) ativa(s)</strong>.
+                Ao excluí-lo, essas campanhas ficarão sem número de envio.
+              </span>
+            </div>
+          <% end %>
+          <%= button_to chip_path(@chip), method: :delete,
+                params: @active_campaigns.any? ? { confirm_force: "1" } : {},
+                class: "inline-flex items-center gap-2 px-4 py-2 bg-(--color-danger) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:opacity-90 transition-opacity cursor-pointer",
+                data: { turbo_confirm: @active_campaigns.any? ?
+                  "ATENÇÃO: #{@active_campaigns.count} campanha(s) ativa(s) depende(m) deste chip. Confirmar exclusão mesmo assim?" :
+                  "Confirmar exclusão do chip \"#{@chip.name}\"?" } do %>
+            <i class="ph ph-trash text-sm"></i>
+            Remover chip
+          <% end %>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
