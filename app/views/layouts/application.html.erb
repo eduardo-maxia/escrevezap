@@ -21,18 +21,32 @@
   </head>
 
   <body class="min-h-screen bg-(--color-surface-muted) antialiased">
-    <% if notice %>
-      <div class="fixed top-4 right-4 z-50 flex items-center gap-3 bg-(--color-success-light) text-(--color-success) border border-(--color-success) rounded-lg px-4 py-3 shadow-sm text-sm font-medium" data-turbo-temporary>
-        <i class="ph ph-check-circle text-lg"></i>
-        <span><%= notice %></span>
-      </div>
+    <%= render "shared/toast" %>
+
+    <%# success / info → toast (auto-dismiss) %>
+    <% if notice.present? %>
+      <script>
+        document.addEventListener('turbo:load', function() {
+          if (typeof window.toast === 'function') window.toast('<%= j notice %>', { type: 'success' });
+        }, { once: true });
+      </script>
     <% end %>
-    <% if alert %>
+    <% if flash[:info].present? %>
+      <script>
+        document.addEventListener('turbo:load', function() {
+          if (typeof window.toast === 'function') window.toast('<%= j flash[:info] %>', { type: 'info' });
+        }, { once: true });
+      </script>
+    <% end %>
+
+    <%# warning / alert → persistent banner %>
+    <% if alert.present? %>
       <div class="fixed top-4 right-4 z-50 flex items-center gap-3 bg-(--color-danger-light) text-(--color-danger) border border-(--color-danger) rounded-lg px-4 py-3 shadow-sm text-sm font-medium" data-turbo-temporary>
         <i class="ph ph-warning-circle text-lg"></i>
         <span><%= alert %></span>
       </div>
     <% end %>
+
     <%= yield %>
   </body>
 </html>

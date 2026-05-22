@@ -22,6 +22,7 @@ class OnboardingController < ApplicationController
 
     if company.save
       current_user.update!(name: @name, company: company, role: "owner")
+      create_default_campaign_for(company)
       redirect_to onboarding_step2_path
     else
       @error = company.errors.full_messages.to_sentence
@@ -221,5 +222,21 @@ class OnboardingController < ApplicationController
 
   def ensure_company!
     redirect_to onboarding_step1_path unless current_user.company
+  end
+
+  def create_default_campaign_for(company)
+    chip = company.chips.first_or_create!(
+      name:        "Chip Principal",
+      provider:    "waha",
+      waha_status: "pending"
+    )
+    company.campaigns.first_or_create!(
+      name:               "Campanha de Cobrança",
+      chip:               chip,
+      recurrence_pattern: "monthly",
+      start_time:         "08:00",
+      end_time:           "18:00",
+      status:             "active"
+    )
   end
 end

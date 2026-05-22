@@ -37,7 +37,7 @@
       <nav class="flex-1 py-4 px-3 space-y-0.5 overflow-y-auto">
         <% has_campanhas = current_user.company&.feature_campanhas? %>
 
-        <%= render "layouts/nav_item", icon: "squares-four",  label: "Dashboard", path: authenticated_root_path %>
+        <%= render "layouts/nav_item", icon: "squares-four",  label: "Dashboard", path: authenticated_root_path, exact: true %>
         <% if has_campanhas %>
           <%= render "layouts/nav_item", icon: "megaphone",     label: "Campanhas", path: campaigns_path %>
         <% end %>
@@ -49,7 +49,7 @@
 
         <div class="pt-3 mt-3 border-t border-(--color-sidebar-border)">
           <%= render "layouts/nav_item", icon: "gear", label: "Configurações", path: settings_empresa_path %>
-          <% if request.path.start_with?("/settings") %>
+          <% if request.path.start_with?(settings_empresa_path.delete_suffix("empresa")) %>
             <div class="mt-0.5 space-y-0.5">
               <%= render "layouts/nav_subitem", label: "Empresa",   path: settings_empresa_path %>
               <%= render "layouts/nav_subitem", label: "Perfil",    path: settings_perfil_path %>
@@ -65,11 +65,15 @@
       <%# User info + logout %>
       <div class="p-3 border-t border-(--color-sidebar-border) flex-shrink-0">
         <div class="flex items-center gap-3 px-3 py-2 mb-1">
-          <div class="w-8 h-8 rounded-full bg-(--color-sidebar-item-hover) flex items-center justify-center flex-shrink-0">
-            <i class="ph ph-user text-(--color-sidebar-text) text-sm"></i>
+          <div class="w-8 h-8 rounded-full bg-(--color-sidebar-item-hover) flex items-center justify-center flex-shrink-0 overflow-hidden">
+            <% if current_user.company&.profile_picture&.attached? %>
+              <%= image_tag current_user.company.profile_picture, class: "w-full h-full object-cover" %>
+            <% else %>
+              <i class="ph ph-user text-(--color-sidebar-text) text-sm"></i>
+            <% end %>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-(--color-sidebar-text-hover) truncate"><%= current_user.email %></p>
+            <p class="text-sm font-medium text-(--color-sidebar-text-hover) truncate"><%= current_user.name %></p>
             <% if current_user.company %>
               <p class="text-xs text-(--color-sidebar-text) truncate"><%= current_user.company.name %></p>
             <% else %>

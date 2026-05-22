@@ -37,7 +37,7 @@ module Waha
     def profile_picture(contact_id:, refresh: false)
       params = { contactId: contact_id, session: @session }
       params[:refresh] = true if refresh
-      @api_request.get("/api/contacts/profile-picture", params)
+      JSON.parse(@api_request.get("/api/contacts/profile-picture", params))
     end
 
     # Resolve a LID (@lid) to a phone number (@c.us).

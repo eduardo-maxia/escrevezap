@@ -79,3 +79,119 @@
 .iti__country.iti__highlight {
   background-color: var(--color-brand-light);
 }
+
+/* ── Toast Notifications ──────────────────────────────────────────────── */
+
+/* Brand-mapped icon colors */
+.toast-icon-success { color: var(--color-success); }
+.toast-icon-danger  { color: var(--color-danger); }
+.toast-icon-info    { color: var(--color-brand); }
+.toast-icon-warning { color: var(--color-warning); }
+.toast-icon-default { color: var(--color-text-muted); }
+
+/* Card appearance */
+.toast-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+.toast-message-text { color: var(--color-text); }
+.toast-desc-text    { color: var(--color-text-muted); }
+.toast-close-btn    { color: var(--color-text-subtle); }
+.toast-close-btn:hover {
+  background-color: var(--color-surface-raised);
+  color: var(--color-text-muted);
+}
+
+/* Required animation/position CSS (from RailsBlocks) */
+.toast-item {
+  @apply absolute w-full left-0 select-none;
+  z-index: var(--toast-z-index, 100);
+  top:       var(--toast-top, auto);
+  bottom:    var(--toast-bottom, auto);
+  transform: var(--toast-transform, translateY(0));
+  scale:     var(--toast-scale, 100%);
+  opacity:   var(--toast-opacity, 1);
+  transition: transform 400ms ease, opacity 400ms ease, scale 400ms ease,
+              top 400ms ease, bottom 400ms ease, height 200ms ease;
+}
+.toast-item[data-mounted="false"] { opacity: 0; }
+.toast-item[data-mounted="false"][data-position*="top"]    { transform: translateY(-100%); }
+.toast-item[data-mounted="false"][data-position*="bottom"] { transform: translateY(100%); }
+
+.toast-item[data-removed="true"] {
+  opacity: 0;
+  scale: 95%;
+  pointer-events: none;
+}
+.toast-item[data-removed="true"][data-expanded="false"][data-position*="top"] {
+  transform: translateY(calc(-1 * (var(--toast-index) * 14px + 5%)));
+}
+.toast-item[data-removed="true"][data-expanded="false"][data-position*="bottom"] {
+  transform: translateY(calc(var(--toast-index) * 14px + 5%));
+}
+.toast-item[data-removed="true"][data-overflow="true"][data-expanded="false"][data-position*="top"] {
+  transform: translateY(calc(var(--toast-index) * 14px + 25%));
+  scale: 78%;
+}
+.toast-item[data-removed="true"][data-overflow="true"][data-expanded="false"][data-position*="bottom"] {
+  transform: translateY(calc(-1 * (var(--toast-index) * 14px + 25%)));
+  scale: 78%;
+}
+.toast-item[data-visible="false"] { pointer-events: none; }
+
+/* Expanded mode */
+.toast-item[data-expanded="true"] { --toast-scale: 100%; height: var(--initial-height); }
+.toast-item[data-expanded="true"][data-position*="top"] {
+  --toast-top: var(--toast-offset, 0px);
+  --toast-bottom: auto;
+  --toast-transform: translateY(0);
+}
+.toast-item[data-expanded="true"][data-position*="bottom"] {
+  --toast-top: auto;
+  --toast-bottom: var(--toast-offset, 0px);
+  --toast-transform: translateY(0);
+}
+
+/* Stacked mode — front toast */
+.toast-item[data-expanded="false"][data-front="true"] {
+  --toast-scale: 100%;
+  --toast-opacity: 1;
+  height: var(--initial-height);
+}
+.toast-item[data-expanded="false"][data-front="true"][data-position*="top"] {
+  --toast-top: 0px; --toast-bottom: auto; --toast-transform: translateY(0);
+}
+.toast-item[data-expanded="false"][data-front="true"][data-position*="bottom"] {
+  --toast-top: auto; --toast-bottom: 0px; --toast-transform: translateY(0);
+}
+
+/* Stacked mode — back toasts */
+.toast-item[data-expanded="false"]:not([data-front="true"]) {
+  height: var(--front-toast-height);
+  overflow: hidden;
+  --toast-scale: calc(100% - (var(--toast-index) * 6%));
+  display: flex;
+  flex-direction: column;
+}
+.toast-item[data-expanded="false"]:not([data-front="true"])[data-position*="top"] {
+  --toast-top: 0px; --toast-bottom: auto;
+  --toast-transform: translateY(calc(var(--toast-index) * 14px));
+  justify-content: flex-end;
+}
+.toast-item[data-expanded="false"]:not([data-front="true"])[data-position*="bottom"] {
+  --toast-top: auto; --toast-bottom: 0px;
+  --toast-transform: translateY(calc(-1 * var(--toast-index) * 14px));
+  justify-content: flex-start;
+}
+
+/* Hidden (beyond limit) */
+.toast-item[data-expanded="false"][data-visible="false"] {
+  --toast-opacity: 0;
+  --toast-scale: 82%;
+}
+.toast-item[data-expanded="false"][data-visible="false"][data-position*="top"] {
+  --toast-top: -200px; --toast-bottom: auto; --toast-transform: translateY(0);
+}
+.toast-item[data-expanded="false"][data-visible="false"][data-position*="bottom"] {
+  --toast-top: auto; --toast-bottom: -200px; --toast-transform: translateY(0);
+}

@@ -100,7 +100,7 @@ module Waha
     #
     # GET /api/sessions/{session}/me
     def me(name = @session)
-      @api_request.get("/api/sessions/#{name}/me")
+      JSON.parse(@api_request.get("/api/sessions/#{name}/me"))
     end
 
     # Get the QR code for authentication.

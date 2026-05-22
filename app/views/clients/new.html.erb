@@ -13,8 +13,6 @@
   </nav>
 
   <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-6">
-    <h2 class="text-lg font-bold text-(--color-text) mb-5">Cadastrar cliente</h2>
-
     <%= form_with model: @client, url: clients_path,
           data: { controller: "phone-input",
                   action: "submit->phone-input#syncHidden",
