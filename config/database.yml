@@ -22,7 +22,7 @@ default: &default
 
 development:
   <<: *default
-  database: cobrazap_development
+  database: cobranca_em_dia_development
   host: <%= Rails.application.credentials.dig(:database, :host) %>
   username: <%= Rails.application.credentials.dig(:database, :username) %>
   password: <%= Rails.application.credentials.dig(:database, :password) %>
@@ -32,7 +32,7 @@ development:
   # To create additional roles in PostgreSQL see `$ createuser --help`.
   # When left blank, PostgreSQL will use the default role. This is
   # the same name as the operating system user running Rails.
-  #username: cobrazap
+  #username: cobranca_em_dia
 
   # The password associated with the PostgreSQL role (username).
   #password:
@@ -84,14 +84,14 @@ development:
 production:
   primary:
     <<: *default
-    database: cobrazap_production
+    database: cobranca_em_dia_production
     host: <%= Rails.application.credentials.dig(:database, :host) %>
     username: <%= Rails.application.credentials.dig(:database, :username) %>
     password: <%= Rails.application.credentials.dig(:database, :password) %>
     port: <%= Rails.application.credentials.dig(:database, :port) %>
   cable:
     <<: *default
-    database: cobrazap_production_cable
+    database: cobranca_em_dia_production_cable
     host: <%= Rails.application.credentials.dig(:database, :host) %>
     username: <%= Rails.application.credentials.dig(:database, :username) %>
     password: <%= Rails.application.credentials.dig(:database, :password) %>
@@ -99,7 +99,7 @@ production:
     migrations_paths: db/cable_migrate
   cache:
     <<: *default
-    database: cobrazap_production_cache
+    database: cobranca_em_dia_production_cache
     host: <%= Rails.application.credentials.dig(:database, :host) %>
     username: <%= Rails.application.credentials.dig(:database, :username) %>
     password: <%= Rails.application.credentials.dig(:database, :password) %>
@@ -107,7 +107,7 @@ production:
     migrations_paths: db/cache_migrate
   queue:
     <<: *default
-    database: cobrazap_production_queue
+    database: cobranca_em_dia_production_queue
     host: <%= Rails.application.credentials.dig(:database, :host) %>
     username: <%= Rails.application.credentials.dig(:database, :username) %>
     password: <%= Rails.application.credentials.dig(:database, :password) %>
@@ -116,18 +116,18 @@ production:
 # production:
 #   primary: &primary_production
 #     <<: *default
-#     database: cobrazap_production
-#     username: cobrazap
-#     password: <%= ENV["COBRAZAP_DATABASE_PASSWORD"] %>
+#     database: cobranca_em_dia_production
+#     username: cobranca_em_dia
+#     password: <%= ENV["cobranca_em_dia_DATABASE_PASSWORD"] %>
 #   cache:
 #     <<: *primary_production
-#     database: cobrazap_production_cache
+#     database: cobranca_em_dia_production_cache
 #     migrations_paths: db/cache_migrate
 #   queue:
 #     <<: *primary_production
-#     database: cobrazap_production_queue
+#     database: cobranca_em_dia_production_queue
 #     migrations_paths: db/queue_migrate
 #   cable:
 #     <<: *primary_production
-#     database: cobrazap_production_cable
+#     database: cobranca_em_dia_production_cable
 #     migrations_paths: db/cable_migrate
