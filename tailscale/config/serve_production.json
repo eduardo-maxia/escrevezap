@@ -1,5 +1,8 @@
 {
   "TCP": {
+    "80": {
+      "HTTP": true
+    },
     "443": {
       "HTTPS": true
     },
@@ -18,7 +21,7 @@
     "cobrancaemdia.tail244278.ts.net:10000": {
       "Handlers": {
         "/": {
-          "Proxy": "http://127.0.0.1:3000"
+          "Proxy": "http://127.0.0.1:3003"
         }
       }
     }

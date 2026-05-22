@@ -19,7 +19,7 @@ fail() { echo -e "$(ts) ${RED}${BOLD}✘ $*${RESET}"; exit 1; }
 # ── Header ────────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${BOLD}╔══════════════════════════════════════╗${RESET}"
-echo -e "${BOLD}║        🚀  Cobrança em Dia deploy           ║${RESET}"
+echo -e "${BOLD}║        🚀 Deploy: Cobrança em Dia           ║${RESET}"
 echo -e "${BOLD}║   $(date '+%Y-%m-%d %H:%M:%S')              ║${RESET}"
 echo -e "${BOLD}╚══════════════════════════════════════╝${RESET}"
 echo ""
