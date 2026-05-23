@@ -20,8 +20,8 @@
 
     <%= render "shared/toast" %>
 
-    <%# ── Sidebar (desktop only) ─────────────────────────────── %>
-    <aside class="hidden md:flex w-60 flex-col flex-shrink-0 bg-(--color-sidebar-bg) border-r border-(--color-sidebar-border)">
+    <%# ── Sidebar (desktop only) — Flowbite sidebar component ─────────── %>
+    <aside id="app-sidebar" class="hidden md:flex w-60 flex-col flex-shrink-0 bg-(--color-sidebar-bg) border-r border-(--color-sidebar-border)" aria-label="Sidebar">
 
       <%# Logo %>
       <div class="w-full flex flex-row gap-2 border-b border-(--color-sidebar-border)">
@@ -36,33 +36,43 @@
       </div>
 
       <%# Navigation %>
-      <nav class="flex-1 py-4 px-3 space-y-0.5 overflow-y-auto">
+      <div class="flex-1 py-4 px-3 overflow-y-auto">
         <% has_campanhas = current_user.company&.feature_campanhas? %>
+        <% settings_open = request.path.start_with?(settings_empresa_path.delete_suffix("empresa")) %>
 
-        <%= render "layouts/nav_item", icon: "squares-four",  label: "Dashboard", path: authenticated_root_path, exact: true %>
-        <% if has_campanhas %>
-          <%= render "layouts/nav_item", icon: "megaphone",     label: "Campanhas", path: campaigns_path %>
-        <% end %>
-        <%= render "layouts/nav_item", icon: "users-three",   label: "Clientes",  path: clients_path %>
-        <% if has_campanhas %>
-          <%= render "layouts/nav_item", icon: "device-mobile", label: "Chips",     path: chips_path %>
-        <% end %>
-        <%= render "layouts/nav_item", icon: "users",         label: "Usuários",  path: users_path %>
+        <ul class="space-y-1 font-medium">
+          <%= render "layouts/nav_item", icon: "squares-four",  label: "Dashboard", path: authenticated_root_path, exact: true %>
+          <% if has_campanhas %>
+            <%= render "layouts/nav_item", icon: "megaphone",     label: "Campanhas", path: campaigns_path %>
+          <% end %>
+          <%= render "layouts/nav_item", icon: "users-three",   label: "Clientes",  path: clients_path %>
+          <% if has_campanhas %>
+            <%= render "layouts/nav_item", icon: "device-mobile", label: "Chips",     path: chips_path %>
+          <% end %>
+          <%= render "layouts/nav_item", icon: "users",         label: "Usuários",  path: users_path %>
+        </ul>
 
-        <div class="pt-3 mt-3 border-t border-(--color-sidebar-border)">
-          <%= render "layouts/nav_item", icon: "gear", label: "Configurações", path: settings_empresa_path %>
-          <% if request.path.start_with?(settings_empresa_path.delete_suffix("empresa")) %>
-            <div class="mt-0.5 space-y-0.5">
+        <ul class="pt-3 mt-3 space-y-1 font-medium border-t border-(--color-sidebar-border)">
+          <li>
+            <button type="button"
+                    class="flex items-center w-full gap-3 p-2 rounded-lg text-sm font-medium transition-colors group <%= settings_open ? 'bg-(--color-sidebar-item-active) text-(--color-sidebar-text-hover)' : 'text-(--color-sidebar-text) hover:text-(--color-sidebar-text-hover) hover:bg-(--color-sidebar-item-hover)' %>"
+                    aria-controls="sidebar-settings-dropdown"
+                    data-collapse-toggle="sidebar-settings-dropdown">
+              <i class="ph ph-gear text-lg flex-shrink-0"></i>
+              <span class="flex-1 text-left whitespace-nowrap">Configurações</span>
+              <i class="ph ph-caret-down text-sm transition-transform group-aria-expanded:rotate-180"></i>
+            </button>
+            <ul id="sidebar-settings-dropdown" class="<%= settings_open ? '' : 'hidden ' %>py-2 space-y-1">
               <%= render "layouts/nav_subitem", label: "Empresa",   path: settings_empresa_path %>
               <%= render "layouts/nav_subitem", label: "Perfil",    path: settings_perfil_path %>
               <%= render "layouts/nav_subitem", label: "Segurança", path: settings_senha_path %>
               <% unless has_campanhas %>
                 <%= render "layouts/nav_subitem", label: "Cobrança", path: settings_cobranca_path %>
               <% end %>
-            </div>
-          <% end %>
-        </div>
-      </nav>
+            </ul>
+          </li>
+        </ul>
+      </div>
 
       <%# User info + logout %>
       <div class="p-3 border-t border-(--color-sidebar-border) flex-shrink-0">
@@ -110,10 +120,9 @@
           }, { once: true });
         </script>
       <% end %>
-      <% if alert %>
-        <div class="mx-4 md:mx-6 mt-4 flex items-center gap-3 bg-(--color-danger-light) text-(--color-danger) border border-(--color-danger) rounded-lg px-4 py-3 text-sm font-medium" data-turbo-temporary style="margin-top: max(1rem, env(safe-area-inset-top));">
-          <i class="ph ph-warning-circle text-lg flex-shrink-0"></i>
-          <span><%= alert %></span>
+      <% if alert.present? %>
+        <div class="mx-4 md:mx-6" style="margin-top: max(1rem, env(safe-area-inset-top));">
+          <%= render "shared/alert", type: :danger, message: alert %>
         </div>
       <% end %>
 
@@ -122,22 +131,23 @@
         <%= yield %>
       </main>
 
-      <%# Mobile bottom nav (mobile only) %>
-      <nav class="md:hidden bg-(--color-sidebar-bg) border-t border-(--color-sidebar-border) flex items-stretch flex-shrink-0 h-16" style="padding-bottom: env(safe-area-inset-bottom); height: calc(4rem + env(safe-area-inset-bottom));">
-        <% has_campanhas_mobile = current_user.company&.feature_campanhas? %>
-
-        <%= render "layouts/mobile_nav_item", icon: "house",          label: "Início",    path: authenticated_root_path, exact: true %>
-        <% if has_campanhas_mobile %>
-          <%= render "layouts/mobile_nav_item", icon: "megaphone",    label: "Campanhas", path: campaigns_path %>
-        <% end %>
-        <%= render "layouts/mobile_nav_item", icon: "users-three",    label: "Clientes",  path: clients_path %>
-        <% if has_campanhas_mobile %>
-          <%= render "layouts/mobile_nav_item", icon: "device-mobile", label: "Chips",    path: chips_path %>
-        <% else %>
-          <%= render "layouts/mobile_nav_item", icon: "invoice",       label: "Cobrança", path: settings_cobranca_path %>
-        <% end %>
-        <%= render "layouts/mobile_nav_item", icon: "gear-six",        label: "Ajustes",  path: settings_path,
-              unless_paths: (has_campanhas_mobile ? [] : [settings_cobranca_path]) %>
+      <%# Mobile bottom nav — Flowbite bottom navigation component %>
+      <% has_campanhas_mobile = current_user.company&.feature_campanhas? %>
+      <nav class="md:hidden bg-(--color-sidebar-bg) border-t border-(--color-sidebar-border) flex-shrink-0" style="padding-bottom: env(safe-area-inset-bottom);">
+        <div class="grid h-16 <%= has_campanhas_mobile ? 'grid-cols-5' : 'grid-cols-4' %> font-medium">
+          <%= render "layouts/mobile_nav_item", icon: "house",          label: "Início",    path: authenticated_root_path, exact: true %>
+          <% if has_campanhas_mobile %>
+            <%= render "layouts/mobile_nav_item", icon: "megaphone",    label: "Campanhas", path: campaigns_path %>
+          <% end %>
+          <%= render "layouts/mobile_nav_item", icon: "users-three",    label: "Clientes",  path: clients_path %>
+          <% if has_campanhas_mobile %>
+            <%= render "layouts/mobile_nav_item", icon: "device-mobile", label: "Chips",    path: chips_path %>
+          <% else %>
+            <%= render "layouts/mobile_nav_item", icon: "invoice",       label: "Cobrança", path: settings_cobranca_path %>
+          <% end %>
+          <%= render "layouts/mobile_nav_item", icon: "gear-six",        label: "Ajustes",  path: settings_path,
+                unless_paths: (has_campanhas_mobile ? [] : [settings_cobranca_path]) %>
+        </div>
       </nav>
 
     </div>

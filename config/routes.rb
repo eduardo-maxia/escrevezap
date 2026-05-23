@@ -5,7 +5,18 @@ Rails.application.routes.draw do
   mount SolidQueueDashboard::Engine, at: "/jobs"
 
   scope "/app" do
-    devise_for :users
+    devise_for :users,
+               controllers: {
+                 sessions:            "users/sessions",
+                 omniauth_callbacks:  "users/omniauth_callbacks"
+               },
+               skip: [:passwords, :registrations]
+
+    devise_scope :user do
+      get  "users/verify",  to: "users/sessions#verify",  as: :verify_otp
+      post "users/verify",  to: "users/sessions#confirm", as: :confirm_otp
+      post "users/resend",  to: "users/sessions#resend",  as: :resend_otp
+    end
 
     authenticated :user do
       root "dashboard#index", as: :authenticated_root
@@ -63,4 +74,8 @@ Rails.application.routes.draw do
   namespace :webhook do
     resource :waha, only: [:create], controller: :waha
   end
+
+  # Catch-all — redirects any unknown path to a sensible page instead of 404.
+  # Must be the LAST route declaration.
+  match "*unmatched", to: "application#route_not_found", via: :all
 end

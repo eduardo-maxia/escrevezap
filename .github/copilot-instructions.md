@@ -96,6 +96,54 @@ end
 
 ---
 
+## Loading Indicators
+
+**Be proactive — every action that triggers a network round-trip must give immediate visual feedback.** Users should never wonder "did my click register?". This applies to: form submits, `button_to` actions, links that trigger Turbo navigations to slow pages, async fetches.
+
+### Standard tool: the `loadable` Stimulus controller
+
+Attach `data-controller="loadable"` to any `<button>` (works inside or outside a `<form>`). On submit/click it swaps the button content for an inline spinner + optional loading text, sets `aria-busy="true"`, disables the button, and restores the original markup on `turbo:submit-end`.
+
+```erb
+<%# Inside a form — listens to submit / turbo:submit-start / turbo:submit-end %>
+<button type="submit"
+        data-controller="loadable"
+        data-loadable-loading-text-value="Enviando...">
+  Enviar
+</button>
+
+<%# button_to (renders its own form) %>
+<%= button_to "Entrar", path,
+      data: {
+        controller: "loadable",
+        "loadable-loading-text-value": "Entrando..."
+      },
+      class: "auth-btn-primary inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed" %>
+```
+
+Values:
+- `loading-text` — text shown next to the spinner. Omit to keep the original label.
+- `spinner-only` — `true` renders only the spinner (use for icon-only buttons).
+
+Rules:
+- Use `<button>` (never `<input type="submit">` / `f.submit`) so the spinner HTML can be injected.
+- Always include `disabled:opacity-60 disabled:cursor-not-allowed` (or `disabled:opacity-50`) in the class list so the disabled visual state matches.
+- Add `inline-flex items-center justify-center gap-2` so the spinner and text align nicely once swapped in.
+- Choose a Portuguese loading verb in present continuous: "Enviando...", "Salvando...", "Verificando...", "Conectando...", "Reenviando...", "Excluindo...".
+- For destructive actions ("Excluir"), still use `loadable` — the request still takes time.
+
+### Spinner CSS
+
+The `.btn-spinner` class (`application.tailwind.css`) renders a 1rem circular spinner that inherits `currentColor`. Don't reach for SVG icons — `loadable` injects `.btn-spinner` automatically.
+
+### Other progress affordances
+
+- Long page loads: rely on Turbo's built-in progress bar (already enabled).
+- Stimulus async actions: toggle `aria-busy` on the container and use `.btn-spinner` inline.
+- Background polling (e.g. chip status): use the existing ActionCable subscriptions, not spinners.
+
+---
+
 ## Modals
 
 Standard pattern across the whole app: native `<dialog>` inside a shared `turbo-frame#modal`, opened via Turbo link with `data-turbo-frame="modal"`. On mobile it's a **bottom sheet sliding up**; on desktop it's a centered card fading in. Both behaviors are baked into the `.app-modal` class in `application.tailwind.css` — never roll your own positioning/animation.

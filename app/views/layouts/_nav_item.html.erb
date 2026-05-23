@@ -1,7 +1,9 @@
 <% exact  = local_assigns.fetch(:exact, false) %>
 <% active = path != "#" && (request.path == path || (!exact && request.path.start_with?("#{path}/"))) %>
-<%= link_to path,
-      class: "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors #{active ? 'bg-(--color-sidebar-item-active) text-(--color-sidebar-text-hover)' : 'text-(--color-sidebar-text) hover:text-(--color-sidebar-text-hover) hover:bg-(--color-sidebar-item-hover)'}" do %>
-  <i class="ph ph-<%= icon %> text-lg flex-shrink-0"></i>
-  <span><%= label %></span>
-<% end %>
+<li>
+  <%= link_to path,
+        class: "flex items-center gap-3 p-2 rounded-lg text-sm font-medium transition-colors group #{active ? 'bg-(--color-sidebar-item-active) text-(--color-sidebar-text-hover)' : 'text-(--color-sidebar-text) hover:text-(--color-sidebar-text-hover) hover:bg-(--color-sidebar-item-hover)'}" do %>
+    <i class="ph ph-<%= icon %> text-lg flex-shrink-0"></i>
+    <span class="flex-1 whitespace-nowrap"><%= label %></span>
+  <% end %>
+</li>

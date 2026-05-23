@@ -1,0 +1,90 @@
+<section class="min-h-screen flex items-center justify-center p-6 bg-(--color-surface-muted)">
+  <div class="w-full max-w-md">
+
+    <%# Brand %>
+    <div class="flex items-center justify-center gap-2.5 mb-8">
+      <%= image_tag "/logo.png", alt: "Cobrança em Dia", class: "h-9 w-auto" %>
+      <span class="text-base font-semibold text-(--color-text)">Cobrança em Dia</span>
+    </div>
+
+    <div class="auth-card text-center">
+
+      <div class="mx-auto w-14 h-14 rounded-2xl bg-(--color-brand-light) flex items-center justify-center mb-5">
+        <i class="ph ph-envelope-simple text-(--color-brand) text-2xl"></i>
+      </div>
+
+      <h1 class="text-2xl font-bold text-(--color-text) mb-2">
+        Verifique seu e-mail
+      </h1>
+      <p class="text-sm text-(--color-text-muted) mb-1">
+        Enviamos um código de <%= User::OTP_LENGTH %> dígitos para
+      </p>
+      <p class="text-sm font-medium text-(--color-text) mb-8 break-all">
+        <%= @email %>
+      </p>
+
+      <% if flash[:alert].present? %>
+        <%= render "shared/alert", type: :danger, message: flash[:alert] %>
+      <% end %>
+      <% if flash[:notice].present? %>
+        <%= render "shared/alert", type: :success, message: flash[:notice] %>
+      <% end %>
+
+      <%= form_with url: confirm_otp_path, method: :post, local: true,
+            data: { controller: "otp-input", "otp-input-length-value": User::OTP_LENGTH } do |f| %>
+        <%# Single hidden field that the Stimulus controller fills %>
+        <%= hidden_field_tag :code, "", data: { "otp-input-target": "hidden" } %>
+
+        <div class="flex justify-center gap-2 sm:gap-3 mb-6"
+             data-otp-input-target="boxes"
+             data-action="input->otp-input#onInput keydown->otp-input#onKeydown paste->otp-input#onPaste focus->otp-input#onFocus">
+          <% User::OTP_LENGTH.times do |i| %>
+            <input type="text"
+                   inputmode="numeric"
+                   autocomplete="one-time-code"
+                   pattern="[0-9]*"
+                   maxlength="1"
+                   <%= "autofocus" if i.zero? %>
+                   aria-label="Dígito <%= i + 1 %>"
+                   class="otp-box <%= @invalid_code ? 'otp-box-error' : '' %>">
+          <% end %>
+        </div>
+
+        <button type="submit"
+                data-otp-input-target="submit"
+                data-controller="loadable"
+                data-loadable-loading-text-value="Verificando..."
+                class="auth-btn-primary inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled>
+          Confirmar e entrar
+        </button>
+      <% end %>
+
+      <%# Resend %>
+      <div class="mt-6 text-sm text-(--color-text-muted)"
+           data-controller="otp-resend"
+           data-otp-resend-seconds-value="<%= @resend_in %>">
+        <span data-otp-resend-target="cooldown" class="<%= 'hidden' if @resend_in <= 0 %>">
+          Reenviar código em <span data-otp-resend-target="countdown"><%= @resend_in %></span>s
+        </span>
+        <%= button_to "Reenviar código", resend_otp_path, method: :post,
+              data: {
+                otp_resend_target: "button",
+                controller: "loadable",
+                "loadable-loading-text-value": "Reenviando..."
+              },
+              class: "auth-link bg-transparent border-0 p-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-1.5 #{'hidden' if @resend_in > 0}",
+              disabled: @resend_in > 0,
+              form: { class: "inline" } %>
+      </div>
+
+      <div class="mt-4 pt-4 border-t border-(--color-border)">
+        <%= link_to new_user_session_path, class: "text-xs text-(--color-text-subtle) hover:text-(--color-text-muted) inline-flex items-center gap-1.5" do %>
+          <i class="ph ph-arrow-left text-sm"></i>
+          Usar outro e-mail
+        <% end %>
+      </div>
+
+    </div>
+  </div>
+</section>

@@ -1,386 +1,493 @@
+<%# ═══════════════════════════════════════════════════════════════════════════
+    Landing — Mobile-first, Flowbite-inspired
+   ═══════════════════════════════════════════════════════════════════════════ %>
+<%
+  signed_in   = user_signed_in?
+  cta_path    = signed_in ? authenticated_root_path : new_user_session_path
+  cta_primary = signed_in ? "Ir para o dashboard" : "Começar grátis"
+  cta_create  = signed_in ? "Ir para o dashboard" : "Criar conta gratuita"
+  cta_resolve = signed_in ? "Ir para o dashboard" : "Resolver isso agora"
+  cta_nav     = signed_in ? "Dashboard"           : "Entrar"
+  cta_icon    = signed_in ? "squares-four"        : "arrow-right"
+%>
+
 <%# ── Navbar ──────────────────────────────────────────────────────────────── %>
-<header class="sticky top-0 z-50 bg-(--color-surface)/90 backdrop-blur-sm border-b border-(--color-border)">
-  <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-    <div class="flex items-center gap-2.5">
-      <%= image_tag "/logo.png", alt: "Cobrança em Dia", class: "h-8 w-auto" %>
-      <span class="font-semibold text-(--color-text) text-sm hidden sm:block">Cobrança em Dia</span>
-    </div>
-    <%= link_to new_user_session_path,
-          class: "inline-flex items-center gap-1.5 px-4 py-2 bg-(--color-brand) text-(--color-text-inverse) text-sm font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors" do %>
-      Entrar
-      <i class="ph ph-arrow-right text-sm"></i>
+<header data-controller="scroll-header"
+        class="sticky top-0 z-50 bg-(--color-surface)/85 backdrop-blur-md border-b border-(--color-border)">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
+    <a href="#top" class="flex items-center gap-2.5">
+      <%= image_tag "/logo.png", alt: "Cobrança em Dia", class: "h-7 sm:h-8 w-auto" %>
+      <span class="font-semibold text-(--color-text) text-sm hidden xs:block sm:block">Cobrança em Dia</span>
+    </a>
+
+    <nav class="hidden md:flex items-center gap-7 text-sm font-medium text-(--color-text-muted)">
+      <a href="#como-funciona" class="hover:text-(--color-brand) transition-colors">Como funciona</a>
+      <a href="#recursos" class="hover:text-(--color-brand) transition-colors">Recursos</a>
+      <a href="#duvidas" class="hover:text-(--color-brand) transition-colors">Dúvidas</a>
+    </nav>
+
+    <%= link_to cta_path,
+          class: "group inline-flex items-center gap-2 pl-3.5 pr-1.5 py-1.5 rounded-full ring-1 ring-(--color-border-strong) hover:ring-(--color-brand) text-(--color-text) hover:text-(--color-brand) text-sm font-semibold transition-all" do %>
+      <%= cta_nav %>
+      <span class="flex items-center justify-center w-6 h-6 rounded-full bg-(--color-brand) text-(--color-text-inverse) group-hover:bg-(--color-brand-dark) transition-colors">
+        <i class="ph ph-<%= cta_icon %> text-[11px]"></i>
+      </span>
     <% end %>
   </div>
 </header>
 
-<%# ── Hero ───────────────────────────────────────────────────────────────── %>
-<section class="bg-(--color-brand) text-(--color-text-inverse) py-16 sm:py-24 px-6">
-  <div class="max-w-5xl mx-auto">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
+<%# ── Hero ────────────────────────────────────────────────────────────────── %>
+<section id="top" class="relative overflow-hidden bg-(--color-brand) text-(--color-text-inverse)">
+  <%# Decorative glow blobs %>
+  <div aria-hidden="true" class="absolute -top-24 -right-24 w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-(--color-accent)/20 blur-3xl"></div>
+  <div aria-hidden="true" class="absolute -bottom-32 -left-32 w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-(--color-brand-dark)/60 blur-3xl"></div>
+
+  <div class="relative max-w-6xl mx-auto px-4 sm:px-6 pt-10 pb-14 sm:pt-20 sm:pb-24">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14 items-center">
 
       <%# Text column %>
-      <div>
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-sm text-blue-200 mb-6">
-          <i class="ph ph-whatsapp-logo text-base"></i>
-          Integração nativa com WhatsApp
-        </span>
+      <div class="text-center md:text-left">
+        <%# Trust badge with rating %>
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 ring-1 ring-white/15 text-xs sm:text-sm mb-5">
+          <span class="flex items-center gap-0.5 text-(--color-accent)">
+            <i class="ph-fill ph-star text-[11px]"></i>
+            <i class="ph-fill ph-star text-[11px]"></i>
+            <i class="ph-fill ph-star text-[11px]"></i>
+            <i class="ph-fill ph-star text-[11px]"></i>
+            <i class="ph-fill ph-star text-[11px]"></i>
+          </span>
+          <span class="text-blue-100">Aprovado por +500 empresas</span>
+        </div>
 
-        <h1 class="text-4xl sm:text-5xl font-bold leading-tight tracking-tight">
-          Cobranças via WhatsApp<br>no piloto automático
+        <h1 class="text-[2rem] leading-[1.1] sm:text-5xl md:text-[3.25rem] font-extrabold tracking-tight">
+          Cobranças no <span class="text-(--color-accent)">WhatsApp</span><br class="hidden sm:block">
+          <span class="sm:hidden"> </span>no piloto automático
         </h1>
 
-        <p class="mt-6 text-lg text-blue-200 max-w-xl leading-relaxed">
-          Automatize lembretes de vencimento, acompanhe pagamentos e mantenha seus clientes em dia — sem precisar fazer nada manualmente.
+        <p class="mt-5 sm:mt-6 text-base sm:text-lg text-blue-100/90 leading-relaxed max-w-xl mx-auto md:mx-0">
+          Pare de cobrar manualmente. Configure uma vez e deixe a plataforma enviar os lembretes, registrar os pagamentos e organizar tudo.
         </p>
 
-        <div class="mt-10 flex flex-wrap gap-3">
-          <%= link_to new_user_registration_path,
-                class: "inline-flex items-center gap-2 px-8 py-3.5 bg-(--color-accent) hover:bg-(--color-accent-dark) text-white font-semibold rounded-xl transition-colors text-sm" do %>
-            Começar agora
+        <%# CTAs — full width on mobile, inline on desktop %>
+        <div class="mt-7 sm:mt-9 flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center md:justify-start">
+          <%= link_to cta_path,
+                class: "inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-(--color-accent) hover:bg-(--color-accent-dark) text-white font-semibold rounded-xl transition-colors text-sm shadow-lg shadow-(--color-accent)/30" do %>
+            <%= cta_primary %>
             <i class="ph ph-arrow-right text-base"></i>
           <% end %>
-          <%= link_to new_user_session_path,
-                class: "inline-flex items-center gap-2 px-8 py-3.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium rounded-xl transition-colors text-sm" do %>
-            Já tenho conta
-          <% end %>
+          <a href="#como-funciona"
+             class="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white/10 hover:bg-white/15 ring-1 ring-white/20 text-white font-medium rounded-xl transition-colors text-sm">
+            <i class="ph ph-play-circle text-base"></i>
+            Como funciona
+          </a>
+        </div>
+
+        <%# Inline reassurances %>
+        <div class="mt-6 flex flex-wrap items-center justify-center md:justify-start gap-x-5 gap-y-2 text-xs text-blue-200/80">
+          <span class="inline-flex items-center gap-1.5">
+            <i class="ph ph-check-circle text-(--color-accent)"></i> Sem cartão
+          </span>
+          <span class="inline-flex items-center gap-1.5">
+            <i class="ph ph-check-circle text-(--color-accent)"></i> Configure em 5 min
+          </span>
+          <span class="inline-flex items-center gap-1.5">
+            <i class="ph ph-check-circle text-(--color-accent)"></i> Cancele quando quiser
+          </span>
         </div>
       </div>
 
       <%# Phone mockup column %>
       <div class="flex justify-center md:justify-end">
-        <div class="w-64">
-          <div class="bg-white/5 border border-white/10 rounded-3xl p-2 shadow-2xl">
+        <div class="relative w-64 sm:w-72">
+          <%# Soft glow behind phone %>
+          <div aria-hidden="true" class="absolute inset-0 bg-(--color-accent)/30 blur-3xl rounded-full"></div>
+
+          <div class="relative bg-white/5 ring-1 ring-white/15 rounded-[2rem] p-2.5 shadow-2xl backdrop-blur-sm">
             <%# Chat header %>
             <div class="flex items-center gap-2.5 px-3 py-2.5 bg-white/10 rounded-2xl mb-2">
-              <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
-                <i class="ph ph-storefront text-white text-sm"></i>
+              <div class="w-9 h-9 rounded-full bg-(--color-accent)/30 flex items-center justify-center flex-shrink-0">
+                <i class="ph-fill ph-storefront text-white text-base"></i>
               </div>
               <div>
                 <p class="text-white text-xs font-semibold">Minha Empresa</p>
                 <div class="flex items-center gap-1">
-                  <div class="w-1.5 h-1.5 rounded-full bg-green-400"></div>
-                  <p class="text-blue-300 text-[10px]">enviando automaticamente</p>
+                  <span class="relative flex w-1.5 h-1.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-400"></span>
+                  </span>
+                  <p class="text-blue-200 text-[10px]">enviando automaticamente</p>
                 </div>
               </div>
             </div>
             <%# Messages %>
             <div class="space-y-2 px-2 py-1">
-              <div class="bg-white/10 rounded-xl rounded-tl-sm p-2.5">
+              <div class="bg-white/10 rounded-2xl rounded-tl-sm p-2.5">
                 <p class="text-white text-xs leading-relaxed">Olá Ana! 👋 Sua parcela de R$150 vence amanhã.</p>
-                <p class="text-blue-300 text-[10px] text-right mt-1">09:00 ✓✓</p>
+                <p class="text-blue-200 text-[10px] text-right mt-1">09:00 <span class="text-(--color-accent)">✓✓</span></p>
               </div>
-              <div class="bg-white/10 rounded-xl rounded-tl-sm p-2.5">
+              <div class="bg-white/10 rounded-2xl rounded-tl-sm p-2.5">
                 <p class="text-white text-xs leading-relaxed">Oi Carlos! 📅 Lembrete: R$250 vence hoje.</p>
-                <p class="text-blue-300 text-[10px] text-right mt-1">09:00 ✓✓</p>
+                <p class="text-blue-200 text-[10px] text-right mt-1">09:00 <span class="text-(--color-accent)">✓✓</span></p>
               </div>
-              <div class="bg-white/15 rounded-xl rounded-tl-sm p-2.5">
+              <div class="bg-(--color-accent)/30 ring-1 ring-(--color-accent)/40 rounded-2xl rounded-tl-sm p-2.5">
                 <p class="text-white text-xs leading-relaxed">Pagamento confirmado, Ana! ✅ Obrigado!</p>
-                <p class="text-blue-300 text-[10px] text-right mt-1">10:45 ✓✓</p>
+                <p class="text-blue-100 text-[10px] text-right mt-1">10:45 <span class="text-(--color-accent)">✓✓</span></p>
               </div>
             </div>
             <%# Input bar %>
             <div class="flex items-center gap-2 px-2 py-2 mt-1">
               <div class="flex-1 h-7 bg-white/10 rounded-full"></div>
-              <div class="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
-                <i class="ph ph-paper-plane-right text-white text-xs"></i>
+              <div class="w-7 h-7 rounded-full bg-(--color-accent)/40 flex items-center justify-center flex-shrink-0">
+                <i class="ph-fill ph-paper-plane-right text-white text-xs"></i>
               </div>
             </div>
           </div>
-          <p class="text-center text-blue-300 text-xs mt-3">Mensagens enviadas automaticamente às 09:00</p>
+          <p class="text-center text-blue-200 text-xs mt-4">📤 Enviado automaticamente às 09:00</p>
         </div>
+      </div>
+
+    </div>
+  </div>
+
+  <%# Decorative bottom wave %>
+  <div aria-hidden="true" class="relative -mb-px">
+    <svg viewBox="0 0 1440 60" class="w-full h-8 sm:h-12" preserveAspectRatio="none">
+      <path d="M0,40 C320,0 720,80 1440,20 L1440,60 L0,60 Z" fill="var(--color-surface)"></path>
+    </svg>
+  </div>
+</section>
+
+<%# ── Stats strip (Flowbite-inspired) ──────────────────────────────────────── %>
+<section class="py-10 sm:py-14 px-4 sm:px-6 bg-(--color-surface)">
+  <div class="max-w-5xl mx-auto">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-px bg-(--color-border) rounded-2xl overflow-hidden border border-(--color-border)">
+
+      <div class="bg-(--color-surface) px-4 py-6 sm:py-8 text-center">
+        <p class="text-2xl sm:text-4xl font-extrabold text-(--color-brand) tracking-tight">+500</p>
+        <p class="mt-1 text-[11px] sm:text-xs text-(--color-text-muted) font-medium uppercase tracking-wide">Cobranças enviadas</p>
+      </div>
+
+      <div class="bg-(--color-surface) px-4 py-6 sm:py-8 text-center">
+        <p class="text-2xl sm:text-4xl font-extrabold text-(--color-brand) tracking-tight">5 min</p>
+        <p class="mt-1 text-[11px] sm:text-xs text-(--color-text-muted) font-medium uppercase tracking-wide">Para configurar</p>
+      </div>
+
+      <div class="bg-(--color-surface) px-4 py-6 sm:py-8 text-center">
+        <p class="text-2xl sm:text-4xl font-extrabold text-(--color-brand) tracking-tight">24/7</p>
+        <p class="mt-1 text-[11px] sm:text-xs text-(--color-text-muted) font-medium uppercase tracking-wide">Sempre ativo</p>
+      </div>
+
+      <div class="bg-(--color-surface) px-4 py-6 sm:py-8 text-center">
+        <p class="text-2xl sm:text-4xl font-extrabold text-(--color-brand) tracking-tight">0%</p>
+        <p class="mt-1 text-[11px] sm:text-xs text-(--color-text-muted) font-medium uppercase tracking-wide">Esforço manual</p>
       </div>
 
     </div>
   </div>
 </section>
 
-<%# ── Pain Points ─────────────────────────────────────────────────────────── %>
-<section class="py-12 sm:py-20 px-6 bg-(--color-surface-muted)">
+<%# ── Pain Points (Before / After) ─────────────────────────────────────────── %>
+<section class="py-12 sm:py-20 px-4 sm:px-6 bg-(--color-surface-muted)">
   <div class="max-w-4xl mx-auto">
-    <div class="text-center mb-10">
-      <h2 class="text-3xl font-bold text-(--color-text)">Você se identifica?</h2>
+    <div class="text-center mb-8 sm:mb-12">
+      <span class="inline-block text-xs font-bold text-(--color-brand) uppercase tracking-widest mb-3">Você se identifica?</span>
+      <h2 class="text-2xl sm:text-4xl font-bold text-(--color-text) leading-tight">Da bagunça manual<br class="sm:hidden"> ao piloto automático</h2>
     </div>
 
-    <%# Before / After split panel %>
-    <div class="grid grid-cols-1 sm:grid-cols-2 rounded-2xl overflow-hidden border border-(--color-border) shadow-sm">
+    <div class="grid grid-cols-1 sm:grid-cols-2 rounded-2xl overflow-hidden border border-(--color-border) shadow-sm bg-(--color-surface)">
 
       <%# Before — pain %>
-      <div class="bg-red-50 p-7 sm:p-8">
-        <p class="text-xs font-bold text-red-500 uppercase tracking-widest mb-5">Sem o Cobrança em Dia</p>
-        <ul class="space-y-4">
-          <li class="flex items-start gap-2.5">
-            <i class="ph ph-x text-red-500 text-base font-bold flex-shrink-0 mt-0.5"></i>
-            <span class="text-sm text-(--color-text)">Esquecendo de cobrar no prazo</span>
-          </li>
-          <li class="flex items-start gap-2.5">
-            <i class="ph ph-x text-red-500 text-base font-bold flex-shrink-0 mt-0.5"></i>
-            <span class="text-sm text-(--color-text)">Mensagem manual todo mês</span>
-          </li>
-          <li class="flex items-start gap-2.5">
-            <i class="ph ph-x text-red-500 text-base font-bold flex-shrink-0 mt-0.5"></i>
-            <span class="text-sm text-(--color-text)">Horas perdidas no WhatsApp</span>
-          </li>
-          <li class="flex items-start gap-2.5">
-            <i class="ph ph-x text-red-500 text-base font-bold flex-shrink-0 mt-0.5"></i>
-            <span class="text-sm text-(--color-text)">Sem visibilidade de quem pagou</span>
-          </li>
-          <li class="flex items-start gap-2.5">
-            <i class="ph ph-x text-red-500 text-base font-bold flex-shrink-0 mt-0.5"></i>
-            <span class="text-sm text-(--color-text)">Cobrança gera desconforto</span>
-          </li>
+      <div class="bg-(--color-danger-light)/40 p-6 sm:p-8">
+        <div class="flex items-center gap-2 mb-5">
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-(--color-danger)/15 text-(--color-danger)">
+            <i class="ph-fill ph-x text-sm"></i>
+          </span>
+          <p class="text-xs font-bold text-(--color-danger) uppercase tracking-widest">Sem o Cobrança em Dia</p>
+        </div>
+        <ul class="space-y-3.5">
+          <% [
+            "Esquecendo de cobrar no prazo",
+            "Mensagem manual todo mês",
+            "Horas perdidas no WhatsApp",
+            "Sem visibilidade de quem pagou",
+            "Cobrança gera desconforto"
+          ].each do |pain| %>
+            <li class="flex items-start gap-2.5">
+              <i class="ph ph-x text-(--color-danger) text-base font-bold flex-shrink-0 mt-0.5"></i>
+              <span class="text-sm text-(--color-text)"><%= pain %></span>
+            </li>
+          <% end %>
         </ul>
       </div>
 
       <%# After — solution %>
-      <div class="bg-green-50 p-7 sm:p-8 border-t sm:border-t-0 sm:border-l border-(--color-border)">
-        <p class="text-xs font-bold text-green-700 uppercase tracking-widest mb-5">Com o Cobrança em Dia</p>
-        <ul class="space-y-4">
-          <li class="flex items-start gap-2.5">
-            <i class="ph-fill ph-check-circle text-green-600 text-lg flex-shrink-0 mt-0.5"></i>
-            <span class="text-sm text-(--color-text)">Cobranças no prazo, sem falhar</span>
-          </li>
-          <li class="flex items-start gap-2.5">
-            <i class="ph-fill ph-check-circle text-green-600 text-lg flex-shrink-0 mt-0.5"></i>
-            <span class="text-sm text-(--color-text)">Tudo automático pelo WhatsApp</span>
-          </li>
-          <li class="flex items-start gap-2.5">
-            <i class="ph-fill ph-check-circle text-green-600 text-lg flex-shrink-0 mt-0.5"></i>
-            <span class="text-sm text-(--color-text)">Configurado uma vez, roda sozinho</span>
-          </li>
-          <li class="flex items-start gap-2.5">
-            <i class="ph-fill ph-check-circle text-green-600 text-lg flex-shrink-0 mt-0.5"></i>
-            <span class="text-sm text-(--color-text)">Dashboard completo de pagamentos</span>
-          </li>
-          <li class="flex items-start gap-2.5">
-            <i class="ph-fill ph-check-circle text-green-600 text-lg flex-shrink-0 mt-0.5"></i>
-            <span class="text-sm text-(--color-text)">Tom profissional em cada mensagem</span>
-          </li>
+      <div class="bg-(--color-success-light)/40 p-6 sm:p-8 border-t sm:border-t-0 sm:border-l border-(--color-border)">
+        <div class="flex items-center gap-2 mb-5">
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-(--color-success)/15 text-(--color-success)">
+            <i class="ph-fill ph-check text-sm"></i>
+          </span>
+          <p class="text-xs font-bold text-(--color-success) uppercase tracking-widest">Com o Cobrança em Dia</p>
+        </div>
+        <ul class="space-y-3.5">
+          <% [
+            "Cobranças no prazo, sem falhar",
+            "Tudo automático pelo WhatsApp",
+            "Configurado uma vez, roda sozinho",
+            "Dashboard completo de pagamentos",
+            "Tom profissional em cada mensagem"
+          ].each do |win| %>
+            <li class="flex items-start gap-2.5">
+              <i class="ph-fill ph-check-circle text-(--color-success) text-lg flex-shrink-0 mt-0.5"></i>
+              <span class="text-sm text-(--color-text)"><%= win %></span>
+            </li>
+          <% end %>
         </ul>
       </div>
 
     </div>
 
-    <div class="mt-8 text-center">
-      <%= link_to new_user_registration_path,
-            class: "inline-flex items-center gap-2 px-8 py-3.5 bg-(--color-brand) hover:bg-(--color-brand-dark) text-(--color-text-inverse) font-semibold rounded-xl transition-colors text-sm" do %>
-        Resolver isso agora
+    <div class="mt-7 sm:mt-9 text-center">
+      <%= link_to cta_path,
+            class: "inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-3.5 bg-(--color-brand) hover:bg-(--color-brand-dark) text-(--color-text-inverse) font-semibold rounded-xl transition-colors text-sm shadow-sm" do %>
+        <%= cta_resolve %>
         <i class="ph ph-arrow-right text-base"></i>
       <% end %>
     </div>
   </div>
 </section>
 
-<%# ── How it works (3 steps) ─────────────────────────────────────────────── %>
-<section class="py-12 sm:py-20 px-6">
+<%# ── How it works (3 steps) ────────────────────────────────────────────── %>
+<section id="como-funciona" class="py-12 sm:py-20 px-4 sm:px-6 scroll-mt-20">
   <div class="max-w-4xl mx-auto">
     <div class="text-center mb-10 sm:mb-14">
-      <h2 class="text-3xl font-bold text-(--color-text)">Como funciona</h2>
-      <p class="mt-3 text-(--color-text-muted) text-lg">É só isso. Sério.</p>
+      <span class="inline-block text-xs font-bold text-(--color-brand) uppercase tracking-widest mb-3">Como funciona</span>
+      <h2 class="text-2xl sm:text-4xl font-bold text-(--color-text) leading-tight">3 passos. É sério.</h2>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8">
+    <%# Mobile: vertical timeline with connector line. Desktop: 3-column %>
+    <ol class="relative grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-8">
+      <%# Vertical connector — mobile only %>
+      <span aria-hidden="true" class="sm:hidden absolute left-7 top-7 bottom-7 w-px bg-(--color-border)"></span>
 
-      <%# Step 1 %>
-      <div class="relative flex sm:flex-col items-start sm:items-center gap-5 sm:gap-0 sm:text-center p-6 sm:p-0 rounded-2xl bg-(--color-surface-muted) sm:bg-transparent border border-(--color-border) sm:border-0">
-        <div class="w-14 h-14 rounded-full bg-(--color-brand) text-(--color-text-inverse) flex items-center justify-center text-2xl font-extrabold flex-shrink-0 sm:mb-6 shadow-md">
-          1
-        </div>
-        <div>
-          <h3 class="font-bold text-(--color-text) text-lg mb-1 sm:mb-2">Cadastre seus clientes</h3>
-          <p class="text-sm text-(--color-text-muted) leading-relaxed">Importe ou adicione rapidamente.</p>
-        </div>
-      </div>
+      <% [
+        { n: 1, title: "Cadastre seus clientes", desc: "Importe ou adicione rapidamente pelo dashboard.", icon: "users-three" },
+        { n: 2, title: "Configure as cobranças", desc: "Escolha o horário de envio e personalize a mensagem.", icon: "sliders-horizontal" },
+        { n: 3, title: "A plataforma faz o resto", desc: "Envios automáticos e acompanhamento dos pagamentos.", icon: "rocket-launch" }
+      ].each do |step| %>
+        <li class="relative flex sm:flex-col items-start sm:items-center gap-4 sm:gap-0 sm:text-center p-5 sm:p-6 rounded-2xl bg-(--color-surface) sm:bg-(--color-surface-muted) border border-(--color-border) shadow-sm sm:shadow-none">
+          <div class="relative w-14 h-14 rounded-full bg-(--color-brand) text-(--color-text-inverse) flex items-center justify-center text-xl font-extrabold flex-shrink-0 sm:mb-5 shadow-md ring-4 ring-(--color-brand-light)">
+            <%= step[:n] %>
+          </div>
+          <div class="flex-1">
+            <h3 class="font-bold text-(--color-text) text-base sm:text-lg mb-1">
+              <%= step[:title] %>
+            </h3>
+            <p class="text-sm text-(--color-text-muted) leading-relaxed"><%= step[:desc] %></p>
+          </div>
+        </li>
+      <% end %>
+    </ol>
 
-      <%# Arrow (mobile only) %>
-      <div class="flex justify-center sm:hidden text-(--color-text-subtle) -my-1">
-        <i class="ph ph-arrow-down text-xl"></i>
-      </div>
-
-      <%# Step 2 %>
-      <div class="relative flex sm:flex-col items-start sm:items-center gap-5 sm:gap-0 sm:text-center p-6 sm:p-0 rounded-2xl bg-(--color-surface-muted) sm:bg-transparent border border-(--color-border) sm:border-0">
-        <div class="w-14 h-14 rounded-full bg-(--color-brand) text-(--color-text-inverse) flex items-center justify-center text-2xl font-extrabold flex-shrink-0 sm:mb-6 shadow-md">
-          2
-        </div>
-        <div>
-          <h3 class="font-bold text-(--color-text) text-lg mb-1 sm:mb-2">Configure as cobranças</h3>
-          <p class="text-sm text-(--color-text-muted) leading-relaxed">Escolha horário de envio e template.</p>
-        </div>
-      </div>
-
-      <%# Arrow (mobile only) %>
-      <div class="flex justify-center sm:hidden text-(--color-text-subtle) -my-1">
-        <i class="ph ph-arrow-down text-xl"></i>
-      </div>
-
-      <%# Step 3 %>
-      <div class="relative flex sm:flex-col items-start sm:items-center gap-5 sm:gap-0 sm:text-center p-6 sm:p-0 rounded-2xl bg-(--color-surface-muted) sm:bg-transparent border border-(--color-border) sm:border-0">
-        <div class="w-14 h-14 rounded-full bg-(--color-brand) text-(--color-text-inverse) flex items-center justify-center text-2xl font-extrabold flex-shrink-0 sm:mb-6 shadow-md">
-          3
-        </div>
-        <div>
-          <h3 class="font-bold text-(--color-text) text-lg mb-1 sm:mb-2">A plataforma faz o resto</h3>
-          <p class="text-sm text-(--color-text-muted) leading-relaxed">Envios automáticos e acompanhamento dos pagamentos.</p>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="mt-8 sm:mt-12 bg-(--color-surface-muted) rounded-2xl p-5 text-center border border-(--color-border)">
-      <p class="text-(--color-text-muted) text-sm">⏱️ Tempo médio para configurar</p>
-      <p class="text-2xl font-bold text-(--color-text) mt-1">Menos de 5 minutos</p>
+    <div class="mt-8 sm:mt-12 rounded-2xl p-5 sm:p-6 text-center border border-(--color-border) bg-gradient-to-br from-(--color-brand-subtle) to-(--color-accent-subtle)">
+      <p class="text-(--color-text-muted) text-xs sm:text-sm flex items-center justify-center gap-1.5">
+        <i class="ph ph-timer text-base text-(--color-brand)"></i>
+        Tempo médio para colocar no ar
+      </p>
+      <p class="text-2xl sm:text-3xl font-extrabold text-(--color-text) mt-1">Menos de 5 minutos</p>
     </div>
   </div>
 </section>
 
-<%# ── Trust: Security + Social Proof ─────────────────────────────────────── %>
-<section class="py-20 px-6 bg-(--color-surface-muted)">
-  <div class="max-w-5xl mx-auto">
+<%# ── Features ───────────────────────────────────────────────────────────── %>
+<section id="recursos" class="py-10 sm:py-16 px-4 sm:px-6 bg-(--color-surface-muted) scroll-mt-20">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-7 sm:mb-10">
+      <span class="inline-block text-xs font-bold text-(--color-brand) uppercase tracking-widest mb-2">Recursos</span>
+      <h2 class="text-2xl sm:text-4xl font-bold text-(--color-text) leading-tight">Tudo para cobrar sem esforço</h2>
+      <p class="mt-2 text-(--color-text-muted) max-w-xl mx-auto text-sm sm:text-base">Uma plataforma simples que faz o trabalho pesado por você.</p>
+    </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+
+      <% [
+        { icon: "paper-plane-tilt",  title: "Disparos automáticos",    desc: "Configure uma vez e esqueça. Mensagens enviadas no dia exato do vencimento." },
+        { icon: "users-three",       title: "Gestão de clientes",      desc: "Cadastre clientes, defina valores e vencimentos. Histórico sempre à mão." },
+        { icon: "receipt",           title: "Controle de pagamentos",  desc: "Registre baixas e mantenha o financeiro dos recebíveis em um só lugar." },
+        { icon: "chat-circle-text",  title: "Mensagens personalizadas", desc: "Use variáveis como nome e valor para um tom natural em cada cobrança." },
+        { icon: "chart-line-up",     title: "Painel de inadimplência", desc: "Veja em tempo real quem pagou, quem está atrasado e quanto entrou no mês." },
+        { icon: "shield-check",      title: "Dados em segurança",      desc: "Ambiente protegido. Suas informações ficam acessíveis só por você." }
+      ].each do |feat| %>
+        <div class="group bg-(--color-surface) rounded-xl border border-(--color-border) p-4 sm:p-5 hover:border-(--color-brand) hover:shadow-md transition-all">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-lg bg-(--color-brand-light) flex items-center justify-center flex-shrink-0 group-hover:bg-(--color-brand) transition-colors">
+              <i class="ph ph-<%= feat[:icon] %> text-(--color-brand) text-base group-hover:text-(--color-text-inverse) transition-colors"></i>
+            </div>
+            <h3 class="font-bold text-(--color-text) text-sm sm:text-base leading-tight"><%= feat[:title] %></h3>
+          </div>
+          <p class="text-sm text-(--color-text-muted) leading-relaxed"><%= feat[:desc] %></p>
+        </div>
+      <% end %>
+
+    </div>
+  </div>
+</section>
+
+<%# ── Trust: Security + Testimonial ────────────────────────────────────────── %>
+<section class="py-12 sm:py-20 px-4 sm:px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
 
       <%# Security %>
-      <div class="bg-(--color-surface) rounded-2xl border border-(--color-border) p-8">
-        <div class="w-11 h-11 rounded-xl bg-(--color-brand-light) flex items-center justify-center mb-5">
-          <i class="ph ph-shield-check text-(--color-brand) text-2xl"></i>
+      <div class="bg-(--color-surface) rounded-2xl border border-(--color-border) p-6 sm:p-8 shadow-sm">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="w-11 h-11 rounded-xl bg-(--color-brand-light) flex items-center justify-center flex-shrink-0">
+            <i class="ph ph-shield-check text-(--color-brand) text-2xl"></i>
+          </div>
+          <h3 class="text-lg sm:text-xl font-bold text-(--color-text)">Seus dados em boas mãos</h3>
         </div>
-        <h3 class="text-xl font-bold text-(--color-text) mb-6">Seus dados em boas mãos</h3>
-        <ul class="space-y-5">
-          <li class="flex items-start gap-3">
-            <i class="ph-fill ph-check-circle text-green-500 text-xl flex-shrink-0 mt-0.5"></i>
-            <div>
-              <p class="font-medium text-(--color-text)">Dados protegidos</p>
-              <p class="text-sm text-(--color-text-muted) mt-0.5">Seus clientes e cobranças ficam em ambiente seguro, acessível só por você.</p>
-            </div>
-          </li>
-          <li class="flex items-start gap-3">
-            <i class="ph-fill ph-check-circle text-green-500 text-xl flex-shrink-0 mt-0.5"></i>
-            <div>
-              <p class="font-medium text-(--color-text)">Cobranças automatizadas</p>
-              <p class="text-sm text-(--color-text-muted) mt-0.5">Nenhuma mensagem manual, nenhum esquecimento. A plataforma é quem envia.</p>
-            </div>
-          </li>
-          <li class="flex items-start gap-3">
-            <i class="ph-fill ph-check-circle text-green-500 text-xl flex-shrink-0 mt-0.5"></i>
-            <div>
-              <p class="font-medium text-(--color-text)">Histórico organizado</p>
-              <p class="text-sm text-(--color-text-muted) mt-0.5">Registro completo de todas as parcelas e pagamentos, sempre à mão.</p>
-            </div>
-          </li>
+        <ul class="space-y-4">
+          <% [
+            { t: "Dados protegidos",       d: "Seus clientes e cobranças ficam em ambiente seguro." },
+            { t: "Cobranças automatizadas", d: "Nenhuma mensagem manual, nenhum esquecimento." },
+            { t: "Histórico organizado",    d: "Registro completo de parcelas e pagamentos." }
+          ].each do |item| %>
+            <li class="flex items-start gap-3">
+              <i class="ph-fill ph-check-circle text-(--color-success) text-xl flex-shrink-0 mt-0.5"></i>
+              <div>
+                <p class="font-semibold text-(--color-text) text-sm"><%= item[:t] %></p>
+                <p class="text-sm text-(--color-text-muted) mt-0.5 leading-relaxed"><%= item[:d] %></p>
+              </div>
+            </li>
+          <% end %>
         </ul>
       </div>
 
-      <%# Social proof %>
-      <div class="flex flex-col gap-6">
-
-        <%# Stat %>
-        <div class="bg-(--color-brand) text-(--color-text-inverse) rounded-2xl p-7 text-center">
-          <%# PLACEHOLDER: update the number below as the platform grows — see assets.md %>
-          <p class="text-5xl font-extrabold tracking-tight">+500</p>
-          <p class="mt-2 text-blue-200">cobranças enviadas automaticamente</p>
-          <p class="mt-1 text-blue-300 text-sm">por empresas que economizam horas por semana</p>
+      <%# Testimonial card %>
+      <div class="flex flex-col gap-5">
+        <%# Big stat %>
+        <div class="relative overflow-hidden bg-(--color-brand) text-(--color-text-inverse) rounded-2xl p-6 sm:p-7 text-center shadow-sm">
+          <div aria-hidden="true" class="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-(--color-accent)/20 blur-3xl"></div>
+          <div class="relative">
+            <p class="text-4xl sm:text-5xl font-extrabold tracking-tight">+500</p>
+            <p class="mt-2 text-blue-100">cobranças enviadas automaticamente</p>
+            <p class="mt-1 text-blue-200 text-xs sm:text-sm">por empresas que economizam horas por semana</p>
+          </div>
         </div>
 
         <%# Testimonial %>
-        <div class="bg-(--color-surface) rounded-2xl border border-(--color-border) p-7 flex-1">
-          <div class="flex gap-0.5 mb-4 text-(--color-accent)">
-            <i class="ph-fill ph-star"></i>
-            <i class="ph-fill ph-star"></i>
-            <i class="ph-fill ph-star"></i>
-            <i class="ph-fill ph-star"></i>
-            <i class="ph-fill ph-star"></i>
+        <div class="bg-(--color-surface) rounded-2xl border border-(--color-border) p-6 sm:p-7 flex-1 shadow-sm">
+          <div class="flex gap-0.5 mb-3 text-(--color-accent)">
+            <% 5.times do %><i class="ph-fill ph-star text-sm"></i><% end %>
           </div>
-          <%# PLACEHOLDER: replace quote with a real customer testimonial — see assets.md %>
-          <p class="text-(--color-text) leading-relaxed italic">
+          <p class="text-(--color-text) leading-relaxed italic text-sm sm:text-base">
             "Antes eu esquecia de cobrar clientes toda semana. Hoje sai tudo automático pelo WhatsApp e eu nem preciso abrir o celular."
           </p>
-          <div class="flex items-center gap-3 mt-5">
-            <%# PLACEHOLDER: replace with real customer photo — see assets.md %>
-            <div class="w-10 h-10 rounded-full bg-(--color-surface-muted) border border-(--color-border) flex items-center justify-center flex-shrink-0">
-              <i class="ph ph-user text-(--color-text-muted) text-base"></i>
+          <div class="flex items-center gap-3 mt-5 pt-5 border-t border-(--color-border)">
+            <div class="w-10 h-10 rounded-full bg-(--color-brand-light) border border-(--color-border) flex items-center justify-center flex-shrink-0">
+              <i class="ph-fill ph-user text-(--color-brand) text-base"></i>
             </div>
             <div>
-              <%# PLACEHOLDER: replace with real customer name and role — see assets.md %>
               <p class="font-semibold text-(--color-text) text-sm">Maria S.</p>
               <p class="text-xs text-(--color-text-muted)">Proprietária de academia</p>
             </div>
           </div>
         </div>
-
       </div>
-    </div>
 
+    </div>
   </div>
 </section>
 
-<%# ── Features ───────────────────────────────────────────────────────────── %>
-<section class="py-12 sm:py-20 px-6">
-  <div class="max-w-5xl mx-auto">
+<%# ── FAQ (Flowbite accordion) ─────────────────────────────────────────────── %>
+<section id="duvidas" class="py-12 sm:py-20 px-4 sm:px-6 bg-(--color-surface-muted) scroll-mt-20">
+  <div class="max-w-3xl mx-auto">
     <div class="text-center mb-8 sm:mb-12">
-      <h2 class="text-3xl font-bold text-(--color-text)">Tudo para cobrar sem esforço</h2>
-      <p class="mt-3 text-(--color-text-muted) max-w-lg mx-auto">Uma plataforma simples que faz o trabalho pesado de cobrança por você.</p>
+      <span class="inline-block text-xs font-bold text-(--color-brand) uppercase tracking-widest mb-3">Dúvidas frequentes</span>
+      <h2 class="text-2xl sm:text-4xl font-bold text-(--color-text) leading-tight">Perguntas comuns</h2>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div id="faq-accordion" data-accordion="collapse" class="bg-(--color-surface) rounded-2xl border border-(--color-border) overflow-hidden shadow-sm">
+      <% faqs = [
+        {
+          q: "Preciso pagar pelo WhatsApp Business API?",
+          a: "Não. A plataforma conecta direto com o WhatsApp comum, sem custo de API. Você só precisa de um número dedicado para os envios."
+        },
+        {
+          q: "Em quanto tempo consigo colocar no ar?",
+          a: "Em menos de 5 minutos. Você cria sua conta, conecta o WhatsApp pelo QR code, cadastra seus clientes e pronto — as cobranças já começam a ser enviadas no próximo vencimento."
+        },
+        {
+          q: "Posso personalizar as mensagens?",
+          a: "Sim! Você define o texto da mensagem usando variáveis como nome do cliente, valor e data de vencimento. Cada cliente recebe uma mensagem natural e personalizada."
+        },
+        {
+          q: "E se um cliente pagar antes do envio?",
+          a: "Você pode marcar a parcela como paga pelo dashboard com um toque. A cobrança automática é cancelada e o histórico atualizado na hora."
+        },
+        {
+          q: "Meus dados estão seguros?",
+          a: "Sim. Todos os dados ficam armazenados em ambiente protegido e acessíveis apenas com sua conta. Seguimos boas práticas de segurança e LGPD."
+        },
+        {
+          q: "Posso cancelar quando quiser?",
+          a: "Sim, sem fidelidade. Você cria a conta grátis e só passa a pagar quando estiver realmente usando — e pode cancelar a qualquer momento."
+        }
+      ] %>
 
-      <div class="bg-(--color-surface-muted) rounded-2xl border border-(--color-border) p-5">
-        <div class="flex items-center gap-3 mb-3">
-          <div class="w-9 h-9 rounded-xl bg-(--color-brand-light) flex items-center justify-center flex-shrink-0">
-            <i class="ph ph-paper-plane-tilt text-(--color-brand) text-lg"></i>
+      <% faqs.each_with_index do |faq, i| %>
+        <h2 id="faq-heading-<%= i %>">
+          <button type="button"
+                  data-accordion-target="#faq-body-<%= i %>"
+                  aria-expanded="<%= i.zero? %>"
+                  aria-controls="faq-body-<%= i %>"
+                  class="flex items-center justify-between w-full p-5 font-semibold text-left text-(--color-text) hover:bg-(--color-surface-muted) transition-colors gap-3 <%= 'border-t border-(--color-border)' if i.positive? %>">
+            <span class="text-sm sm:text-base"><%= faq[:q] %></span>
+            <i class="ph ph-caret-down text-base text-(--color-text-muted) transition-transform flex-shrink-0" data-accordion-icon></i>
+          </button>
+        </h2>
+        <div id="faq-body-<%= i %>"
+             class="<%= 'hidden' unless i.zero? %>"
+             aria-labelledby="faq-heading-<%= i %>">
+          <div class="px-5 pb-5 -mt-1">
+            <p class="text-sm text-(--color-text-muted) leading-relaxed"><%= faq[:a] %></p>
           </div>
-          <h3 class="font-semibold text-(--color-text)">Disparos automáticos</h3>
         </div>
-        <p class="text-sm text-(--color-text-muted) leading-relaxed">
-          Configure uma vez e esqueça. Mensagens de cobrança são enviadas automaticamente no dia do vencimento.
-        </p>
-      </div>
-
-      <div class="bg-(--color-surface-muted) rounded-2xl border border-(--color-border) p-5">
-        <div class="flex items-center gap-3 mb-3">
-          <div class="w-9 h-9 rounded-xl bg-(--color-brand-light) flex items-center justify-center flex-shrink-0">
-            <i class="ph ph-users-three text-(--color-brand) text-lg"></i>
-          </div>
-          <h3 class="font-semibold text-(--color-text)">Gestão de clientes</h3>
-        </div>
-        <p class="text-sm text-(--color-text-muted) leading-relaxed">
-          Cadastre clientes, defina valores e datas de vencimento. Histórico completo de parcelas e pagamentos.
-        </p>
-      </div>
-
-      <div class="bg-(--color-surface-muted) rounded-2xl border border-(--color-border) p-5">
-        <div class="flex items-center gap-3 mb-3">
-          <div class="w-9 h-9 rounded-xl bg-(--color-brand-light) flex items-center justify-center flex-shrink-0">
-            <i class="ph ph-receipt text-(--color-brand) text-lg"></i>
-          </div>
-          <h3 class="font-semibold text-(--color-text)">Controle de pagamentos</h3>
-        </div>
-        <p class="text-sm text-(--color-text-muted) leading-relaxed">
-          Registre baixas e mantenha o controle financeiro dos seus recebíveis em um só lugar.
-        </p>
-      </div>
-
+      <% end %>
     </div>
+
+    <p class="mt-6 text-center text-sm text-(--color-text-muted)">
+      Tem outra dúvida?
+      <a href="mailto:contato@cobrancaemdia.com.br" class="text-(--color-brand) font-semibold hover:underline">Fale com a gente</a>
+    </p>
   </div>
 </section>
 
-<%# ── Final CTA ───────────────────────────────────────────────────────────── %>
-<section class="bg-(--color-brand) py-20 px-6 text-center text-(--color-text-inverse)">
-  <div class="max-w-xl mx-auto">
-    <h2 class="text-3xl font-bold">Pronto para cobrar no piloto automático?</h2>
-    <p class="mt-4 text-blue-200 text-lg">Comece agora e automatize suas cobranças em minutos.</p>
-    <%= link_to new_user_registration_path,
-          class: "mt-8 inline-flex items-center gap-2 px-10 py-4 bg-(--color-accent) hover:bg-(--color-accent-dark) text-white font-semibold rounded-xl transition-colors" do %>
-      Criar conta gratuita
-      <i class="ph ph-arrow-right text-base"></i>
-    <% end %>
+<%# ── Final CTA ────────────────────────────────────────────────────────────── %>
+<section class="relative overflow-hidden bg-(--color-brand) py-14 sm:py-20 px-4 sm:px-6 text-(--color-text-inverse)">
+  <div aria-hidden="true" class="absolute -top-24 -right-12 w-72 h-72 rounded-full bg-(--color-accent)/20 blur-3xl"></div>
+  <div aria-hidden="true" class="absolute -bottom-24 -left-12 w-72 h-72 rounded-full bg-(--color-brand-dark)/60 blur-3xl"></div>
+
+  <div class="relative max-w-2xl mx-auto text-center">
+    <h2 class="text-2xl sm:text-4xl font-extrabold leading-tight">Pronto para cobrar no piloto automático?</h2>
+    <p class="mt-4 text-blue-100 text-base sm:text-lg max-w-lg mx-auto">Comece grátis agora e automatize suas cobranças em minutos.</p>
+
+    <div class="mt-8 flex flex-col sm:flex-row gap-3 sm:justify-center">
+      <%= link_to cta_path,
+            class: "inline-flex items-center justify-center gap-2 px-8 py-4 bg-(--color-accent) hover:bg-(--color-accent-dark) text-white font-semibold rounded-xl transition-colors shadow-lg shadow-black/20" do %>
+        <%= cta_create %>
+        <i class="ph ph-arrow-right text-base"></i>
+      <% end %>
+    </div>
+
+    <p class="mt-5 text-xs text-blue-200">Sem cartão de crédito • Cancele quando quiser</p>
   </div>
 </section>
 
 <%# ── Footer ─────────────────────────────────────────────────────────────── %>
 <footer class="border-t border-(--color-border) bg-(--color-surface-muted)">
 
-  <%# Main footer row %>
-  <div class="max-w-5xl mx-auto px-6 py-10">
-    <div class="flex flex-col sm:flex-row justify-between gap-10">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-12">
+    <div class="flex flex-col sm:flex-row justify-between gap-8 sm:gap-10">
 
       <%# Brand %>
       <div class="max-w-xs">
@@ -392,18 +499,30 @@
       </div>
 
       <%# Links %>
-      <div class="flex flex-wrap gap-10">
+      <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-8 sm:gap-12">
+        <div>
+          <p class="text-xs font-bold text-(--color-text) uppercase tracking-widest mb-4">Navegar</p>
+          <ul class="space-y-2.5">
+            <li><a href="#como-funciona" class="text-sm text-(--color-text-muted) hover:text-(--color-brand) transition-colors">Como funciona</a></li>
+            <li><a href="#recursos" class="text-sm text-(--color-text-muted) hover:text-(--color-brand) transition-colors">Recursos</a></li>
+            <li><a href="#duvidas" class="text-sm text-(--color-text-muted) hover:text-(--color-brand) transition-colors">Dúvidas</a></li>
+          </ul>
+        </div>
         <div>
           <p class="text-xs font-bold text-(--color-text) uppercase tracking-widest mb-4">Produto</p>
           <ul class="space-y-2.5">
-            <li><%= link_to "Entrar", new_user_session_path, class: "text-sm text-(--color-text-muted) hover:text-(--color-brand) transition-colors" %></li>
-            <li><%= link_to "Criar conta", new_user_registration_path, class: "text-sm text-(--color-text-muted) hover:text-(--color-brand) transition-colors" %></li>
+            <% if signed_in %>
+              <li><%= link_to "Ir para o dashboard", authenticated_root_path, class: "text-sm text-(--color-text-muted) hover:text-(--color-brand) transition-colors" %></li>
+            <% else %>
+              <li><%= link_to "Entrar", new_user_session_path, class: "text-sm text-(--color-text-muted) hover:text-(--color-brand) transition-colors" %></li>
+              <li><%= link_to "Criar conta", new_user_session_path, class: "text-sm text-(--color-text-muted) hover:text-(--color-brand) transition-colors" %></li>
+            <% end %>
           </ul>
         </div>
         <div>
           <p class="text-xs font-bold text-(--color-text) uppercase tracking-widest mb-4">Legal</p>
           <ul class="space-y-2.5">
-            <li><a href="#" class="text-sm text-(--color-text-muted) hover:text-(--color-brand) transition-colors">Política de Privacidade</a></li>
+            <li><a href="#" class="text-sm text-(--color-text-muted) hover:text-(--color-brand) transition-colors">Privacidade</a></li>
             <li><a href="#" class="text-sm text-(--color-text-muted) hover:text-(--color-brand) transition-colors">Termos de Uso</a></li>
           </ul>
         </div>
@@ -412,10 +531,9 @@
     </div>
   </div>
 
-  <%# Bottom bar %>
   <div class="border-t border-(--color-border)">
-    <div class="max-w-5xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-      <p class="text-xs text-(--color-text-subtle)">© <%= Date.today.year %> Cobrança em Dia. Todos os direitos reservados.</p>
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col-reverse sm:flex-row items-center justify-between gap-3">
+      <p class="text-xs text-(--color-text-subtle) text-center sm:text-left">© <%= Date.today.year %> Cobrança em Dia. Todos os direitos reservados.</p>
       <div class="flex items-center gap-4">
         <a href="https://www.instagram.com/cobrancadia" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="text-(--color-text-muted) hover:text-(--color-brand) transition-colors">
           <i class="ph ph-instagram-logo text-xl"></i>

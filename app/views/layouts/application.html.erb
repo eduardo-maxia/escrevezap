@@ -39,11 +39,10 @@
       </script>
     <% end %>
 
-    <%# warning / alert → persistent banner %>
+    <%# warning / alert → Flowbite alert banner (top-right) %>
     <% if alert.present? %>
-      <div class="fixed top-4 right-4 z-50 flex items-center gap-3 bg-(--color-danger-light) text-(--color-danger) border border-(--color-danger) rounded-lg px-4 py-3 shadow-sm text-sm font-medium" data-turbo-temporary>
-        <i class="ph ph-warning-circle text-lg"></i>
-        <span><%= alert %></span>
+      <div class="fixed top-4 right-4 z-50 max-w-sm shadow-lg">
+        <%= render "shared/alert", type: :danger, message: alert %>
       </div>
     <% end %>
 

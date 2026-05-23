@@ -3,15 +3,39 @@ class ApplicationController < ActionController::Base
   include Pagy::Backend
 
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
-  allow_browser versions: :modern
+  # allow_browser versions: :modern
 
   before_action :check_onboarding
+
+  # Never 404 — bad record IDs fall back to a sensible page.
+  rescue_from ActiveRecord::RecordNotFound, with: :handle_not_found
+  rescue_from ActionController::RoutingError, with: :handle_not_found
 
   def after_sign_in_path_for(resource)
     resource.onboarding_completed? ? authenticated_root_path : onboarding_step1_path
   end
 
+  # After Devise sign-out, send the user back to the login page (not the
+  # marketing home), so they can immediately log back in.
+  def after_sign_out_path_for(_resource_or_scope)
+    new_user_session_path
+  end
+
+  # Catch-all action wired from the routes file — used when no route matches.
+  def route_not_found
+    handle_not_found
+  end
+
   private
+
+  def handle_not_found(_exception = nil)
+    target = user_signed_in? ? authenticated_root_path : new_user_session_path
+    respond_to do |format|
+      format.html { redirect_to target, alert: "Página não encontrada." }
+      format.json { render json: { error: "not_found" }, status: :not_found }
+      format.any  { redirect_to target, alert: "Página não encontrada." }
+    end
+  end
 
   def check_onboarding
     return unless user_signed_in?

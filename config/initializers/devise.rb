@@ -272,9 +272,21 @@ Devise.setup do |config|
   config.sign_out_via = :delete
 
   # ==> OmniAuth
-  # Add a new OmniAuth provider. Check the wiki for more information on setting
-  # up on your models and hooks.
-  # config.omniauth :github, 'APP_ID', 'APP_SECRET', scope: 'user,public_repo'
+  # Google OAuth2 — credentials are stored under `google` in Rails credentials:
+  #   google:
+  #     client_id: "..."
+  #     client_secret: "..."
+  google = Rails.application.credentials.google
+  if google&.dig(:client_id).present? && google&.dig(:client_secret).present?
+    config.omniauth :google_oauth2,
+                    google[:client_id],
+                    google[:client_secret],
+                    scope: "email,profile",
+                    prompt: "select_account",
+                    image_aspect_ratio: "square",
+                    image_size: 96,
+                    access_type: "online"
+  end
 
   # ==> Warden configuration
   # If you want to use other strategies, that are not supported by Devise, or

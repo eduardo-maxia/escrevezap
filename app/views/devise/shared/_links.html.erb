@@ -1,27 +1,27 @@
 <div class="mt-6 space-y-2 text-center">
   <%- if controller_name != 'sessions' %>
     <p class="text-sm text-(--color-text-muted)">
-      Já tem conta? <%= link_to "Entrar", new_session_path(resource_name), class: "text-(--color-brand) hover:text-(--color-brand-dark) font-medium" %>
+      Já tem conta? <%= link_to "Entrar", new_session_path(resource_name), class: "auth-link" %>
     </p>
   <% end %>
   <%- if devise_mapping.registerable? && controller_name != 'registrations' %>
     <p class="text-sm text-(--color-text-muted)">
-      Não tem conta? <%= link_to "Criar conta", new_registration_path(resource_name), class: "text-(--color-brand) hover:text-(--color-brand-dark) font-medium" %>
+      Não tem conta? <%= link_to "Criar conta", new_registration_path(resource_name), class: "auth-link" %>
     </p>
   <% end %>
   <%- if devise_mapping.recoverable? && controller_name != 'passwords' && controller_name != 'registrations' %>
     <p class="text-sm text-(--color-text-muted)">
-      <%= link_to "Esqueceu sua senha?", new_password_path(resource_name), class: "text-(--color-brand) hover:text-(--color-brand-dark) font-medium" %>
+      <%= link_to "Esqueceu sua senha?", new_password_path(resource_name), class: "auth-link" %>
     </p>
   <% end %>
   <%- if devise_mapping.confirmable? && controller_name != 'confirmations' %>
     <p class="text-sm text-(--color-text-muted)">
-      <%= link_to "Não recebeu o e-mail de confirmação?", new_confirmation_path(resource_name), class: "text-(--color-brand) hover:text-(--color-brand-dark) font-medium" %>
+      <%= link_to "Não recebeu o e-mail de confirmação?", new_confirmation_path(resource_name), class: "auth-link" %>
     </p>
   <% end %>
   <%- if devise_mapping.lockable? && resource_class.unlock_strategy_enabled?(:email) && controller_name != 'unlocks' %>
     <p class="text-sm text-(--color-text-muted)">
-      <%= link_to "Não recebeu as instruções de desbloqueio?", new_unlock_path(resource_name), class: "text-(--color-brand) hover:text-(--color-brand-dark) font-medium" %>
+      <%= link_to "Não recebeu as instruções de desbloqueio?", new_unlock_path(resource_name), class: "auth-link" %>
     </p>
   <% end %>
 </div>

@@ -1,5 +1,10 @@
 <% content_for :page_title, @client.name %>
 
+<% content_for :head do %>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@28.1.0/dist/css/intlTelInput.css">
+  <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@28.1.0/dist/js/intlTelInputWithUtils.min.js"></script>
+<% end %>
+
 <% edit_btn_cls = "md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1 rounded-md hover:bg-(--color-surface-raised) text-(--color-text-subtle) hover:text-(--color-text-muted) flex-shrink-0" %>
 <% save_cls    = "px-2.5 py-1.5 bg-(--color-brand) text-(--color-text-inverse) text-xs font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors cursor-pointer whitespace-nowrap" %>
 <% cancel_cls  = "px-2.5 py-1.5 border border-(--color-border) text-xs font-medium text-(--color-text-muted) rounded-lg hover:text-(--color-text) transition-colors whitespace-nowrap" %>
@@ -40,7 +45,7 @@
           </button>
         </div>
         <div data-inline-edit-target="editor" class="hidden mt-1">
-          <%= form_with url: client_path(@client), method: :patch, class: "flex items-center gap-2 flex-wrap" do |f| %>
+          <%= form_with model: @client, class: "flex items-center gap-2 flex-wrap" do |f| %>
             <%= f.text_field :name, data: { inline_edit_target: "field" },
                   class: "px-3 py-1.5 text-xl font-bold border border-(--color-border) rounded-lg focus:outline-none focus:border-(--color-brand) text-(--color-text) bg-(--color-surface) min-w-[14rem]" %>
             <%= f.submit "Salvar", class: save_cls %>
@@ -659,10 +664,12 @@
               </button>
             </div>
             <div data-inline-edit-target="editor" class="hidden mt-2">
-              <%= form_with url: client_path(@client), method: :patch do |f| %>
-                <%= f.text_field :phone_number, data: { inline_edit_target: "field" }, class: input_cls,
-                      placeholder: "5521999999999", value: @client.phone_number %>
-                <p class="text-xs text-(--color-text-subtle) mt-1">Formato internacional sem símbolos (ex: 5521999999999)</p>
+              <%= form_with model: @client,
+                    data: { controller: "phone-input", action: "submit->phone-input#syncHidden" } do |f| %>
+                <input type="tel"
+                       data-phone-input-target="input"
+                       class="<%= input_cls %>">
+                <%= f.hidden_field :phone_number, data: { "phone-input-target": "hidden" } %>
                 <div class="flex items-center gap-2 mt-2">
                   <%= f.submit "Salvar", class: save_cls %>
                   <button type="button" data-action="click->inline-edit#cancel" class="<%= cancel_cls %>">Cancelar</button>
@@ -684,7 +691,7 @@
               </button>
             </div>
             <div data-inline-edit-target="editor" class="hidden mt-2">
-              <%= form_with url: client_path(@client), method: :patch do |f| %>
+              <%= form_with model: @client do |f| %>
                 <%= f.email_field :email, data: { inline_edit_target: "field" }, class: input_cls, value: @client.email %>
                 <div class="flex items-center gap-2 mt-2">
                   <%= f.submit "Salvar", class: save_cls %>

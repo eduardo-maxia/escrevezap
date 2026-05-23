@@ -1,6 +1,6 @@
 <% content_for :page_title, "Dashboard" %>
 
-<div class="p-6 space-y-6">
+<div class="p-4 md:p-6 space-y-6">
 
 <% if @feature_campanhas %>
 
@@ -206,161 +206,390 @@
 
   <%# ── SIMPLE MODE (feature_campanhas = false) ───────────────────── %>
 
-  <%# Welcome %>
-  <div>
-    <h2 class="text-2xl font-bold text-(--color-text)">
-      Olá, <%= current_user.name || current_user.email.split("@").first.capitalize %>!
-    </h2>
-    <p class="text-(--color-text-muted) text-sm mt-1">
-      Aqui está o resumo das suas cobranças.
-    </p>
-  </div>
+  <%
+    # Shared helpers for both mobile and desktop variants
+    chip_status_label, chip_status_icon, chip_status_fg, chip_status_bg =
+      case @chip&.waha_status
+      when "working"      then ["Conectado",       "ph-check-circle",   "--color-success",    "--color-success-light"]
+      when "scan_qr_code" then ["Aguardando QR",   "ph-qr-code",        "--color-warning",    "--color-warning-light"]
+      when "starting"     then ["Iniciando...",    "ph-circle-dashed",  "--color-warning",    "--color-warning-light"]
+      when "failed"       then ["Falha",           "ph-warning-circle", "--color-danger",     "--color-danger-light"]
+      when "stopped"      then ["Parado",          "ph-pause-circle",   "--color-text-muted", "--color-surface-raised"]
+      else                     ["Não configurado", "ph-plug",           "--color-text-muted", "--color-surface-raised"]
+      end
+    chip_working = @chip&.waha_status == "working"
+    first_name   = (current_user.name || current_user.email.split("@").first).to_s.split.first.capitalize
+  %>
 
-  <%# KPI Cards %>
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+  <%# ════════════════════════════════════════════════════════════════ %>
+  <%# MOBILE LAYOUT — focused, action-first                             %>
+  <%# ════════════════════════════════════════════════════════════════ %>
+  <div class="md:hidden space-y-4">
 
-    <%# Clientes %>
-    <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-5 flex items-start justify-between">
-      <div>
-        <p class="text-sm font-medium text-(--color-text-muted)">Clientes</p>
-        <p class="text-3xl font-bold text-(--color-text) mt-1"><%= @clients_count %></p>
-        <p class="text-sm text-(--color-text-subtle) mt-1">Cadastrados</p>
-      </div>
-      <div class="w-10 h-10 rounded-lg bg-(--color-info-light) flex items-center justify-center flex-shrink-0">
-        <i class="ph ph-users-three text-(--color-info) text-xl"></i>
-      </div>
+    <%# Greeting %>
+    <div class="pt-1">
+      <h2 class="text-xl font-bold text-(--color-text)">Olá, <%= first_name %>!</h2>
+      <p class="text-(--color-text-muted) text-xs mt-0.5">
+        <%= I18n.l(Date.today, format: "%A, %d de %B").capitalize rescue Date.today.strftime("%d/%m/%Y") %>
+      </p>
     </div>
 
-    <%# Faturamento do mês %>
-    <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-5 flex items-start justify-between">
-      <div>
-        <p class="text-sm font-medium text-(--color-text-muted)">Faturamento do mês</p>
-        <p class="text-2xl font-bold text-(--color-success) mt-1">
+    <%# 1. WhatsApp status — most critical (hero card) %>
+    <% if @chip %>
+      <%= link_to chip_path(@chip),
+            class: "block rounded-xl border #{chip_working ? 'border-(--color-success) bg-(--color-success-light)/40' : 'border-(--color-danger) bg-(--color-danger-light)/40'} p-4" do %>
+        <div class="flex items-center gap-3">
+          <% if chip_working && current_user.company&.profile_picture&.attached? %>
+            <%= image_tag current_user.company.profile_picture,
+                  class: "w-12 h-12 rounded-full object-cover ring-2 ring-(--color-success-light) flex-shrink-0" %>
+          <% else %>
+            <div class="w-12 h-12 rounded-full bg-(<%= chip_status_bg %>) flex items-center justify-center flex-shrink-0">
+              <i class="ph ph-whatsapp-logo text-(<%= chip_status_fg %>) text-2xl"></i>
+            </div>
+          <% end %>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs text-(--color-text-muted) leading-none mb-1">WhatsApp</p>
+            <p class="text-sm font-bold text-(--color-text) truncate">
+              <%= @chip.formatted_number.presence || @chip.name %>
+            </p>
+            <span class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-(<%= chip_status_bg %>) text-(<%= chip_status_fg %>)">
+              <i class="ph <%= chip_status_icon %>"></i>
+              <%= chip_status_label %>
+            </span>
+          </div>
+          <i class="ph ph-caret-right text-(--color-text-subtle) text-lg flex-shrink-0"></i>
+        </div>
+        <% unless chip_working %>
+          <p class="text-xs text-(--color-danger) font-medium mt-3 leading-snug">
+            <i class="ph ph-warning-circle align-middle"></i>
+            Cobranças <strong>não estão sendo enviadas</strong>. Toque para reconectar.
+          </p>
+        <% end %>
+      <% end %>
+    <% else %>
+      <%= link_to settings_cobranca_path,
+            class: "block rounded-xl border-2 border-dashed border-(--color-border-strong) p-5 text-center" do %>
+        <i class="ph ph-plus-circle text-(--color-text-muted) text-3xl block mb-1"></i>
+        <p class="text-sm font-semibold text-(--color-text)">Conectar WhatsApp</p>
+        <p class="text-xs text-(--color-text-muted) mt-0.5">Necessário para enviar cobranças</p>
+      <% end %>
+    <% end %>
+
+    <%# 2. Faturamento do mês — hero number %>
+    <div class="rounded-xl bg-(--color-sidebar-bg) text-(--color-text-inverse) p-5 overflow-hidden relative">
+      <div class="relative z-10">
+        <p class="text-xs font-medium text-(--color-text-inverse)/70 uppercase tracking-wide">Recebido em <%= I18n.l(Date.today, format: "%B").capitalize rescue Date.today.strftime("%B") %></p>
+        <p class="text-3xl font-bold mt-1">
           <%= number_to_currency(@billing_month, unit: "R$\u00a0", separator: ",", delimiter: ".", precision: 2) %>
         </p>
-        <p class="text-sm text-(--color-text-subtle) mt-1">Recebido no mês atual</p>
+        <% if @billing_trend %>
+          <% up = @billing_trend >= 0 %>
+          <p class="text-xs mt-2 flex items-center gap-1 text-(--color-text-inverse)/80">
+            <i class="ph <%= up ? 'ph-trend-up text-(--color-success-light)' : 'ph-trend-down text-(--color-danger-light)' %>"></i>
+            <span class="font-semibold <%= up ? 'text-(--color-success-light)' : 'text-(--color-danger-light)' %>">
+              <%= up ? "+" : "" %><%= @billing_trend %>%
+            </span>
+            vs mês anterior
+          </p>
+        <% else %>
+          <p class="text-xs mt-2 text-(--color-text-inverse)/70">Sem comparação disponível</p>
+        <% end %>
       </div>
-      <div class="w-10 h-10 rounded-lg bg-(--color-success-light) flex items-center justify-center flex-shrink-0">
-        <i class="ph ph-trend-up text-(--color-success) text-xl"></i>
+      <i class="ph-fill ph-currency-circle-dollar absolute -right-4 -bottom-4 text-7xl text-(--color-text-inverse)/10"></i>
+    </div>
+
+    <%# 3. Atrasadas + Próximas (2-col) %>
+    <div class="grid grid-cols-2 gap-3">
+
+      <%# Atrasadas — vermelho se houver %>
+      <div class="rounded-xl p-4 border <%= @overdue_count > 0 ? 'border-(--color-danger) bg-(--color-danger-light)/40' : 'border-(--color-border) bg-(--color-surface)' %>">
+        <div class="flex items-center gap-1.5 text-xs font-medium <%= @overdue_count > 0 ? 'text-(--color-danger)' : 'text-(--color-text-muted)' %>">
+          <i class="ph ph-clock-countdown"></i>
+          Atrasadas
+        </div>
+        <p class="text-xl font-bold mt-1 <%= @overdue_count > 0 ? 'text-(--color-danger)' : 'text-(--color-text)' %>">
+          <%= number_to_currency(@overdue_amount, unit: "R$\u00a0", separator: ",", delimiter: ".", precision: 2) %>
+        </p>
+        <p class="text-[11px] text-(--color-text-muted) mt-0.5">
+          <%= @overdue_count %> parcela<%= @overdue_count == 1 ? "" : "s" %>
+        </p>
+      </div>
+
+      <%# Próximas 7 dias %>
+      <div class="rounded-xl p-4 border border-(--color-border) bg-(--color-surface)">
+        <div class="flex items-center gap-1.5 text-xs font-medium text-(--color-text-muted)">
+          <i class="ph ph-calendar-dots"></i>
+          Próximos 7 dias
+        </div>
+        <p class="text-xl font-bold mt-1 text-(--color-text)">
+          <%= number_to_currency(@upcoming_amount, unit: "R$\u00a0", separator: ",", delimiter: ".", precision: 2) %>
+        </p>
+        <p class="text-[11px] text-(--color-text-muted) mt-0.5">
+          <%= @upcoming_count %> parcela<%= @upcoming_count == 1 ? "" : "s" %>
+        </p>
+      </div>
+
+    </div>
+
+    <%# 4. A receber no mês — full width subtle bar %>
+    <div class="rounded-xl border border-(--color-border) bg-(--color-surface) p-4">
+      <div class="flex items-center justify-between gap-2">
+        <div class="min-w-0">
+          <p class="text-xs font-medium text-(--color-text-muted)">A receber no mês</p>
+          <p class="text-lg font-bold text-(--color-warning) mt-0.5">
+            <%= number_to_currency(@pending_month_amount, unit: "R$\u00a0", separator: ",", delimiter: ".", precision: 2) %>
+          </p>
+        </div>
+        <div class="w-10 h-10 rounded-lg bg-(--color-warning-light) flex items-center justify-center flex-shrink-0">
+          <i class="ph ph-receipt text-(--color-warning) text-xl"></i>
+        </div>
       </div>
     </div>
 
-    <%# Pendente no mês %>
-    <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-5 flex items-start justify-between">
-      <div>
-        <p class="text-sm font-medium text-(--color-text-muted)">Pendente no mês</p>
-        <p class="text-2xl font-bold text-(--color-warning) mt-1">
-          <%= number_to_currency(@pending_month_amount, unit: "R$\u00a0", separator: ",", delimiter: ".", precision: 2) %>
-        </p>
-        <p class="text-sm text-(--color-text-subtle) mt-1">
-          Total geral: <%= number_to_currency(@pending_amount, unit: "R$\u00a0", separator: ",", delimiter: ".", precision: 2) %>
-        </p>
+    <%# 5. Recent pending installments — quick mark-as-paid %>
+    <div class="rounded-xl border border-(--color-border) bg-(--color-surface) overflow-hidden">
+      <div class="px-4 py-3 border-b border-(--color-border) flex items-center justify-between">
+        <div>
+          <h3 class="text-sm font-semibold text-(--color-text)">Pendências recentes</h3>
+          <p class="text-[11px] text-(--color-text-muted)">Toque em <i class="ph ph-check-circle align-middle text-(--color-success)"></i> para dar baixa</p>
+        </div>
+        <%= link_to clients_path, class: "text-xs text-(--color-brand) font-semibold" do %>
+          Ver todos <i class="ph ph-caret-right align-middle text-[10px]"></i>
+        <% end %>
       </div>
-      <div class="w-10 h-10 rounded-lg bg-(--color-warning-light) flex items-center justify-center flex-shrink-0">
-        <i class="ph ph-receipt text-(--color-warning) text-xl"></i>
-      </div>
+
+      <% if @recent_pending.empty? %>
+        <div class="py-10 text-center">
+          <div class="w-12 h-12 rounded-full bg-(--color-success-light) flex items-center justify-center mx-auto mb-2">
+            <i class="ph ph-check-circle text-(--color-success) text-2xl"></i>
+          </div>
+          <p class="text-sm font-medium text-(--color-text)">Tudo em dia!</p>
+          <p class="text-xs text-(--color-text-muted) mt-0.5">Nenhuma cobrança vencida.</p>
+        </div>
+      <% else %>
+        <ul class="divide-y divide-(--color-border)">
+          <% @recent_pending.each do |inst| %>
+            <%
+              client    = inst.campaign_client.client
+              days_late = (Date.today - inst.due_date).to_i
+              overdue   = days_late > 0
+              due_text  = if days_late == 0
+                            "Vence hoje"
+                          elsif days_late == 1
+                            "1 dia atrasada"
+                          elsif overdue
+                            "#{days_late} dias atrasada"
+                          else
+                            I18n.l(inst.due_date, format: "%d/%m") rescue inst.due_date.strftime("%d/%m")
+                          end
+            %>
+            <li class="flex items-center gap-3 px-4 py-3">
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-(--color-text) truncate"><%= client.name %></p>
+                <div class="flex items-baseline gap-2 mt-0.5">
+                  <span class="text-sm font-bold text-(--color-text)">
+                    <%= number_to_currency(inst.amount, unit: "R$\u00a0", separator: ",", delimiter: ".", precision: 2) %>
+                  </span>
+                  <span class="text-[11px] font-medium <%= overdue ? 'text-(--color-danger)' : 'text-(--color-warning)' %>">
+                    <%= due_text %>
+                  </span>
+                </div>
+              </div>
+              <%= button_to installment_path(inst),
+                    method: :patch,
+                    params: { installment: { status: "paid" } },
+                    form: { class: "flex-shrink-0", data: { turbo_confirm: "Confirmar baixa de #{number_to_currency(inst.amount, unit: 'R$ ', separator: ',', delimiter: '.', precision: 2)} de #{client.name}?" } },
+                    class: "flex items-center justify-center w-10 h-10 rounded-full bg-(--color-success-light) text-(--color-success) hover:bg-(--color-success) hover:text-(--color-text-inverse) transition-colors disabled:opacity-60",
+                    data: { controller: "loadable", "loadable-spinner-only-value": "true" },
+                    aria: { label: "Dar baixa" } do %>
+                <i class="ph ph-check text-lg"></i>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
     </div>
 
   </div>
 
-  <%# Chart + WhatsApp side by side %>
-  <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5 items-start">
+  <%# ════════════════════════════════════════════════════════════════ %>
+  <%# DESKTOP LAYOUT — full analytics                                   %>
+  <%# ════════════════════════════════════════════════════════════════ %>
+  <div class="hidden md:block space-y-6">
 
-    <%# Evolution chart %>
-    <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-5"
-         data-controller="dashboard-chart"
-         data-dashboard-chart-data-value="<%= @chart_data.to_json %>"
-         data-dashboard-chart-metric-value="receita">
+    <%# Welcome %>
+    <div>
+      <h2 class="text-2xl font-bold text-(--color-text)">Olá, <%= first_name %>!</h2>
+      <p class="text-(--color-text-muted) text-sm mt-1">Aqui está o resumo das suas cobranças.</p>
+    </div>
 
-      <div class="flex items-center justify-between mb-5 gap-3 flex-wrap">
-        <h3 class="font-semibold text-(--color-text)">Evolução mensal</h3>
-        <div class="flex items-center gap-1 bg-(--color-surface-raised) rounded-lg p-1">
-          <button type="button" data-metric="receita"
-                  data-dashboard-chart-target="btn"
-                  data-action="click->dashboard-chart#setMetric"
-                  class="px-3 py-1 text-xs rounded-md bg-(--color-brand) text-white font-semibold transition-colors">
-            Receita
-          </button>
-          <button type="button" data-metric="clientes"
-                  data-dashboard-chart-target="btn"
-                  data-action="click->dashboard-chart#setMetric"
-                  class="px-3 py-1 text-xs rounded-md text-(--color-text-muted) transition-colors">
-            Clientes
-          </button>
-          <button type="button" data-metric="inadimplencia"
-                  data-dashboard-chart-target="btn"
-                  data-action="click->dashboard-chart#setMetric"
-                  class="px-3 py-1 text-xs rounded-md text-(--color-text-muted) transition-colors">
-            Inadimplência
-          </button>
+    <%# KPI cards — Flowbite style with trend %>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+      <%# Faturamento do mês %>
+      <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-5">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">Recebido no mês</span>
+          <div class="w-8 h-8 rounded-lg bg-(--color-success-light) flex items-center justify-center">
+            <i class="ph ph-trend-up text-(--color-success)"></i>
+          </div>
         </div>
+        <p class="text-2xl font-bold text-(--color-text)">
+          <%= number_to_currency(@billing_month, unit: "R$\u00a0", separator: ",", delimiter: ".", precision: 2) %>
+        </p>
+        <% if @billing_trend %>
+          <% up = @billing_trend >= 0 %>
+          <p class="text-xs mt-1.5 flex items-center gap-1">
+            <span class="inline-flex items-center gap-0.5 font-semibold <%= up ? 'text-(--color-success)' : 'text-(--color-danger)' %>">
+              <i class="ph <%= up ? 'ph-arrow-up' : 'ph-arrow-down' %>"></i>
+              <%= up ? "+" : "" %><%= @billing_trend %>%
+            </span>
+            <span class="text-(--color-text-muted)">vs mês anterior</span>
+          </p>
+        <% else %>
+          <p class="text-xs mt-1.5 text-(--color-text-subtle)">Sem dados anteriores</p>
+        <% end %>
       </div>
 
-      <div class="h-52">
-        <canvas data-dashboard-chart-target="canvas"></canvas>
+      <%# A receber no mês %>
+      <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-5">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">A receber no mês</span>
+          <div class="w-8 h-8 rounded-lg bg-(--color-warning-light) flex items-center justify-center">
+            <i class="ph ph-receipt text-(--color-warning)"></i>
+          </div>
+        </div>
+        <p class="text-2xl font-bold text-(--color-warning)">
+          <%= number_to_currency(@pending_month_amount, unit: "R$\u00a0", separator: ",", delimiter: ".", precision: 2) %>
+        </p>
+        <p class="text-xs mt-1.5 text-(--color-text-muted)">
+          Geral pendente: <%= number_to_currency(@pending_amount, unit: "R$\u00a0", separator: ",", delimiter: ".", precision: 2) %>
+        </p>
+      </div>
+
+      <%# Atrasadas %>
+      <div class="bg-(--color-surface) rounded-xl border <%= @overdue_count > 0 ? 'border-(--color-danger)/30' : 'border-(--color-border)' %> p-5">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">Atrasadas</span>
+          <div class="w-8 h-8 rounded-lg bg-(--color-danger-light) flex items-center justify-center">
+            <i class="ph ph-clock-countdown text-(--color-danger)"></i>
+          </div>
+        </div>
+        <p class="text-2xl font-bold <%= @overdue_count > 0 ? 'text-(--color-danger)' : 'text-(--color-text)' %>">
+          <%= number_to_currency(@overdue_amount, unit: "R$\u00a0", separator: ",", delimiter: ".", precision: 2) %>
+        </p>
+        <p class="text-xs mt-1.5 text-(--color-text-muted)">
+          <%= @overdue_count %> parcela<%= @overdue_count == 1 ? "" : "s" %> em atraso
+        </p>
+      </div>
+
+      <%# Clientes %>
+      <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-5">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">Clientes</span>
+          <div class="w-8 h-8 rounded-lg bg-(--color-brand-light) flex items-center justify-center">
+            <i class="ph ph-users-three text-(--color-brand)"></i>
+          </div>
+        </div>
+        <p class="text-2xl font-bold text-(--color-text)"><%= @clients_count %></p>
+        <p class="text-xs mt-1.5 text-(--color-text-muted)">
+          <%= @upcoming_count %> com cobrança nos próximos 7 dias
+        </p>
       </div>
 
     </div>
 
-    <%# WhatsApp status card %>
-    <div>
-      <% if @chip %>
-        <%
-          working = @chip.waha_status == "working"
-          status_label, status_icon, status_fg, status_bg =
-            case @chip.waha_status
-            when "working"      then ["Conectado",       "ph-check-circle",   "--color-success",      "--color-success-light"]
-            when "scan_qr_code" then ["Aguardando QR",   "ph-qr-code",        "--color-warning",      "--color-warning-light"]
-            when "starting"     then ["Iniciando...",    "ph-circle-dashed",  "--color-warning",      "--color-warning-light"]
-            when "failed"       then ["Falha",           "ph-warning-circle", "--color-danger",       "--color-danger-light"]
-            when "stopped"      then ["Parado",          "ph-pause-circle",   "--color-text-muted",   "--color-surface-raised"]
-            else                     ["Não configurado", "ph-plug",           "--color-text-muted",   "--color-surface-raised"]
-            end
-        %>
-        <%= link_to chip_path(@chip),
-              class: "block bg-(--color-surface) rounded-xl border border-(--color-border) p-5 hover:border-(--color-brand-light) hover:shadow-sm transition-all" do %>
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="font-semibold text-(--color-text) text-sm">WhatsApp</h3>
-            <i class="ph ph-caret-right text-(--color-text-subtle)"></i>
+    <%# Chart + WhatsApp side by side %>
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5 items-start">
+
+      <%# Evolution chart %>
+      <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-5"
+           data-controller="dashboard-chart"
+           data-dashboard-chart-data-value="<%= @chart_data.to_json %>"
+           data-dashboard-chart-metric-value="receita">
+
+        <div class="flex items-center justify-between mb-5 gap-3 flex-wrap">
+          <div>
+            <h3 class="font-semibold text-(--color-text)">Evolução mensal</h3>
+            <p class="text-xs text-(--color-text-muted) mt-0.5">Últimos 6 meses</p>
           </div>
-
-          <div class="flex items-center gap-3">
-            <% if working && current_user.company&.profile_picture&.attached? %>
-              <%= image_tag current_user.company.profile_picture,
-                    class: "w-14 h-14 rounded-full object-cover ring-2 ring-(--color-success-light) flex-shrink-0" %>
-            <% else %>
-              <div class="w-14 h-14 rounded-full bg-(<%= status_bg %>) flex items-center justify-center flex-shrink-0">
-                <i class="ph ph-whatsapp-logo text-(<%= status_fg %>) text-2xl"></i>
-              </div>
-            <% end %>
-
-            <div class="min-w-0 flex-1">
-              <p class="text-sm font-semibold text-(--color-text) truncate">
-                <%= @chip.formatted_number || "Não conectado" %>
-              </p>
-              <span class="inline-flex items-center gap-1.5 mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-(<%= status_bg %>) text-(<%= status_fg %>)">
-                <i class="ph <%= status_icon %>"></i>
-                <%= status_label %>
-              </span>
-            </div>
+          <div class="flex items-center gap-1 bg-(--color-surface-raised) rounded-lg p-1">
+            <button type="button" data-metric="receita"
+                    data-dashboard-chart-target="btn"
+                    data-action="click->dashboard-chart#setMetric"
+                    class="px-3 py-1 text-xs rounded-md bg-(--color-brand) text-white font-semibold transition-colors">
+              Receita
+            </button>
+            <button type="button" data-metric="clientes"
+                    data-dashboard-chart-target="btn"
+                    data-action="click->dashboard-chart#setMetric"
+                    class="px-3 py-1 text-xs rounded-md text-(--color-text-muted) transition-colors">
+              Clientes
+            </button>
+            <button type="button" data-metric="inadimplencia"
+                    data-dashboard-chart-target="btn"
+                    data-action="click->dashboard-chart#setMetric"
+                    class="px-3 py-1 text-xs rounded-md text-(--color-text-muted) transition-colors">
+              Inadimplência
+            </button>
           </div>
-
-          <% unless working %>
-            <p class="text-xs text-(--color-text-muted) mt-4 leading-relaxed">
-              Toque para <%= @chip.waha_status == "scan_qr_code" ? "ler o QR code" : "conectar agora" %> e voltar a enviar cobranças.
-            </p>
-          <% end %>
-        <% end %>
-      <% else %>
-        <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-6 text-center">
-          <i class="ph ph-device-mobile text-(--color-text-subtle) text-4xl block mb-2"></i>
-          <p class="text-sm text-(--color-text-muted)">Nenhum número WhatsApp configurado.</p>
-          <%= link_to settings_cobranca_path, class: "mt-3 inline-flex items-center gap-2 text-sm text-(--color-brand) hover:underline" do %>
-            <i class="ph ph-gear"></i>
-            Configurar em Configurações → Cobrança
-          <% end %>
         </div>
-      <% end %>
+
+        <div class="h-52">
+          <canvas data-dashboard-chart-target="canvas"></canvas>
+        </div>
+      </div>
+
+      <%# WhatsApp status card %>
+      <div>
+        <% if @chip %>
+          <%= link_to chip_path(@chip),
+                class: "block bg-(--color-surface) rounded-xl border border-(--color-border) p-5 hover:border-(--color-brand-light) hover:shadow-sm transition-all" do %>
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-semibold text-(--color-text) text-sm">WhatsApp</h3>
+              <i class="ph ph-caret-right text-(--color-text-subtle)"></i>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <% if chip_working && current_user.company&.profile_picture&.attached? %>
+                <%= image_tag current_user.company.profile_picture,
+                      class: "w-14 h-14 rounded-full object-cover ring-2 ring-(--color-success-light) flex-shrink-0" %>
+              <% else %>
+                <div class="w-14 h-14 rounded-full bg-(<%= chip_status_bg %>) flex items-center justify-center flex-shrink-0">
+                  <i class="ph ph-whatsapp-logo text-(<%= chip_status_fg %>) text-2xl"></i>
+                </div>
+              <% end %>
+
+              <div class="min-w-0 flex-1">
+                <p class="text-sm font-semibold text-(--color-text) truncate">
+                  <%= @chip.formatted_number || "Não conectado" %>
+                </p>
+                <span class="inline-flex items-center gap-1.5 mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-(<%= chip_status_bg %>) text-(<%= chip_status_fg %>)">
+                  <i class="ph <%= chip_status_icon %>"></i>
+                  <%= chip_status_label %>
+                </span>
+              </div>
+            </div>
+
+            <% unless chip_working %>
+              <p class="text-xs text-(--color-danger) mt-4 leading-relaxed font-medium flex items-start gap-1.5">
+                <i class="ph ph-warning-circle mt-0.5"></i>
+                <span>Toque para <%= @chip.waha_status == "scan_qr_code" ? "ler o QR code" : "conectar agora" %> e voltar a enviar cobranças.</span>
+              </p>
+            <% end %>
+          <% end %>
+        <% else %>
+          <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-6 text-center">
+            <i class="ph ph-device-mobile text-(--color-text-subtle) text-4xl block mb-2"></i>
+            <p class="text-sm text-(--color-text-muted)">Nenhum número WhatsApp configurado.</p>
+            <%= link_to settings_cobranca_path, class: "mt-3 inline-flex items-center gap-2 text-sm text-(--color-brand) hover:underline" do %>
+              <i class="ph ph-gear"></i>
+              Configurar em Configurações → Cobrança
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
     </div>
 
   </div>

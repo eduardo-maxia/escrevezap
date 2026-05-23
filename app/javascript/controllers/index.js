@@ -48,3 +48,15 @@ application.register("toast", ToastController)
 
 import DashboardChartController from "./dashboard_chart_controller"
 application.register("dashboard-chart", DashboardChartController)
+
+import OtpInputController from "./otp_input_controller"
+application.register("otp-input", OtpInputController)
+
+import OtpResendController from "./otp_resend_controller"
+application.register("otp-resend", OtpResendController)
+
+import LoadableController from "./loadable_controller"
+application.register("loadable", LoadableController)
+
+import ScrollHeaderController from "./scroll_header_controller"
+application.register("scroll-header", ScrollHeaderController)

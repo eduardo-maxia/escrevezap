@@ -1,71 +1,119 @@
-<div class="min-h-screen flex flex-col items-center justify-center p-4">
+<section class="min-h-screen grid lg:grid-cols-2 bg-(--color-surface)">
 
-  <%# Brand %>
-  <div class="mb-8 text-center flex flex-row gap-2 items-center">
-    <%= image_tag "/logo.png", alt: "Cobrança em Dia", class: "h-14 w-auto" %>
-    <p class="text-primary text-lg font-bold">Cobrança em Dia</p>
-  </div>
+  <%# ── Left: login form ──────────────────────────────────────────── %>
+  <div class="flex items-center justify-center p-6 sm:p-12">
+    <div class="w-full max-w-md">
 
-  <%# Card %>
-  <div class="w-full max-w-md bg-(--color-surface) rounded-2xl shadow-sm border border-(--color-border) p-8">
-    <h2 class="text-xl font-semibold text-(--color-text) mb-6">Entrar na sua conta</h2>
+      <%# Brand %>
+      <div class="flex items-center gap-2.5 mb-10">
+        <%= image_tag "/logo.png", alt: "Cobrança em Dia", class: "h-9 w-auto" %>
+        <span class="text-base font-semibold text-(--color-text)">Cobrança em Dia</span>
+      </div>
 
-    <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-      <div class="space-y-5">
-        <div>
-          <%= f.label :email, "E-mail", class: "block text-sm font-medium text-(--color-text) mb-1.5" %>
-          <%= f.email_field :email, autofocus: true, autocomplete: "email",
-                class: "w-full px-3.5 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm placeholder:text-(--color-text-subtle) focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-(--color-brand) transition-colors",
-                placeholder: "seu@email.com" %>
-        </div>
+      <h1 class="text-3xl font-bold text-(--color-text) mb-3">
+        Bem-vindo de volta
+      </h1>
+      <p class="text-(--color-text-muted) mb-8 leading-relaxed">
+        Acesse sua conta de forma simples e segura — sem senhas.
+      </p>
 
-        <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <%= f.label :password, "Senha", class: "block text-sm font-medium text-(--color-text)" %>
-            <% if devise_mapping.recoverable? %>
-              <%= link_to "Esqueceu a senha?", new_password_path(resource_name),
-                    class: "text-sm text-(--color-brand) hover:text-(--color-brand-dark) font-medium" %>
-            <% end %>
-          </div>
-          <%= f.password_field :password, autocomplete: "current-password",
-                class: "w-full px-3.5 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm placeholder:text-(--color-text-subtle) focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-(--color-brand) transition-colors",
-                placeholder: "••••••••" %>
-        </div>
+      <%# Google sign-in %>
+      <%= button_to user_google_oauth2_omniauth_authorize_path, method: :post,
+            data: {
+              turbo: false,
+              controller: "loadable",
+              "loadable-loading-text-value": "Conectando com Google..."
+            },
+            class: "w-full inline-flex items-center justify-center gap-3 px-5 py-3 border border-(--color-border) rounded-lg bg-(--color-surface) text-sm font-medium text-(--color-text) hover:bg-(--color-surface-muted) focus:outline-none focus:ring-4 focus:ring-(--color-brand-light) transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed" do %>
+        <svg class="w-5 h-5" viewBox="0 0 48 48" aria-hidden="true">
+          <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+          <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+          <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+          <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571.001-.001.002-.001.003-.002l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+        </svg>
+        Continuar com Google
+      <% end %>
 
-        <% if devise_mapping.rememberable? %>
-          <div class="flex items-center gap-2">
-            <%= f.check_box :remember_me, class: "w-4 h-4 rounded border-(--color-border) accent-(--color-brand)" %>
-            <%= f.label :remember_me, "Lembrar de mim", class: "text-sm text-(--color-text-muted) cursor-pointer" %>
-          </div>
+      <%# Divider %>
+      <div class="flex items-center gap-4 my-6">
+        <div class="h-px flex-1 bg-(--color-border)"></div>
+        <span class="text-xs uppercase tracking-wider text-(--color-text-subtle)">ou</span>
+        <div class="h-px flex-1 bg-(--color-border)"></div>
+      </div>
+
+      <%# Email + OTP request %>
+      <%= form_with(model: resource, as: resource_name, url: session_path(resource_name), local: true) do |f| %>
+        <% if flash[:alert].present? %>
+          <%= render "shared/alert", type: :danger, message: flash[:alert] %>
         <% end %>
 
-        <%= f.submit "Entrar",
-              class: "w-full bg-(--color-brand) hover:bg-(--color-brand-dark) text-(--color-text-inverse) font-semibold py-2.5 px-4 rounded-lg text-sm transition-colors cursor-pointer" %>
+        <div class="mb-4">
+          <%= f.label :email, "E-mail", class: "auth-label" %>
+          <%= f.email_field :email, autofocus: true, autocomplete: "email", required: true,
+                class: "auth-input", placeholder: "seu@email.com",
+                value: resource&.email %>
+        </div>
+
+        <button type="submit"
+                data-controller="loadable"
+                data-loadable-loading-text-value="Enviando código..."
+                class="auth-btn-primary inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+          Enviar código por e-mail
+        </button>
+      <% end %>
+
+      <p class="mt-6 text-xs text-(--color-text-subtle) leading-relaxed">
+        Enviaremos um código de 4 dígitos para confirmar seu acesso.
+        Ao continuar, você concorda com nossos Termos de Uso e a Política de Privacidade.
+      </p>
+
+    </div>
+  </div>
+
+  <%# ── Right: description panel (desktop only) ───────────────────── %>
+  <div class="hidden lg:flex flex-col justify-between bg-(--color-brand-dark) text-(--color-text-inverse) p-12 relative overflow-hidden">
+
+    <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-(--color-accent) opacity-10 blur-3xl"></div>
+    <div class="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-(--color-brand) opacity-30 blur-3xl"></div>
+
+    <div class="relative">
+      <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-xs font-medium backdrop-blur-sm">
+        <i class="ph-fill ph-whatsapp-logo text-sm"></i>
+        Cobranças via WhatsApp
+      </span>
+      <h2 class="mt-6 text-4xl font-bold leading-tight">
+        Receba em dia, <br/>
+        sem cobrar à mão.
+      </h2>
+      <p class="mt-4 text-white/70 text-base leading-relaxed max-w-md">
+        Automatize lembretes de pagamento, organize seus clientes e veja
+        suas contas serem quitadas — tudo direto do WhatsApp.
+      </p>
+    </div>
+
+    <div class="relative space-y-4">
+      <ul class="space-y-3">
+        <li class="flex items-start gap-3 text-sm text-white/85">
+          <i class="ph-fill ph-check-circle text-(--color-accent-light) text-lg flex-shrink-0 mt-0.5"></i>
+          <span>Mensagens personalizadas enviadas automaticamente</span>
+        </li>
+        <li class="flex items-start gap-3 text-sm text-white/85">
+          <i class="ph-fill ph-check-circle text-(--color-accent-light) text-lg flex-shrink-0 mt-0.5"></i>
+          <span>Acompanhe parcelas, recebimentos e inadimplência</span>
+        </li>
+        <li class="flex items-start gap-3 text-sm text-white/85">
+          <i class="ph-fill ph-check-circle text-(--color-accent-light) text-lg flex-shrink-0 mt-0.5"></i>
+          <span>Conecte seu chip em poucos minutos, sem instalação</span>
+        </li>
+      </ul>
+
+      <div class="pt-6 border-t border-white/10">
+        <p class="text-xs text-white/60">
+          Mais de <span class="font-semibold text-white">1.200 empresas</span> já confiam no Cobrança em Dia para recuperar receita todos os meses.
+        </p>
       </div>
-    <% end %>
+    </div>
+
   </div>
 
-  <%# Links %>
-  <div class="mt-6 text-center space-y-2">
-    <% if devise_mapping.registerable? %>
-      <p class="text-sm text-(--color-text-muted)">
-        Não tem conta?
-        <%= link_to "Criar conta", new_registration_path(resource_name),
-              class: "text-(--color-brand) hover:text-(--color-brand-dark) font-medium" %>
-      </p>
-    <% end %>
-    <% if devise_mapping.confirmable? %>
-      <p class="text-sm text-(--color-text-muted)">
-        <%= link_to "Não recebeu o e-mail de confirmação?", new_confirmation_path(resource_name),
-              class: "text-(--color-brand) hover:text-(--color-brand-dark) font-medium" %>
-      </p>
-    <% end %>
-    <% if devise_mapping.lockable? && resource_class.unlock_strategy_enabled?(:email) %>
-      <p class="text-sm text-(--color-text-muted)">
-        <%= link_to "Não recebeu as instruções de desbloqueio?", new_unlock_path(resource_name),
-              class: "text-(--color-brand) hover:text-(--color-brand-dark) font-medium" %>
-      </p>
-    <% end %>
-  </div>
-
-</div>
+</section>

@@ -17,9 +17,8 @@
 
       <div class="space-y-5">
         <div>
-          <%= f.label :email, "E-mail", class: "block text-sm font-medium text-(--color-text) mb-1.5" %>
-          <%= f.email_field :email, autofocus: true, autocomplete: "email",
-                class: "w-full px-3.5 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-(--color-brand) transition-colors" %>
+          <%= f.label :email, "E-mail", class: "auth-label" %>
+          <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "auth-input" %>
           <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
             <p class="mt-1.5 text-sm text-(--color-warning) flex items-center gap-1.5">
               <i class="ph ph-clock text-sm"></i>
@@ -32,35 +31,32 @@
           <h3 class="text-sm font-semibold text-(--color-text) mb-4">Alterar senha</h3>
           <div class="space-y-5">
             <div>
-              <div class="flex items-center justify-between mb-1.5">
+              <div class="flex items-center justify-between mb-2">
                 <%= f.label :password, "Nova senha", class: "text-sm font-medium text-(--color-text)" %>
                 <% if @minimum_password_length %>
                   <span class="text-xs text-(--color-text-subtle)">mín. <%= @minimum_password_length %> caracteres</span>
                 <% end %>
               </div>
               <%= f.password_field :password, autocomplete: "new-password",
-                    class: "w-full px-3.5 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm placeholder:text-(--color-text-subtle) focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-(--color-brand) transition-colors",
-                    placeholder: "Deixe em branco para não alterar" %>
+                    class: "auth-input", placeholder: "Deixe em branco para não alterar" %>
             </div>
             <div>
-              <%= f.label :password_confirmation, "Confirmar nova senha", class: "block text-sm font-medium text-(--color-text) mb-1.5" %>
+              <%= f.label :password_confirmation, "Confirmar nova senha", class: "auth-label" %>
               <%= f.password_field :password_confirmation, autocomplete: "new-password",
-                    class: "w-full px-3.5 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm placeholder:text-(--color-text-subtle) focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-(--color-brand) transition-colors",
-                    placeholder: "••••••••" %>
+                    class: "auth-input", placeholder: "••••••••" %>
             </div>
             <div>
-              <%= f.label :current_password, "Senha atual", class: "block text-sm font-medium text-(--color-text) mb-1.5" %>
-              <p class="text-xs text-(--color-text-muted) mb-1.5">Necessária para confirmar as alterações</p>
+              <%= f.label :current_password, "Senha atual", class: "auth-label" %>
+              <p class="text-xs text-(--color-text-muted) -mt-1 mb-2">Necessária para confirmar as alterações</p>
               <%= f.password_field :current_password, autocomplete: "current-password",
-                    class: "w-full px-3.5 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm placeholder:text-(--color-text-subtle) focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-(--color-brand) transition-colors",
-                    placeholder: "••••••••" %>
+                    class: "auth-input", placeholder: "••••••••" %>
             </div>
           </div>
         </div>
 
         <div class="flex items-center justify-between pt-2">
           <%= f.submit "Salvar alterações",
-                class: "bg-(--color-brand) hover:bg-(--color-brand-dark) text-(--color-text-inverse) font-semibold py-2.5 px-6 rounded-lg text-sm transition-colors cursor-pointer" %>
+                class: "inline-flex items-center justify-center bg-(--color-brand) hover:bg-(--color-brand-dark) text-(--color-text-inverse) font-semibold py-2.5 px-6 rounded-lg text-sm transition-colors cursor-pointer" %>
           <%= link_to "Cancelar", :back, class: "text-sm text-(--color-text-muted) hover:text-(--color-text) font-medium" %>
         </div>
       </div>

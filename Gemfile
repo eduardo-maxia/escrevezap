@@ -72,3 +72,8 @@ gem "solid_queue_dashboard", "~> 0.2.0"
 gem "dockerfile-rails", ">= 1.7", group: :development
 
 gem "redis", "~> 5.4"
+
+gem "bcrypt", "~> 3.1"
+
+gem "omniauth-google-oauth2", "~> 1.2"
+gem "omniauth-rails_csrf_protection", "~> 2.0"

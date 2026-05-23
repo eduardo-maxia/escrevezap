@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@plugin "flowbite/plugin";
+@source "../../../node_modules/flowbite";
 
 @theme {
   /* Brand – navy + gold (trust + premium finance) */
@@ -279,4 +281,129 @@
     margin: 0.5rem auto 0;
     flex-shrink: 0;
   }
+}
+
+/* ── Auth screens — Flowbite-style form primitives ─────────────────────── */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: var(--color-surface-muted);
+}
+.auth-card {
+  width: 100%;
+  max-width: 28rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+  padding: 2rem;
+}
+.auth-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+.auth-input {
+  display: block;
+  width: 100%;
+  padding: 0.625rem;
+  font-size: 0.875rem;
+  color: var(--color-text);
+  background-color: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.auth-input::placeholder { color: var(--color-text-subtle); }
+.auth-input:focus {
+  outline: none;
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px var(--color-brand-light);
+}
+.auth-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-inverse);
+  background-color: var(--color-brand);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 150ms ease, box-shadow 150ms ease;
+}
+.auth-btn-primary:hover { background-color: var(--color-brand-dark); }
+.auth-btn-primary:focus { outline: none; box-shadow: 0 0 0 4px var(--color-brand-light); }
+.auth-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-brand);
+}
+.auth-link:hover { color: var(--color-brand-dark); }
+
+/* ── OTP code input boxes (Apple-style 6-digit code) ──────────────────── */
+.otp-box {
+  width: 3rem;            /* 48px — small enough to fit 6 on mobile */
+  height: 3.5rem;         /* 56px */
+  text-align: center;
+  font-size: 1.5rem;
+  line-height: 1;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-family: -apple-system, BlinkMacSystemFont, "SFMono-Regular", Consolas, monospace;
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: 0.75rem;
+  outline: none;
+  caret-color: var(--color-brand);
+  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+@media (min-width: 640px) {
+  .otp-box { width: 3.25rem; height: 3.75rem; font-size: 1.75rem; }
+}
+.otp-box:focus {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 4px var(--color-brand-light);
+}
+.otp-box:not(:placeholder-shown),
+.otp-box:valid:not([value=""]) {
+  border-color: var(--color-border-strong);
+  background-color: var(--color-surface-muted);
+}
+.otp-box-error,
+.otp-box-error:focus {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 4px var(--color-danger-light);
+  animation: otp-shake 320ms ease;
+}
+@keyframes otp-shake {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-4px); }
+  40%      { transform: translateX(4px); }
+  60%      { transform: translateX(-3px); }
+  80%      { transform: translateX(3px); }
+}
+
+/* ── Inline button spinner (used by the `loadable` Stimulus controller) ── */
+.btn-spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 9999px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  animation: btn-spin 0.7s linear infinite;
+  vertical-align: -2px;
+}
+@keyframes btn-spin {
+  to { transform: rotate(360deg); }
 }

@@ -38,13 +38,41 @@ class DashboardController < ApplicationController
         today      = Date.today
         month_start = today.beginning_of_month
         month_end   = today.end_of_month
+        week_end    = today + 7.days
 
         base = Installment
                  .joins(campaign_client: { campaign: :company })
                  .where(campaigns: { company_id: company.id })
 
-        @billing_month      = base.paid.where(due_date: month_start..month_end).sum(:amount)
+        @billing_month        = base.paid.where(due_date: month_start..month_end).sum(:amount)
         @pending_month_amount = base.pending.where(due_date: month_start..month_end).sum(:amount)
+
+        # Overdue (atrasadas) — pending and past due
+        overdue_scope   = base.pending.where("installments.due_date < ?", today)
+        @overdue_amount = overdue_scope.sum(:amount)
+        @overdue_count  = overdue_scope.count
+
+        # Upcoming (próximas) — pending and due in the next 7 days (inclusive of today)
+        upcoming_scope   = base.pending.where(due_date: today..week_end)
+        @upcoming_amount = upcoming_scope.sum(:amount)
+        @upcoming_count  = upcoming_scope.count
+
+        # Recent pending — likely candidates to mark as paid (due today or in the past)
+        @recent_pending = base.pending
+                              .where("installments.due_date <= ?", today)
+                              .includes(campaign_client: :client)
+                              .order(due_date: :desc)
+                              .limit(5)
+
+        # Last month comparison for trend
+        last_month_start = (today - 1.month).beginning_of_month
+        last_month_end   = (today - 1.month).end_of_month
+        @billing_last_month = base.paid.where(due_date: last_month_start..last_month_end).sum(:amount)
+        @billing_trend = if @billing_last_month.to_f.zero?
+                           nil
+                         else
+                           (((@billing_month - @billing_last_month) / @billing_last_month.to_f) * 100).round
+                         end
 
         # ── Chart data: last 6 months ────────────────────────────────────────
         months = 6.times.map { |i| (today - i.months).beginning_of_month }.reverse
@@ -86,6 +114,14 @@ class DashboardController < ApplicationController
       @pending_amount  = 0
       @billing_month   = 0
       @pending_month_amount = 0
+      @overdue_amount  = 0
+      @overdue_count   = 0
+      @upcoming_amount = 0
+      @upcoming_count  = 0
+      @recent_pending  = []
+      @billing_last_month = 0
+      @billing_trend   = nil
+      @chip            = nil
       @chart_data      = { labels: [], receita: [], clientes: [], inadimplencia: [] }
       @recent_campaigns = []
       @chips            = []
