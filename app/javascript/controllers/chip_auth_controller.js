@@ -4,7 +4,6 @@ import { createConsumer } from "@rails/actioncable"
 export default class extends Controller {
   static targets = [
     "statusBadge", "statusText",
-    "qrTab", "codeTab",
     "qrPanel", "codePanel", "successPanel", "errorPanel",
     "qrSpinner", "qrImage", "qrHint",
     "phoneForm", "phoneInput", "requestCodeBtn", "codeError",
@@ -26,6 +25,12 @@ export default class extends Controller {
     this.countdownTimer = null
     this.pollTimer = null
     this._resolved = false
+    this.mobileMode = window.matchMedia("(max-width: 767px)").matches
+    if (this.mobileMode) {
+      this.switchToCode()
+    } else {
+      this.switchToQr()
+    }
     this.startSession()
   }
 
@@ -53,9 +58,13 @@ export default class extends Controller {
 
   async retrySession() {
     this.errorPanelTarget.classList.add("hidden")
-    this.qrPanelTarget.classList.remove("hidden")
     this.qrSpinnerTarget.classList.remove("hidden")
     this.qrImageTarget.classList.add("hidden")
+    if (this.mobileMode) {
+      this.switchToCode()
+    } else {
+      this.switchToQr()
+    }
     this.#setStatus("Reiniciando sessão...", "warning")
     this.subscription?.unsubscribe()
     this.subscription = null
@@ -175,28 +184,27 @@ export default class extends Controller {
     this.codeDisplayTarget.classList.add("hidden")
     this.phoneFormTarget.classList.remove("hidden")
     this.phoneInputTarget.value = ""
-    this.requestCodeBtnTarget.disabled = false
+    this.requestCodeBtnTarget.disabled = true
     this.requestCodeBtnTarget.textContent = "Gerar código"
   }
 
-  // ── Tab switching ─────────────────────────────────────────────────────
+  validatePhone() {
+    queueMicrotask(() => {
+      const digits = this.phoneInputTarget.value.replace(/\D/g, "")
+      this.requestCodeBtnTarget.disabled = digits.length < 8
+    })
+  }
+
+  // ── Panel switching ────────────────────────────────────────────────
 
   switchToQr() {
     this.qrPanelTarget.classList.remove("hidden")
     this.codePanelTarget.classList.add("hidden")
-    this.qrTabTarget.classList.add("bg-(--color-brand)", "text-(--color-text-inverse)")
-    this.qrTabTarget.classList.remove("text-(--color-text-muted)")
-    this.codeTabTarget.classList.remove("bg-(--color-brand)", "text-(--color-text-inverse)")
-    this.codeTabTarget.classList.add("text-(--color-text-muted)")
   }
 
   switchToCode() {
     this.codePanelTarget.classList.remove("hidden")
     this.qrPanelTarget.classList.add("hidden")
-    this.codeTabTarget.classList.add("bg-(--color-brand)", "text-(--color-text-inverse)")
-    this.codeTabTarget.classList.remove("text-(--color-text-muted)")
-    this.qrTabTarget.classList.remove("bg-(--color-brand)", "text-(--color-text-inverse)")
-    this.qrTabTarget.classList.add("text-(--color-text-muted)")
   }
 
   // ── Private helpers ───────────────────────────────────────────────────

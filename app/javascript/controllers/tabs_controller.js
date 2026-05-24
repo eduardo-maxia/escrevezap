@@ -4,28 +4,46 @@ export default class extends Controller {
   static targets = ["tab", "panel"]
 
   connect() {
-    // Ensure correct initial visibility matches active tab
-    const activeTab = this.tabTargets.find(t =>
-      t.classList.contains("bg-(--color-brand)")
-    )
-    const activeId = activeTab?.dataset.tabsTabParam
-    if (activeId) this._showPanel(activeId)
+    const activeTab = this.tabTargets.find(t => t.getAttribute("aria-selected") === "true")
+                   || this.tabTargets.find(t => t.classList.contains("bg-(--color-brand)"))
+                   || this.tabTargets[0]
+    if (activeTab) {
+      this._activateTab(activeTab)
+      this._showPanel(activeTab.dataset.tabsTabParam)
+    }
   }
 
   switch(event) {
-    const id = event.params.tab
-    this._activateTab(event.currentTarget)
-    this._showPanel(id)
+    const tab = event.currentTarget
+    this._activateTab(tab)
+    this._showPanel(tab.dataset.tabsTabParam)
   }
 
   _activateTab(activeTab) {
     this.tabTargets.forEach((tab) => {
-      if (tab === activeTab) {
-        tab.classList.add("bg-(--color-brand)", "text-(--color-text-inverse)")
-        tab.classList.remove("text-(--color-text-muted)", "hover:text-(--color-text)")
+      const isActive = tab === activeTab
+      tab.setAttribute("aria-selected", isActive ? "true" : "false")
+
+      const activeClasses = (tab.dataset.tabsActiveClass || "").split(/\s+/).filter(Boolean)
+      const inactiveClasses = (tab.dataset.tabsInactiveClass || "").split(/\s+/).filter(Boolean)
+
+      if (activeClasses.length || inactiveClasses.length) {
+        if (isActive) {
+          inactiveClasses.forEach(c => tab.classList.remove(c))
+          activeClasses.forEach(c => tab.classList.add(c))
+        } else {
+          activeClasses.forEach(c => tab.classList.remove(c))
+          inactiveClasses.forEach(c => tab.classList.add(c))
+        }
       } else {
-        tab.classList.remove("bg-(--color-brand)", "text-(--color-text-inverse)")
-        tab.classList.add("text-(--color-text-muted)", "hover:text-(--color-text)")
+        // Legacy fallback: solid brand pill
+        if (isActive) {
+          tab.classList.add("bg-(--color-brand)", "text-(--color-text-inverse)")
+          tab.classList.remove("text-(--color-text-muted)", "hover:text-(--color-text)")
+        } else {
+          tab.classList.remove("bg-(--color-brand)", "text-(--color-text-inverse)")
+          tab.classList.add("text-(--color-text-muted)", "hover:text-(--color-text)")
+        }
       }
     })
   }

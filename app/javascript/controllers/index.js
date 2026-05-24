@@ -58,5 +58,8 @@ application.register("otp-resend", OtpResendController)
 import LoadableController from "./loadable_controller"
 application.register("loadable", LoadableController)
 
+import PwaInstallController from "./pwa_install_controller"
+application.register("pwa-install", PwaInstallController)
+
 import ScrollHeaderController from "./scroll_header_controller"
 application.register("scroll-header", ScrollHeaderController)

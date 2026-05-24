@@ -34,6 +34,7 @@ class ClientsController < ApplicationController
       @campaign_client  = @client.campaign_clients.visible.first
       @show_cancelled  = params[:show_cancelled] == "1"
       base_installments = @campaign_client&.installments&.order(due_date: :desc)
+      @has_cancelled = @campaign_client&.installments&.where(status: :cancelled)&.exists? || false
       @installments = if base_installments
         @show_cancelled ? base_installments : base_installments.where.not(status: :cancelled)
       else

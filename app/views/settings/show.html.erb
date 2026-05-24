@@ -104,6 +104,23 @@
       <% end %>
     </div>
 
+    <%# ── Instalar app ──────────────────────────────────────────────── %>
+    <div data-controller="pwa-install" hidden
+         class="bg-(--color-brand-subtle) rounded-2xl border border-(--color-brand-light) p-4 flex items-center gap-4">
+      <div class="w-10 h-10 rounded-xl bg-(--color-brand-light) flex items-center justify-center flex-shrink-0">
+        <i class="ph ph-device-mobile text-(--color-brand) text-xl"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-(--color-brand)">Instalar o app</p>
+        <p class="text-xs text-(--color-text-muted) mt-0.5">Acesse rapidamente pela tela inicial</p>
+      </div>
+      <button type="button"
+              data-action="click->pwa-install#install"
+              class="flex-shrink-0 px-3.5 py-2 bg-(--color-brand) text-(--color-text-inverse) text-xs font-semibold rounded-lg hover:bg-(--color-brand-dark) transition-colors">
+        Instalar
+      </button>
+    </div>
+
     <%# ── Sair ─────────────────────────────────────────────────────── %>
     <div class="pt-4">
       <%= button_to destroy_user_session_path, method: :delete,

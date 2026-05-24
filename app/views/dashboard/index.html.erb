@@ -179,22 +179,29 @@
         <div class="p-3 space-y-2">
           <% @chips.each do |chip| %>
             <% connected = chip.waha_status == "working" %>
-            <div class="flex items-center gap-3 p-3 rounded-lg bg-(--color-surface-muted)">
+            <% never_connected = chip.waha_chat_id.blank? %>
+            <%= link_to chip_path(chip), class: "flex items-center gap-3 p-3 rounded-lg #{never_connected ? 'bg-(--color-warning-light)/50 border border-(--color-warning)/40' : 'bg-(--color-surface-muted)'} hover:opacity-80 transition-opacity" do %>
               <div class="relative flex-shrink-0">
-                <div class="w-8 h-8 rounded-full bg-(--color-sidebar-bg) flex items-center justify-center">
-                  <i class="ph ph-device-mobile text-(--color-text-inverse) text-sm"></i>
+                <div class="w-8 h-8 rounded-full #{never_connected ? 'bg-(--color-warning-light)' : 'bg-(--color-sidebar-bg)'} flex items-center justify-center">
+                  <i class="ph #{never_connected ? 'ph-warning text-(--color-warning)' : 'ph-device-mobile text-(--color-text-inverse)'} text-sm"></i>
                 </div>
-                <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-(--color-surface) <%= connected ? 'bg-(--color-success)' : 'bg-(--color-text-subtle)' %>"></span>
+                <% unless never_connected %>
+                  <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-(--color-surface) <%= connected ? 'bg-(--color-success)' : 'bg-(--color-text-subtle)' %>"></span>
+                <% end %>
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-(--color-text) truncate">
-                  <%= chip.name + " | " + chip.formatted_number %>
-                </p>
-                <p class="text-xs <%= connected ? 'text-(--color-success)' : 'text-(--color-text-subtle)' %> truncate">
-                  <%= connected ? "Conectado" : (chip.waha_status.presence || "Desconectado") %>
+                <p class="text-sm font-medium text-(--color-text) truncate"><%= chip.name %></p>
+                <p class="text-xs truncate <%= never_connected ? 'text-(--color-warning) font-medium' : connected ? 'text-(--color-success)' : 'text-(--color-text-subtle)' %>">
+                  <% if never_connected %>
+                    Nunca conectado — toque para configurar
+                  <% elsif connected %>
+                    Conectado<% if chip.formatted_number.present? %> · <%= chip.formatted_number %><% end %>
+                  <% else %>
+                    <%= chip.waha_status.presence || "Desconectado" %>
+                  <% end %>
                 </p>
               </div>
-            </div>
+            <% end %>
           <% end %>
         </div>
       <% end %>
@@ -235,7 +242,26 @@
     </div>
 
     <%# 1. WhatsApp status — most critical (hero card) %>
-    <% if @chip %>
+    <% if @chip && @chip.waha_chat_id.blank? %>
+      <%# Never connected — chip created but WhatsApp never paired %>
+      <%= link_to chip_path(@chip),
+            class: "block rounded-xl border-2 border-(--color-warning) bg-(--color-warning-light)/40 p-4" do %>
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full bg-(--color-warning-light) flex items-center justify-center flex-shrink-0">
+            <i class="ph ph-warning text-(--color-warning) text-2xl"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-semibold text-(--color-warning) leading-none mb-1">WhatsApp não conectado</p>
+            <p class="text-sm font-bold text-(--color-text)">Conecte para enviar cobranças</p>
+            <span class="inline-flex items-center gap-1 mt-1 text-[11px] font-medium text-(--color-warning)">
+              <i class="ph ph-arrow-right"></i>
+              Toque para configurar
+            </span>
+          </div>
+          <i class="ph ph-caret-right text-(--color-text-subtle) text-lg flex-shrink-0"></i>
+        </div>
+      <% end %>
+    <% elsif @chip %>
       <%= link_to chip_path(@chip),
             class: "block rounded-xl border #{chip_working ? 'border-(--color-success) bg-(--color-success-light)/40' : 'border-(--color-danger) bg-(--color-danger-light)/40'} p-4" do %>
         <div class="flex items-center gap-3">
@@ -250,7 +276,7 @@
           <div class="flex-1 min-w-0">
             <p class="text-xs text-(--color-text-muted) leading-none mb-1">WhatsApp</p>
             <p class="text-sm font-bold text-(--color-text) truncate">
-              <%= @chip.formatted_number.presence || @chip.name %>
+              <%= @chip.formatted_number.presence %>
             </p>
             <span class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-(<%= chip_status_bg %>) text-(<%= chip_status_fg %>)">
               <i class="ph <%= chip_status_icon %>"></i>
@@ -542,7 +568,29 @@
 
       <%# WhatsApp status card %>
       <div>
-        <% if @chip %>
+        <% if @chip && @chip.waha_chat_id.blank? %>
+          <%# Never connected — chip created but WhatsApp never paired %>
+          <%= link_to chip_path(@chip),
+                class: "block bg-(--color-surface) rounded-xl border-2 border-(--color-warning) p-5 hover:shadow-sm transition-all" do %>
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-semibold text-(--color-warning) text-sm">WhatsApp</h3>
+              <i class="ph ph-caret-right text-(--color-text-subtle)"></i>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-14 h-14 rounded-full bg-(--color-warning-light) flex items-center justify-center flex-shrink-0">
+                <i class="ph ph-warning text-(--color-warning) text-2xl"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="text-sm font-semibold text-(--color-text)">Não conectado ainda</p>
+                <p class="text-xs text-(--color-text-muted) mt-0.5 leading-snug">Conecte seu WhatsApp para começar a enviar cobranças automáticas.</p>
+              </div>
+            </div>
+            <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-(--color-warning) text-(--color-text-inverse) text-xs font-semibold">
+              <i class="ph ph-whatsapp-logo"></i>
+              Conectar agora
+            </div>
+          <% end %>
+        <% elsif @chip %>
           <%= link_to chip_path(@chip),
                 class: "block bg-(--color-surface) rounded-xl border border-(--color-border) p-5 hover:border-(--color-brand-light) hover:shadow-sm transition-all" do %>
             <div class="flex items-center justify-between mb-4">
@@ -595,4 +643,16 @@
   </div>
 
 <% end %>
+
+<%# PWA install — discreet, only shows when prompt is available %>
+<div data-controller="pwa-install" hidden
+     class="flex items-center justify-center pt-2 pb-4">
+  <button type="button"
+          data-action="click->pwa-install#install"
+          class="inline-flex md:hidden items-center gap-2 px-4 py-2 rounded-full border border-(--color-border) bg-(--color-surface) text-xs font-medium text-(--color-text-muted) hover:text-(--color-brand) hover:border-(--color-brand-light) hover:bg-(--color-brand-subtle) transition-colors">
+    <i class="ph ph-device-mobile text-sm"></i>
+    Instalar app
+  </button>
+</div>
+
 </div>
