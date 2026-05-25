@@ -1,0 +1,131 @@
+<% content_for :current_step, "4" %>
+
+<div>
+
+  <%# ── Already installed (PWA standalone) ─────────────────────── %>
+  <div id="pwa-already-installed" class="hidden text-center space-y-4 py-4">
+    <div class="w-16 h-16 rounded-full bg-(--color-success-light) flex items-center justify-center mx-auto mb-2">
+      <i class="ph-fill ph-check-circle text-(--color-success) text-3xl"></i>
+    </div>
+    <h2 class="text-xl font-bold text-(--color-text)">App já instalado! 🎉</h2>
+    <p class="text-sm text-(--color-text-muted)">Você já está usando o Cobrança em Dia como aplicativo.</p>
+    <%= button_to complete_onboarding_path, method: :post, id: "complete-form-installed",
+          class: "w-full inline-flex items-center justify-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-(--color-text-inverse) font-semibold py-2.5 px-5 rounded-lg text-sm transition-colors cursor-pointer" do %>
+      Ir para o Dashboard
+      <i class="ph ph-arrow-right text-base"></i>
+    <% end %>
+  </div>
+
+  <%# ── Install prompt ──────────────────────────────────────────── %>
+  <div id="pwa-install-prompt">
+
+    <%# Header %>
+    <div class="mb-5">
+      <h2 class="text-xl font-bold text-(--color-text) flex items-center gap-2">
+        <i class="ph-fill ph-device-mobile text-(--color-brand) text-2xl"></i>
+        Instale o aplicativo
+      </h2>
+      <p class="text-(--color-text-muted) text-sm mt-1.5">
+        Adicione o Cobrança em Dia à sua tela inicial para uma experiência muito melhor.
+      </p>
+    </div>
+
+    <%# Benefits %>
+    <div class="space-y-3 mb-6">
+      <div class="flex items-start gap-3 p-3 bg-(--color-surface-muted) rounded-xl border border-(--color-border)">
+        <div class="w-8 h-8 rounded-lg bg-(--color-brand-light) flex items-center justify-center shrink-0 mt-0.5">
+          <i class="ph-fill ph-rocket-launch text-(--color-brand) text-base"></i>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-(--color-text)">Acesso em um toque</p>
+          <p class="text-xs text-(--color-text-muted) mt-0.5">Ícone direto na tela inicial — sem abrir o browser, sem digitar URL.</p>
+        </div>
+      </div>
+
+      <div class="flex items-start gap-3 p-3 bg-(--color-surface-muted) rounded-xl border border-(--color-border)">
+        <div class="w-8 h-8 rounded-lg bg-(--color-brand-light) flex items-center justify-center shrink-0 mt-0.5">
+          <i class="ph-fill ph-layout text-(--color-brand) text-base"></i>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-(--color-text)">Tela cheia sem distrações</p>
+          <p class="text-xs text-(--color-text-muted) mt-0.5">Interface limpa e imersiva, igual a um app nativo — sem barra de URL.</p>
+        </div>
+      </div>
+
+      <div class="flex items-start gap-3 p-3 bg-(--color-surface-muted) rounded-xl border border-(--color-border)">
+        <div class="w-8 h-8 rounded-lg bg-(--color-brand-light) flex items-center justify-center shrink-0 mt-0.5">
+          <i class="ph-fill ph-lightning text-(--color-brand) text-base"></i>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-(--color-text)">Carregamento mais rápido</p>
+          <p class="text-xs text-(--color-text-muted) mt-0.5">Recursos em cache localmente — abre na hora, mesmo com internet lenta.</p>
+        </div>
+      </div>
+    </div>
+
+    <%# Android: native install button (shown by pwa-install Stimulus controller) %>
+    <button data-controller="pwa-install"
+            data-action="click->pwa-install#install"
+            hidden
+            class="w-full inline-flex items-center justify-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-(--color-text-inverse) font-semibold py-2.5 px-5 rounded-lg text-sm transition-colors cursor-pointer mb-3">
+      <i class="ph-fill ph-device-mobile text-base"></i>
+      Instalar aplicativo
+    </button>
+
+    <%# iOS: step-by-step instructions (shown by JS if iOS detected) %>
+    <div id="ios-guide" class="hidden mb-4">
+      <p class="text-sm font-semibold text-(--color-text) mb-3">Como instalar no iPhone / iPad:</p>
+      <ol class="space-y-3">
+        <li class="flex items-start gap-3">
+          <span class="w-6 h-6 rounded-full bg-(--color-brand) text-(--color-text-inverse) text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+          <p class="text-sm text-(--color-text-muted)">
+            Toque no botão de compartilhar
+            <i class="ph ph-export text-(--color-brand) inline-block align-middle mx-0.5"></i>
+            na barra inferior do Safari.
+          </p>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="w-6 h-6 rounded-full bg-(--color-brand) text-(--color-text-inverse) text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+          <p class="text-sm text-(--color-text-muted)">
+            Role a lista e toque em <strong class="text-(--color-text)">"Adicionar à Tela de Início"</strong>.
+          </p>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="w-6 h-6 rounded-full bg-(--color-brand) text-(--color-text-inverse) text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+          <p class="text-sm text-(--color-text-muted)">
+            Confirme tocando em <strong class="text-(--color-text)">"Adicionar"</strong> no canto superior direito.
+          </p>
+        </li>
+      </ol>
+      <%# After iOS install, user reopens from home screen → skip button handles completion %>
+    </div>
+
+    <%# Skip link %>
+    <div class="text-center mt-4">
+      <%= button_to complete_onboarding_path, method: :post,
+            class: "text-sm text-(--color-text-muted) hover:text-(--color-text) transition-colors cursor-pointer" do %>
+        Continuar sem instalar →
+      <% end %>
+    </div>
+
+  </div><%# /pwa-install-prompt %>
+
+</div>
+
+<script>
+  // If already running as installed PWA, show success and auto-submit
+  if (window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true) {
+    document.getElementById("pwa-already-installed").classList.remove("hidden");
+    document.getElementById("pwa-install-prompt").classList.add("hidden");
+  }
+
+  // iOS: show manual instructions
+  if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
+    document.getElementById("ios-guide").classList.remove("hidden");
+  }
+
+  // Android: after user installs via prompt, auto-submit to complete
+  document.addEventListener("pwa:installed", function() {
+    document.getElementById("complete-form-installed").closest("form").requestSubmit();
+  });
+</script>

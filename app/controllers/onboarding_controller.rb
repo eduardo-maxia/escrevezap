@@ -197,6 +197,17 @@ class OnboardingController < ApplicationController
     redirect_to onboarding_step3_path(notification_id: notification.id)
   end
 
+  # ── Step 4 – Install PWA (mobile only) ─────────────────────────────
+  def step4
+    ensure_company!
+    # Desktop users skip this step entirely — complete onboarding inline
+    unless mobile_browser?
+      cleanup_test_client
+      current_user.update!(onboarding_completed: true)
+      redirect_to authenticated_root_path, notice: "Tudo pronto! Bem-vindo ao Cobrança em Dia 🎉"
+    end
+  end
+
   # ── Skip / Complete ──────────────────────────────────────────────────
   def skip
     cleanup_test_client
@@ -222,6 +233,10 @@ class OnboardingController < ApplicationController
 
   def ensure_company!
     redirect_to onboarding_step1_path unless current_user.company
+  end
+
+  def mobile_browser?
+    request.user_agent.to_s.match?(/android|iphone|ipad|ipod|mobile/i)
   end
 
   def create_default_campaign_for(company)

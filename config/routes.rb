@@ -39,6 +39,7 @@ Rails.application.routes.draw do
       get  "step3",    to: "onboarding#step3",        as: :onboarding_step3
       post "step3",    to: "onboarding#create_step3"
       get  "step3/check_whatsapp",       to: "onboarding#check_whatsapp_exists",     as: :onboarding_check_whatsapp
+      get  "step4",    to: "onboarding#step4",        as: :onboarding_step4
       post "skip",     to: "onboarding#skip",         as: :skip_onboarding
       post "complete", to: "onboarding#complete",     as: :complete_onboarding
     end

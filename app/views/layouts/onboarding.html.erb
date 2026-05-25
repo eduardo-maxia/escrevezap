@@ -132,7 +132,8 @@
 
       <%# Progress dots %>
       <div class="fixed bottom-0 inset-x-0 flex justify-center items-center gap-2 py-5 bg-(--color-surface)">
-        <% [1, 2, 3].each do |n| %>
+        <% mobile_total = current_step_num == 4 ? 4 : 3 %>
+        <% (1..mobile_total).each do |n| %>
           <% is_active = n == current_step_num %>
           <% is_done   = n < current_step_num %>
           <div class="rounded-full transition-all duration-300

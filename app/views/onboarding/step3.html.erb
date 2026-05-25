@@ -111,9 +111,9 @@
       </div>
       <p class="text-lg font-bold text-(--color-text)">Perfeito! Tudo funcionando. 🎉</p>
       <p class="text-sm text-(--color-text-muted)">Sua primeira cobrança via WhatsApp foi um sucesso. Agora é só adicionar seus clientes.</p>
-      <%= button_to complete_onboarding_path, method: :post,
-            class: "mt-2 w-full inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed bg-(--color-brand) hover:bg-(--color-brand-dark) text-(--color-text-inverse) font-semibold py-2.5 px-5 rounded-lg text-sm transition-colors cursor-pointer" do %>
-        Ir para o Dashboard
+      <%= link_to onboarding_step4_path,
+            class: "mt-2 w-full inline-flex items-center justify-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-(--color-text-inverse) font-semibold py-2.5 px-5 rounded-lg text-sm transition-colors" do %>
+        Continuar
         <i class="ph ph-arrow-right text-base"></i>
       <% end %>
     </div>
@@ -121,7 +121,7 @@
     <%# Skip link %>
     <div data-notification-status-target="skipLink"
          class="<%= done ? 'hidden' : '' %> mt-6 text-center">
-      <%= link_to complete_onboarding_path, data: { "turbo-method": "post" },
+      <%= link_to onboarding_step4_path,
             class: "text-sm text-(--color-text-muted) hover:text-(--color-text) transition-colors" do %>
         Ir para o Dashboard <i class="ph ph-arrow-right text-xs"></i>
       <% end %>
