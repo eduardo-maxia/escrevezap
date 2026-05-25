@@ -8,10 +8,18 @@
 <div class="md:p-6 md:max-w-lg">
   <%# Header — breadcrumb on desktop, back arrow + title on mobile %>
   <div class="px-4 pt-3 pb-4 md:px-0 md:pt-0 md:pb-0">
-    <nav class="hidden md:flex items-center gap-1.5 text-xs text-(--color-text-muted) mb-5">
-      <%= link_to "Clientes", clients_path, class: "hover:text-(--color-text) transition-colors" %>
-      <i class="ph ph-caret-right text-xs"></i>
-      <span class="text-(--color-text)">Novo cliente</span>
+    <nav class="hidden md:flex mb-5" aria-label="Breadcrumb">
+      <ol class="inline-flex items-center space-x-1">
+        <li class="inline-flex items-center">
+          <%= link_to "Clientes", clients_path, class: "text-sm font-medium text-(--color-text-muted) hover:text-(--color-brand) transition-colors" %>
+        </li>
+        <li aria-current="page">
+          <div class="flex items-center">
+            <i class="ph ph-caret-right text-xs text-(--color-text-subtle) mx-1.5"></i>
+            <span class="text-sm font-medium text-(--color-text)">Novo cliente</span>
+          </div>
+        </li>
+      </ol>
     </nav>
     <div class="md:hidden flex items-center gap-2">
       <%= link_to clients_path,
