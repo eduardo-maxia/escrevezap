@@ -4,4 +4,10 @@ class PagesController < ApplicationController
 
   def home
   end
+
+  def privacidade
+  end
+
+  def termos
+  end
 end

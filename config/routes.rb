@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
   root "pages#home"
+  get "privacidade", to: "pages#privacidade", as: :privacidade
+  get "termos",      to: "pages#termos",      as: :termos
   get "up" => "rails/health#show", as: :rails_health_check
 
   # PWA

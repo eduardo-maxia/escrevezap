@@ -1,0 +1,131 @@
+<%# ── Termos de Uso ───────────────────────────────────────────────────────── %>
+
+<% content_for :title, "Termos de Uso — Cobrança em Dia" %>
+
+<main class="max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
+
+  <div class="mb-8">
+    <%= link_to root_path, class: "inline-flex items-center gap-2 text-sm text-(--color-text-muted) hover:text-(--color-brand) transition-colors mb-6" do %>
+      <i class="ph ph-arrow-left"></i>
+      Voltar para o início
+    <% end %>
+
+    <h1 class="text-3xl sm:text-4xl font-bold text-(--color-text) mt-4">Termos de Uso</h1>
+    <p class="mt-2 text-sm text-(--color-text-muted)">Última atualização: <%= Date.today.strftime("%d de %B de %Y") %></p>
+  </div>
+
+  <div class="prose max-w-none space-y-8 text-(--color-text)">
+
+    <section>
+      <h2 class="text-lg font-bold mb-3">1. Aceitação dos termos</h2>
+      <p class="text-(--color-text-muted) leading-relaxed">
+        Ao criar uma conta no <strong>Cobrança em Dia</strong> ou utilizar qualquer parte do serviço, você concorda com estes Termos de Uso. Se não concordar, não utilize o serviço.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-lg font-bold mb-3">2. Descrição do serviço</h2>
+      <p class="text-(--color-text-muted) leading-relaxed">
+        O Cobrança em Dia é uma plataforma que permite a empresas e profissionais autônomos automatizar o envio de lembretes de cobrança aos seus clientes via WhatsApp, utilizando um número próprio conectado à plataforma.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-lg font-bold mb-3">3. Elegibilidade</h2>
+      <p class="text-(--color-text-muted) leading-relaxed">
+        O serviço é destinado a pessoas jurídicas e pessoas físicas maiores de 18 anos que atuem de forma profissional ou comercial. Ao se cadastrar, você declara ter capacidade legal para celebrar contratos.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-lg font-bold mb-3">4. Conta e segurança</h2>
+      <ul class="list-disc list-inside space-y-2 text-(--color-text-muted) leading-relaxed">
+        <li>Você é responsável por manter a segurança do seu e-mail e do acesso à sua conta.</li>
+        <li>Notifique-nos imediatamente sobre qualquer acesso não autorizado.</li>
+        <li>É proibido compartilhar credenciais de acesso com terceiros não autorizados.</li>
+        <li>Cada conta está vinculada a uma empresa. O número de usuários pode variar conforme o plano contratado.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="text-lg font-bold mb-3">5. Uso aceitável</h2>
+      <p class="text-(--color-text-muted) leading-relaxed mb-3">Você concorda em utilizar o serviço apenas para fins legítimos de cobrança. É expressamente proibido:</p>
+      <ul class="list-disc list-inside space-y-2 text-(--color-text-muted) leading-relaxed">
+        <li>Enviar mensagens não solicitadas (spam) a pessoas que não tenham relação comercial com você.</li>
+        <li>Utilizar a plataforma para enviar conteúdo ilegal, ofensivo, enganoso ou prejudicial.</li>
+        <li>Tentar burlar os limites do plano contratado de forma fraudulenta.</li>
+        <li>Usar o serviço para fins que violem as Políticas de Uso do WhatsApp.</li>
+        <li>Realizar engenharia reversa, descompilar ou tentar extrair o código-fonte da plataforma.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="text-lg font-bold mb-3">6. Planos e pagamento</h2>
+      <ul class="list-disc list-inside space-y-2 text-(--color-text-muted) leading-relaxed">
+        <li>Os planos disponíveis, valores e limites de cobranças estão descritos na página de preços.</li>
+        <li>O período de teste gratuito é de 2 (dois) meses a partir da criação da conta. Não é necessário cartão de crédito para o período de teste.</li>
+        <li>Após o período gratuito, a continuidade do serviço está condicionada ao pagamento do plano escolhido.</li>
+        <li>Cobranças excedentes ao limite mensal do plano são faturadas conforme o valor unitário do plano contratado.</li>
+        <li>Os valores podem ser reajustados com aviso prévio de 30 dias por e-mail.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="text-lg font-bold mb-3">7. Cancelamento</h2>
+      <p class="text-(--color-text-muted) leading-relaxed">
+        Você pode cancelar sua assinatura a qualquer momento, sem multa ou fidelidade. O acesso permanece ativo até o fim do período já pago. Após o cancelamento, seus dados serão excluídos conforme descrito na nossa Política de Privacidade.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-lg font-bold mb-3">8. Disponibilidade e SLA</h2>
+      <p class="text-(--color-text-muted) leading-relaxed">
+        Nos esforçamos para manter o serviço disponível 24/7, mas não garantimos disponibilidade ininterrupta. Manutenções programadas serão comunicadas com antecedência. Não nos responsabilizamos por indisponibilidades causadas por terceiros (como o próprio WhatsApp) ou por força maior.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-lg font-bold mb-3">9. Responsabilidade pelo conteúdo</h2>
+      <p class="text-(--color-text-muted) leading-relaxed">
+        Você é o único responsável pelo conteúdo das mensagens enviadas e pela veracidade dos dados cadastrados. O Cobrança em Dia atua como intermediário tecnológico e não se responsabiliza por cobranças indevidas, erros de cadastro ou uso inadequado da plataforma.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-lg font-bold mb-3">10. Limitação de responsabilidade</h2>
+      <p class="text-(--color-text-muted) leading-relaxed">
+        Em nenhuma hipótese o Cobrança em Dia será responsável por danos indiretos, incidentais, especiais ou consequentes decorrentes do uso ou da impossibilidade de uso do serviço. Nossa responsabilidade total, em qualquer caso, fica limitada ao valor pago pelo usuário nos últimos 3 meses.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-lg font-bold mb-3">11. Propriedade intelectual</h2>
+      <p class="text-(--color-text-muted) leading-relaxed">
+        Todos os direitos sobre a plataforma, incluindo marca, design, código e conteúdo, pertencem ao Cobrança em Dia. O uso do serviço não transfere qualquer direito de propriedade intelectual ao usuário.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-lg font-bold mb-3">12. Alterações nos termos</h2>
+      <p class="text-(--color-text-muted) leading-relaxed">
+        Podemos alterar estes termos a qualquer momento. Notificaremos você por e-mail com pelo menos 15 dias de antecedência para mudanças relevantes. O uso continuado após a vigência das alterações implica aceitação.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-lg font-bold mb-3">13. Lei aplicável e foro</h2>
+      <p class="text-(--color-text-muted) leading-relaxed">
+        Estes termos são regidos pelas leis da República Federativa do Brasil. Fica eleito o foro da comarca de São Paulo/SP para dirimir quaisquer controvérsias decorrentes deste instrumento.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-lg font-bold mb-3">14. Contato</h2>
+      <p class="text-(--color-text-muted) leading-relaxed">
+        Dúvidas sobre estes termos? Entre em contato: <a href="mailto:contato@cobrancaemdia.com.br" class="text-(--color-brand) hover:underline">contato@cobrancaemdia.com.br</a>.
+      </p>
+    </section>
+
+  </div>
+
+</main>
