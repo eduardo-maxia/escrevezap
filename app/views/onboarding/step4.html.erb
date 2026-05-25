@@ -1,4 +1,4 @@
-<% content_for :current_step, "4" %>
+<% content_for(:current_step, flush: true) { "4" } %>
 
 <div>
 
@@ -38,7 +38,7 @@
         </div>
         <div>
           <p class="text-sm font-semibold text-(--color-text)">Acesso em um toque</p>
-          <p class="text-xs text-(--color-text-muted) mt-0.5">Ícone direto na tela inicial — sem abrir o browser, sem digitar URL.</p>
+          <p class="text-xs text-(--color-text-muted) mt-0.5">Ícone direto na tela inicial — sem abrir o navegador</p>
         </div>
       </div>
 
@@ -48,32 +48,32 @@
         </div>
         <div>
           <p class="text-sm font-semibold text-(--color-text)">Tela cheia sem distrações</p>
-          <p class="text-xs text-(--color-text-muted) mt-0.5">Interface limpa e imersiva, igual a um app nativo — sem barra de URL.</p>
+          <p class="text-xs text-(--color-text-muted) mt-0.5">Interface limpa e com melhores interações</p>
         </div>
       </div>
 
       <div class="flex items-start gap-3 p-3 bg-(--color-surface-muted) rounded-xl border border-(--color-border)">
         <div class="w-8 h-8 rounded-lg bg-(--color-brand-light) flex items-center justify-center shrink-0 mt-0.5">
-          <i class="ph-fill ph-lightning text-(--color-brand) text-base"></i>
+          <i class="ph-fill ph-bell text-(--color-brand) text-base"></i>
         </div>
         <div>
-          <p class="text-sm font-semibold text-(--color-text)">Carregamento mais rápido</p>
-          <p class="text-xs text-(--color-text-muted) mt-0.5">Recursos em cache localmente — abre na hora, mesmo com internet lenta.</p>
+          <p class="text-sm font-semibold text-(--color-text)">Notificações</p>
+          <p class="text-xs text-(--color-text-muted) mt-0.5">Receba alertas importantes diretamente no seu celular</p>
         </div>
       </div>
     </div>
 
-    <%# Android: native install button (shown by pwa-install Stimulus controller) %>
-    <button data-controller="pwa-install"
-            data-action="click->pwa-install#install"
-            hidden
-            class="w-full inline-flex items-center justify-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-(--color-text-inverse) font-semibold py-2.5 px-5 rounded-lg text-sm transition-colors cursor-pointer mb-3">
-      <i class="ph-fill ph-device-mobile text-base"></i>
-      Instalar aplicativo
-    </button>
+    <%# Android: native install button — visible by default, hidden on iOS by JS %>
+    <div id="android-section">
+      <button id="pwa-install-btn"
+              class="w-full inline-flex items-center justify-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-(--color-text-inverse) font-semibold py-2.5 px-5 rounded-lg text-sm transition-colors cursor-pointer mb-3">
+        <i class="ph-fill ph-device-mobile text-base"></i>
+        Instalar aplicativo
+      </button>
+    </div>
 
-    <%# iOS: step-by-step instructions (shown by JS if iOS detected) %>
-    <div id="ios-guide" class="hidden mb-4">
+    <%# iOS: step-by-step instructions — hidden by default, shown by JS %>
+    <div id="ios-section" class="hidden mb-4">
       <p class="text-sm font-semibold text-(--color-text) mb-3">Como instalar no iPhone / iPad:</p>
       <ol class="space-y-3">
         <li class="flex items-start gap-3">
@@ -81,7 +81,7 @@
           <p class="text-sm text-(--color-text-muted)">
             Toque no botão de compartilhar
             <i class="ph ph-export text-(--color-brand) inline-block align-middle mx-0.5"></i>
-            na barra inferior do Safari.
+            na barra do Safari.
           </p>
         </li>
         <li class="flex items-start gap-3">
@@ -93,11 +93,10 @@
         <li class="flex items-start gap-3">
           <span class="w-6 h-6 rounded-full bg-(--color-brand) text-(--color-text-inverse) text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
           <p class="text-sm text-(--color-text-muted)">
-            Confirme tocando em <strong class="text-(--color-text)">"Adicionar"</strong> no canto superior direito.
+            Toque em <strong class="text-(--color-text)">"Adicionar"</strong> no canto superior direito.
           </p>
         </li>
       </ol>
-      <%# After iOS install, user reopens from home screen → skip button handles completion %>
     </div>
 
     <%# Skip link %>
@@ -113,19 +112,47 @@
 </div>
 
 <script>
-  // If already running as installed PWA, show success and auto-submit
-  if (window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true) {
-    document.getElementById("pwa-already-installed").classList.remove("hidden");
-    document.getElementById("pwa-install-prompt").classList.add("hidden");
-  }
+  (function() {
+    var isIOS      = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    var isStandalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
 
-  // iOS: show manual instructions
-  if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
-    document.getElementById("ios-guide").classList.remove("hidden");
-  }
+    // Already running as installed PWA — show success state
+    if (isStandalone) {
+      document.getElementById("pwa-already-installed").classList.remove("hidden");
+      document.getElementById("pwa-install-prompt").classList.add("hidden");
+      return;
+    }
 
-  // Android: after user installs via prompt, auto-submit to complete
-  document.addEventListener("pwa:installed", function() {
-    document.getElementById("complete-form-installed").closest("form").requestSubmit();
-  });
+    // iOS: hide Android button, show manual guide
+    if (isIOS) {
+      document.getElementById("android-section").classList.add("hidden");
+      document.getElementById("ios-section").classList.remove("hidden");
+      return;
+    }
+
+    // Android/Chrome: wire up the install button
+    var btn = document.getElementById("pwa-install-btn");
+    btn.addEventListener("click", function() {
+      var prompt = window.deferredInstallPrompt;
+      if (!prompt) return;
+      prompt.prompt();
+      prompt.userChoice.then(function(result) {
+        if (result.outcome === "accepted") {
+          window.deferredInstallPrompt = null;
+          // Auto-complete onboarding after install
+          document.getElementById("complete-form-installed").closest("form").requestSubmit();
+        }
+      });
+    });
+
+    // If no install prompt available (already installed / criteria not met), hide Android button
+    if (!window.deferredInstallPrompt) {
+      document.getElementById("android-section").classList.add("hidden");
+    }
+
+    // Listen for prompt becoming available after page load
+    document.addEventListener("pwa:installable", function() {
+      document.getElementById("android-section").classList.remove("hidden");
+    });
+  })();
 </script>

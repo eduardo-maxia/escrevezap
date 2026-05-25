@@ -9,6 +9,11 @@
     <%= yield :head %>
 
     <link rel="icon" href="/logo.png" type="image/png">
+    <link rel="manifest" href="/manifest">
+    <meta name="theme-color" content="#0D2E67">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Cobrança em Dia">
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
@@ -85,7 +90,7 @@
       <main class="flex-1 flex flex-col items-center justify-center bg-(--color-surface) p-10">
         <div class="w-full max-w-md">
           <%= yield %>
-          <% if current_step_num > 1 %>
+          <% if current_step_num > 1 && current_step_num < 4 %>
             <div class="text-center mt-6">
               <%= button_to skip_onboarding_path, method: :post,
                     class: "text-xs text-(--color-text-subtle) hover:text-(--color-text-muted) transition-colors cursor-pointer" do %>
@@ -118,7 +123,7 @@
 
           <%= yield %>
 
-          <% if current_step_num > 1 %>
+          <% if current_step_num > 1 && current_step_num < 4 %>
             <div class="text-center mt-6">
               <%= button_to skip_onboarding_path, method: :post,
                     class: "text-xs text-(--color-text-subtle) hover:text-(--color-text-muted) transition-colors cursor-pointer" do %>
@@ -132,8 +137,7 @@
 
       <%# Progress dots %>
       <div class="fixed bottom-0 inset-x-0 flex justify-center items-center gap-2 py-5 bg-(--color-surface)">
-        <% mobile_total = current_step_num == 4 ? 4 : 3 %>
-        <% (1..mobile_total).each do |n| %>
+        <% (1..4).each do |n| %>
           <% is_active = n == current_step_num %>
           <% is_done   = n < current_step_num %>
           <div class="rounded-full transition-all duration-300
