@@ -1,0 +1,36 @@
+<h2 style="color:#111827;font-size:22px;font-weight:700;margin:0 0 16px;letter-spacing:-0.3px;">
+  Você foi convidado! 🎉
+</h2>
+
+<p style="color:#64748b;font-size:15px;line-height:1.6;margin:0 0 8px;">
+  Olá<% if @user.name.present? %>, <strong style="color:#111827;"><%= @user.name %></strong><% end %>!
+</p>
+
+<p style="color:#64748b;font-size:15px;line-height:1.6;margin:0 0 28px;">
+  <strong style="color:#111827;"><%= @invited_by.name.presence || @invited_by.email %></strong>
+  te convidou para acessar a conta de
+  <strong style="color:#111827;"><%= @company.name %></strong>
+  no Cobrança em Dia.
+</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 28px;">
+  <tr>
+    <td align="center" style="background-color:#F4F8FD;border:1px solid #DCE8F8;border-radius:12px;padding:28px 24px;">
+      <p style="color:#64748b;font-size:14px;margin:0 0 6px;">Seu e-mail de acesso</p>
+      <p style="color:#0D2E67;font-size:18px;font-weight:700;margin:0 0 20px;"><%= @user.email %></p>
+      <a href="<%= @login_url %>"
+         style="display:inline-block;background-color:#0D2E67;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;padding:12px 28px;border-radius:8px;">
+        Fazer login
+      </a>
+    </td>
+  </tr>
+</table>
+
+<p style="color:#64748b;font-size:14px;line-height:1.6;margin:0 0 8px;">
+  <strong style="color:#111827;">Como funciona?</strong> Não é preciso senha.
+  Basta informar seu e-mail na tela de login e você receberá um código de acesso por aqui.
+</p>
+
+<p style="color:#94a3b8;font-size:13px;line-height:1.6;margin:16px 0 0;">
+  Se você não esperava este convite, pode ignorar este e-mail com segurança.
+</p>

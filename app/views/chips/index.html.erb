@@ -6,10 +6,23 @@
   end
 %>
 
-<div class="p-6 space-y-5">
+<%# Mobile header %>
+<div class="md:hidden flex items-center gap-2 px-4 py-3 border-b border-(--color-border) bg-(--color-surface) sticky top-0 z-10">
+  <%= link_to authenticated_root_path, class: "p-1.5 -ml-1 rounded-lg text-(--color-text) hover:bg-(--color-surface-muted) transition-colors" do %>
+    <i class="ph ph-arrow-left text-lg leading-none"></i>
+  <% end %>
+  <h1 class="flex-1 text-base font-semibold text-(--color-text)">Chips WhatsApp</h1>
+  <%= link_to new_chip_path,
+        class: "inline-flex items-center gap-1.5 px-3 py-1.5 bg-(--color-brand) text-(--color-text-inverse) text-xs font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors" do %>
+    <i class="ph ph-plus text-sm"></i>
+    Novo
+  <% end %>
+</div>
 
-  <%# ── Header ──────────────────────────────────────────────────────── %>
-  <div class="flex items-start justify-between gap-4">
+<div class="p-4 md:p-6 space-y-5">
+
+  <%# ── Header (desktop only) ──────────────────────────────────────────────────────── %>
+  <div class="hidden md:flex items-start justify-between gap-4">
     <div>
       <h2 class="text-2xl font-bold text-(--color-text)">Chips WhatsApp</h2>
       <p class="text-sm text-(--color-text-muted) mt-1">Gerencie os números conectados às suas campanhas.</p>

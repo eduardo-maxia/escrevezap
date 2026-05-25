@@ -70,7 +70,6 @@
             <ul id="sidebar-settings-dropdown" class="<%= settings_open ? '' : 'hidden ' %>py-2 space-y-1">
               <%= render "layouts/nav_subitem", label: "Empresa",   path: settings_empresa_path %>
               <%= render "layouts/nav_subitem", label: "Perfil",    path: settings_perfil_path %>
-              <%= render "layouts/nav_subitem", label: "Segurança", path: settings_senha_path %>
               <% unless has_campanhas %>
                 <%= render "layouts/nav_subitem", label: "Cobrança", path: settings_cobranca_path %>
               <% end %>

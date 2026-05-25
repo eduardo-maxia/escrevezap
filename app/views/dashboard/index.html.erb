@@ -373,6 +373,7 @@
     </div>
 
     <%# 5. Recent pending installments — quick mark-as-paid %>
+    <% if @recent_pending.any? %>
     <div class="rounded-xl border border-(--color-border) bg-(--color-surface) overflow-hidden">
       <div class="px-4 py-3 border-b border-(--color-border) flex items-center justify-between">
         <div>
@@ -383,17 +384,7 @@
           Ver todos <i class="ph ph-caret-right align-middle text-[10px]"></i>
         <% end %>
       </div>
-
-      <% if @recent_pending.empty? %>
-        <div class="py-10 text-center">
-          <div class="w-12 h-12 rounded-full bg-(--color-success-light) flex items-center justify-center mx-auto mb-2">
-            <i class="ph ph-check-circle text-(--color-success) text-2xl"></i>
-          </div>
-          <p class="text-sm font-medium text-(--color-text)">Tudo em dia!</p>
-          <p class="text-xs text-(--color-text-muted) mt-0.5">Nenhuma cobrança vencida.</p>
-        </div>
-      <% else %>
-        <ul class="divide-y divide-(--color-border)">
+      <ul class="divide-y divide-(--color-border)">
           <% @recent_pending.each do |inst| %>
             <%
               client    = inst.campaign_client.client
@@ -433,8 +424,8 @@
             </li>
           <% end %>
         </ul>
-      <% end %>
     </div>
+    <% end %>
 
   </div>
 
@@ -639,6 +630,74 @@
       </div>
 
     </div>
+
+    <%# Pendências recentes %>
+    <% if @recent_pending.any? %>
+    <div class="bg-(--color-surface) rounded-xl border border-(--color-border) overflow-hidden">
+      <div class="px-5 py-4 border-b border-(--color-border) flex items-center justify-between">
+        <div>
+          <h3 class="font-semibold text-(--color-text)">Pendências recentes</h3>
+          <p class="text-xs text-(--color-text-muted) mt-0.5">Clique em <i class="ph ph-check-circle align-middle text-(--color-success)"></i> para dar baixa diretamente</p>
+        </div>
+        <%= link_to clients_path, class: "text-sm text-(--color-brand) hover:text-(--color-brand-dark) font-medium" do %>
+          Ver todos →
+        <% end %>
+      </div>
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-(--color-border) bg-(--color-surface-muted)">
+            <th class="px-5 py-3 text-left text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide">Cliente</th>
+            <th class="px-5 py-3 text-left text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide">Valor</th>
+            <th class="px-5 py-3 text-left text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide">Vencimento</th>
+            <th class="px-5 py-3"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-(--color-border)">
+          <% @recent_pending.each do |inst| %>
+            <%
+              client    = inst.campaign_client.client
+              days_late = (Date.today - inst.due_date).to_i
+              overdue   = days_late > 0
+              due_text  = if days_late == 0
+                            "Vence hoje"
+                          elsif days_late == 1
+                            "1 dia atrasada"
+                          elsif overdue
+                            "#{days_late} dias atrasada"
+                          else
+                            I18n.l(inst.due_date, format: "%d/%m") rescue inst.due_date.strftime("%d/%m")
+                          end
+            %>
+            <tr class="hover:bg-(--color-surface-muted) transition-colors">
+              <td class="px-5 py-3.5">
+                <p class="font-medium text-(--color-text)"><%= client.name %></p>
+              </td>
+              <td class="px-5 py-3.5 font-semibold text-(--color-text)">
+                <%= number_to_currency(inst.amount, unit: "R$\u00a0", separator: ",", delimiter: ".", precision: 2) %>
+              </td>
+              <td class="px-5 py-3.5">
+                <span class="text-sm font-medium <%= overdue ? 'text-(--color-danger)' : 'text-(--color-warning)' %>">
+                  <%= due_text %>
+                </span>
+              </td>
+              <td class="px-5 py-3.5 text-right">
+                <%= button_to installment_path(inst),
+                      method: :patch,
+                      params: { installment: { status: "paid" } },
+                      form: { data: { turbo_confirm: "Confirmar baixa de #{number_to_currency(inst.amount, unit: 'R$ ', separator: ',', delimiter: '.', precision: 2)} de #{client.name}?" } },
+                      class: "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-(--color-success-light) text-(--color-success) hover:bg-(--color-success) hover:text-(--color-text-inverse) rounded-lg transition-colors disabled:opacity-60",
+                      data: { controller: "loadable", "loadable-spinner-only-value": "true" },
+                      aria: { label: "Dar baixa" } do %>
+                  <i class="ph ph-check"></i>
+                  Dar baixa
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <% end %>
 
   </div>
 

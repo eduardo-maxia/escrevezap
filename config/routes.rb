@@ -44,13 +44,18 @@ Rails.application.routes.draw do
       post "complete", to: "onboarding#complete",     as: :complete_onboarding
     end
 
-    resources :users, only: [:index, :new, :create, :destroy], path: "membros"
+    resources :users, only: [:index, :new, :create, :destroy], path: "membros" do
+      member { post :resend_invite }
+    end
 
     get   "settings",          to: "settings#show",          as: :settings
     get   "settings/empresa",  to: "settings#empresa",       as: :settings_empresa
     patch "settings/empresa",  to: "settings#update_empresa"
-    get   "settings/perfil",   to: "settings#perfil",        as: :settings_perfil
-    patch "settings/perfil",   to: "settings#update_perfil"
+    get   "settings/perfil",              to: "settings#perfil",              as: :settings_perfil
+    patch "settings/perfil",              to: "settings#update_perfil"
+    post  "settings/perfil/verify_email", to: "settings#verify_email_change",  as: :settings_verify_email_change
+    post  "settings/perfil/resend_email", to: "settings#resend_email_change",  as: :settings_resend_email_change
+    post  "settings/perfil/cancel_email", to: "settings#cancel_email_change",  as: :settings_cancel_email_change
     get   "settings/senha",    to: "settings#senha",         as: :settings_senha
     patch "settings/senha",    to: "settings#update_senha"
     get   "settings/cobranca", to: "settings#cobranca",      as: :settings_cobranca

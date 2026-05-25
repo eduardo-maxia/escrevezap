@@ -17,10 +17,23 @@
 %>
 
 <% if has_campanhas %>
-<div class="p-6 space-y-5">
 
-  <%# ── Breadcrumb + title ──────────────────────────────────────────── %>
-  <div>
+<%# Mobile header %>
+<div class="md:hidden flex items-center gap-2 px-4 py-3 border-b border-(--color-border) bg-(--color-surface) sticky top-0 z-10">
+  <%= link_to chips_path, class: "p-1.5 -ml-1 rounded-lg text-(--color-text) hover:bg-(--color-surface-muted) transition-colors" do %>
+    <i class="ph ph-arrow-left text-lg leading-none"></i>
+  <% end %>
+  <h1 class="flex-1 text-base font-semibold text-(--color-text) truncate"><%= @chip.name %></h1>
+  <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-(<%= status_bg %>) text-(<%= status_color %>)">
+    <i class="ph <%= status_icon %> text-xs"></i>
+    <%= status_label %>
+  </span>
+</div>
+
+<div class="p-4 md:p-6 space-y-5">
+
+  <%# ── Breadcrumb + title (desktop only) ──────────────────────────── %>
+  <div class="hidden md:block">
     <nav class="flex mb-2" aria-label="Breadcrumb">
       <ol class="inline-flex items-center space-x-1">
         <li class="inline-flex items-center">

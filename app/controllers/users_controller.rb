@@ -1,9 +1,9 @@
 class UsersController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_company!
-  before_action :set_user, only: [:destroy]
-  before_action :ensure_same_company!, only: [:destroy]
-  before_action :require_owner!, only: [:destroy]
+  before_action :set_user, only: [:destroy, :resend_invite]
+  before_action :ensure_same_company!, only: [:destroy, :resend_invite]
+  before_action :require_owner!, only: [:destroy, :resend_invite]
   layout "authenticated"
 
   def index
@@ -18,17 +18,19 @@ class UsersController < ApplicationController
     @user = User.new(user_params)
     @user.company = current_user.company
     @user.role = "member"
-
-    temp_password = SecureRandom.alphanumeric(12)
-    @user.password = temp_password
-    @user.password_confirmation = temp_password
+    @user.password = SecureRandom.alphanumeric(24)
 
     if @user.save
-      redirect_to users_path,
-        notice: "Usuário criado com sucesso. Senha temporária: #{temp_password} — anote antes de fechar esta página."
+      OtpMailer.invite(@user, current_user).deliver_later
+      redirect_to users_path, notice: "Convite enviado para #{@user.email}."
     else
       render :new, status: :unprocessable_entity
     end
+  end
+
+  def resend_invite
+    OtpMailer.invite(@user, current_user).deliver_later
+    redirect_to users_path, notice: "Convite reenviado para #{@user.email}."
   end
 
   def destroy

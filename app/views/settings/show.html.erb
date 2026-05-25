@@ -62,12 +62,6 @@
         <span class="flex-1 text-sm font-medium text-(--color-text)">Empresa</span>
         <i class="ph ph-caret-right text-xs text-(--color-text-subtle)"></i>
       <% end %>
-
-      <%= link_to settings_senha_path, class: item_cls do %>
-        <span class="<%= icon_wrap_cls %>"><i class="<%= icon_cls %> ph-lock-key"></i></span>
-        <span class="flex-1 text-sm font-medium text-(--color-text)">Segurança</span>
-        <i class="ph ph-caret-right text-xs text-(--color-text-subtle)"></i>
-      <% end %>
     </div>
 
     <%# ── Section: Equipe & Recursos ───────────────────────────────── %>
@@ -131,7 +125,7 @@
     </div>
 
     <p class="text-center text-xs text-(--color-text-subtle) pt-2">
-      Cobrança em Dia
+      Cobrança em Dia &copy; <%= Time.current.year %>
     </p>
   </div>
 </div>
