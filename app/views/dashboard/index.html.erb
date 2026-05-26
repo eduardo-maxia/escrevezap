@@ -1,6 +1,26 @@
 <% content_for :page_title, "Dashboard" %>
 
-<div class="p-4 md:p-6 space-y-6">
+<div class="p-4 md:p-6 space-y-6" data-controller="push-permission">
+
+  <%# Push-notification opt-in banner — only shown inside PWA, hidden by default %>
+  <div data-push-permission-target="banner"
+       class="hidden flex items-center gap-3 rounded-xl border border-(--color-brand-light) bg-(--color-brand-subtle) px-4 py-3">
+    <i class="ph-fill ph-bell-ringing text-(--color-brand) text-xl flex-shrink-0"></i>
+    <p class="flex-1 text-sm text-(--color-text)">
+      <span class="font-semibold">Ative as notificações</span> para saber na hora quando um comprovante chegar ou o WhatsApp desconectar.
+    </p>
+    <button type="button"
+            class="flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-(--color-brand) text-(--color-text-inverse) hover:bg-(--color-brand-dark) transition-colors"
+            data-action="click->push-permission#enable">
+      Ativar
+    </button>
+    <button type="button"
+            class="flex-shrink-0 p-1 rounded-md text-(--color-text-muted) hover:bg-(--color-surface-raised) transition-colors"
+            data-action="click->push-permission#dismiss"
+            aria-label="Fechar">
+      <i class="ph ph-x text-sm"></i>
+    </button>
+  </div>
 
 <% if @feature_campanhas %>
 

@@ -69,3 +69,6 @@ application.register("speed-dial", SpeedDialController)
 
 import ShareReceiptPickerController from "./share_receipt_picker_controller"
 application.register("share-receipt-picker", ShareReceiptPickerController)
+
+import PushPermissionController from "./push_permission_controller"
+application.register("push-permission", PushPermissionController)

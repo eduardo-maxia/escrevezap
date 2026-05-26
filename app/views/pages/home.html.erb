@@ -396,6 +396,124 @@
   </div>
 </section>
 
+<%# ── Comprovantes ─────────────────────────────────────────────────────────── %>
+<section id="comprovantes" class="py-12 sm:py-20 px-4 sm:px-6 scroll-mt-20">
+  <div class="max-w-6xl mx-auto">
+
+    <%# Header %>
+    <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
+      <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-(--color-accent-subtle) text-(--color-accent-dark) text-xs font-semibold mb-4">
+        <i class="ph-fill ph-receipt"></i>
+        Novidade
+      </span>
+      <h2 class="text-2xl sm:text-4xl font-bold text-(--color-text) leading-tight">
+        Todo comprovante no lugar certo, <span class="text-(--color-brand)">sem esforço</span>
+      </h2>
+      <p class="mt-3 sm:mt-4 text-sm sm:text-base text-(--color-text-muted) leading-relaxed">
+        Cansou de procurar comprovante perdido no WhatsApp, no e-mail e no rolo da câmera? Aqui você salva todos centralizados na parcela certa &mdash; do jeito mais simples que existe.
+      </p>
+    </div>
+
+    <%# Hero card — Reação de joinha (a forma mais legal) %>
+    <div class="relative rounded-3xl border-2 border-(--color-accent) bg-gradient-to-br from-(--color-accent-subtle) to-(--color-surface) p-6 sm:p-10 mb-5 sm:mb-6 overflow-hidden">
+      <%# Badge "destaque" %>
+      <span class="absolute top-4 right-4 sm:top-6 sm:right-6 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-(--color-accent) text-(--color-text-inverse) text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-sm">
+        <i class="ph-fill ph-star"></i>
+        Mais prático
+      </span>
+
+      <div class="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 sm:gap-8 items-center">
+        <%# Big thumbs-up visual %>
+        <div class="flex items-center justify-center">
+          <div class="relative">
+            <div class="w-24 h-24 sm:w-32 sm:h-32 rounded-3xl bg-(--color-accent) text-(--color-text-inverse) flex items-center justify-center shadow-lg shadow-(--color-accent)/30">
+              <i class="ph-fill ph-thumbs-up text-5xl sm:text-6xl"></i>
+            </div>
+            <div class="absolute -top-2 -right-2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-(--color-success) text-(--color-text-inverse) flex items-center justify-center shadow-md ring-4 ring-(--color-surface)">
+              <i class="ph-fill ph-check text-lg sm:text-xl"></i>
+            </div>
+          </div>
+        </div>
+
+        <%# Copy %>
+        <div class="text-center md:text-left">
+          <p class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-(--color-accent-dark) mb-2">A forma mais rápida</p>
+          <h3 class="text-xl sm:text-2xl font-bold text-(--color-text) leading-tight mb-3">
+            Reagiu com joinha no WhatsApp? <br class="hidden sm:block">Pronto, comprovante salvo.
+          </h3>
+          <p class="text-sm sm:text-base text-(--color-text-muted) leading-relaxed mb-5">
+            Cliente mandou o comprovante. Você dá um <strong class="text-(--color-text)">👍 no WhatsApp</strong>. A gente vincula automaticamente na parcela em aberto e marca como paga. Sem abrir o app. Sem digitar nada.
+          </p>
+
+          <div class="flex flex-wrap justify-center md:justify-start gap-x-5 gap-y-2 text-xs sm:text-sm">
+            <span class="inline-flex items-center gap-1.5 text-(--color-text)">
+              <i class="ph-fill ph-lightning text-(--color-accent)"></i> Leva 1 segundo
+            </span>
+            <span class="inline-flex items-center gap-1.5 text-(--color-text)">
+              <i class="ph-fill ph-hand-tap text-(--color-accent)"></i> Sem trocar de tela
+            </span>
+            <span class="inline-flex items-center gap-1.5 text-(--color-text)">
+              <i class="ph-fill ph-magic-wand text-(--color-accent)"></i> Pagamento automático
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%# Other ways — divider with label %>
+    <div class="flex items-center gap-3 my-6 sm:my-8 text-xs sm:text-sm text-(--color-text-muted)">
+      <span class="flex-1 h-px bg-(--color-border)"></span>
+      <span class="font-semibold">Outras formas de salvar</span>
+      <span class="flex-1 h-px bg-(--color-border)"></span>
+    </div>
+
+    <%# Two more ways to save %>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+
+      <%# Card — Compartilhar do WhatsApp %>
+      <div class="relative rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 sm:p-8 hover:shadow-md transition-shadow">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-(--color-brand-subtle) text-(--color-brand)">
+            <i class="ph-fill ph-share-network text-xl"></i>
+          </span>
+          <h3 class="text-base sm:text-lg font-bold text-(--color-text)">Compartilhando do WhatsApp</h3>
+        </div>
+        <p class="text-sm text-(--color-text-muted) leading-relaxed">
+          Abra o anexo, toque em <strong class="text-(--color-text)">Compartilhar</strong> e escolha o <strong class="text-(--color-text)">Cobrança em Dia</strong>. Selecione a parcela e pronto &mdash; útil quando o comprovante veio em outra conversa.
+        </p>
+      </div>
+
+      <%# Card — Salvar direto pela parcela %>
+      <div class="relative rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 sm:p-8 hover:shadow-md transition-shadow">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-(--color-brand-subtle) text-(--color-brand)">
+            <i class="ph-fill ph-paperclip text-xl"></i>
+          </span>
+          <h3 class="text-base sm:text-lg font-bold text-(--color-text)">Anexando direto na parcela</h3>
+        </div>
+        <p class="text-sm text-(--color-text-muted) leading-relaxed">
+          Recebeu por transferência fora do WhatsApp? Abra a parcela, anexe o comprovante (foto, PDF ou print) e marque como paga. Tudo no histórico do cliente.
+        </p>
+      </div>
+
+    </div>
+
+    <%# Bottom reassurance %>
+    <div class="mt-8 sm:mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs sm:text-sm text-(--color-text-muted)">
+      <span class="inline-flex items-center gap-1.5">
+        <i class="ph-fill ph-folder-simple text-(--color-brand)"></i> Tudo organizado por cliente
+      </span>
+      <span class="inline-flex items-center gap-1.5">
+        <i class="ph-fill ph-cloud-check text-(--color-brand)"></i> Salvo na nuvem
+      </span>
+      <span class="inline-flex items-center gap-1.5">
+        <i class="ph-fill ph-magnifying-glass text-(--color-brand)"></i> Encontre em segundos
+      </span>
+    </div>
+
+  </div>
+</section>
+
 <%# ── FAQ (Flowbite accordion) ─────────────────────────────────────────────── %>
 <section id="precos" class="py-12 sm:py-20 px-4 sm:px-6 bg-(--color-surface-muted) scroll-mt-20">
   <div class="max-w-5xl mx-auto">

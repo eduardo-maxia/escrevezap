@@ -1,4 +1,5 @@
 <% content_for :page_title, "Vincular comprovante" %>
+<% content_for :hide_bottom_nav, true %>
 
 <%# Mobile sticky header %>
 <div class="md:hidden flex items-center gap-2 px-4 py-3 border-b border-(--color-border) bg-(--color-surface) sticky top-0 z-10">
@@ -8,7 +9,7 @@
   <h1 class="text-base font-semibold text-(--color-text)">Vincular comprovante</h1>
 </div>
 
-<div class="px-4 pt-5 pb-24 md:p-6 md:pb-6 md:max-w-2xl space-y-4" data-controller="share-receipt-picker">
+<div class="px-4 pt-5 pb-8 md:p-6 md:max-w-2xl space-y-4" data-controller="share-receipt-picker">
 
   <%# Desktop header %>
   <div class="hidden md:flex items-center gap-2">

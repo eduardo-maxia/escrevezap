@@ -7,6 +7,7 @@ class User < ApplicationRecord
          :omniauthable, omniauth_providers: [:google_oauth2]
 
   belongs_to :company, optional: true
+  has_many :push_subscriptions, dependent: :destroy
 
   enum :role, { owner: "owner", admin: "admin", member: "member" }
 

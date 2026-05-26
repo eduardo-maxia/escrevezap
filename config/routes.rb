@@ -62,6 +62,11 @@ Rails.application.routes.draw do
     patch "settings/senha",    to: "settings#update_senha"
     get   "settings/cobranca", to: "settings#cobranca",      as: :settings_cobranca
     patch "settings/cobranca", to: "settings#update_cobranca"
+    get   "settings/notifications", to: "settings#notifications", as: :settings_notifications
+    patch "settings/notifications", to: "settings#update_notifications"
+
+    post   "push_subscriptions",          to: "push_subscriptions#create",  as: :push_subscriptions
+    delete "push_subscriptions",          to: "push_subscriptions#destroy"
 
     resources :chips, only: [:index, :new, :create, :show, :destroy] do
       member do

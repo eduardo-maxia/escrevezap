@@ -73,6 +73,12 @@
         <i class="ph ph-caret-right text-xs text-(--color-text-subtle)"></i>
       <% end %>
 
+      <%= link_to settings_notifications_path, class: item_cls do %>
+        <span class="<%= icon_wrap_cls %>"><i class="<%= icon_cls %> ph-bell"></i></span>
+        <span class="flex-1 text-sm font-medium text-(--color-text)">Notificações</span>
+        <i class="ph ph-caret-right text-xs text-(--color-text-subtle)"></i>
+      <% end %>
+
       <% if has_campanhas %>
         <%= link_to chips_path, class: item_cls do %>
           <span class="<%= icon_wrap_cls %>"><i class="<%= icon_cls %> ph-device-mobile"></i></span>

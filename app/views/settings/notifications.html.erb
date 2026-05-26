@@ -1,0 +1,90 @@
+<% content_for :page_title, "Notificações" %>
+
+<%# Mobile header %>
+<div class="md:hidden flex items-center gap-2 px-4 py-3 border-b border-(--color-border) bg-(--color-surface) sticky top-0 z-10">
+  <%= link_to settings_path, class: "p-1.5 -ml-1 rounded-lg text-(--color-text) hover:bg-(--color-surface-muted) transition-colors" do %>
+    <i class="ph ph-arrow-left text-lg leading-none"></i>
+  <% end %>
+  <h1 class="text-base font-semibold text-(--color-text)">Notificações</h1>
+</div>
+
+<div class="px-4 pt-5 pb-24 md:p-6 md:pb-6 md:max-w-2xl space-y-5">
+
+  <%# Desktop header %>
+  <div class="hidden md:flex items-center gap-2 mb-2">
+    <%= link_to settings_path, class: "p-1.5 rounded-lg text-(--color-text-muted) hover:bg-(--color-surface-raised) transition-colors" do %>
+      <i class="ph ph-arrow-left text-base leading-none"></i>
+    <% end %>
+    <div>
+      <h2 class="text-2xl font-bold text-(--color-text)">Notificações</h2>
+      <p class="text-sm text-(--color-text-muted) mt-0.5">Escolha quais alertas você quer receber no dispositivo.</p>
+    </div>
+  </div>
+
+  <%# Info: only works inside the installed PWA %>
+  <div class="flex items-start gap-3 rounded-xl border border-(--color-brand-light) bg-(--color-brand-subtle) px-4 py-3 text-sm text-(--color-text-muted)">
+    <i class="ph ph-info text-(--color-brand) text-base mt-0.5 flex-shrink-0"></i>
+    <p>As notificações funcionam apenas no <strong class="text-(--color-text)">app instalado</strong> (adicione ao Início para ativar). Você deve habilitar a permissão quando solicitado.</p>
+  </div>
+
+  <%# Preferences form %>
+  <%= form_with url: settings_notifications_path, method: :patch, local: true do |f| %>
+    <%= f.fields_for :user, current_user do |u| %>
+
+      <div class="bg-(--color-surface) rounded-2xl border border-(--color-border) divide-y divide-(--color-border) overflow-hidden">
+
+        <%# Toggle row helper — yields label, description, field_name, current_value %>
+        <%# Row: comprovante anexado %>
+        <label class="flex items-start gap-4 px-4 py-4 cursor-pointer hover:bg-(--color-surface-muted) transition-colors">
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-(--color-text)">Comprovante recebido</p>
+            <p class="text-xs text-(--color-text-muted) mt-0.5">Avisa quando um cliente mandar o comprovante de pagamento via joinha no WhatsApp e ele for vinculado automaticamente.</p>
+          </div>
+          <div class="flex-shrink-0 mt-0.5">
+            <%= u.check_box :notif_proof_attached,
+                  class: "sr-only peer",
+                  id: "notif_proof_attached" %>
+            <div class="relative w-11 h-6 bg-(--color-border-strong) rounded-full peer
+                        peer-checked:bg-(--color-brand)
+                        peer-focus:ring-2 peer-focus:ring-(--color-brand-light)
+                        after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                        after:bg-white after:rounded-full after:h-5 after:w-5
+                        after:transition-all peer-checked:after:translate-x-5">
+            </div>
+          </div>
+        </label>
+
+        <%# Row: chip disconnected %>
+        <label class="flex items-start gap-4 px-4 py-4 cursor-pointer hover:bg-(--color-surface-muted) transition-colors">
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-(--color-text)">WhatsApp desconectado</p>
+            <p class="text-xs text-(--color-text-muted) mt-0.5">Avisa quando o número de WhatsApp conectado ao Cobrança em Dia desconectar, para você reconectar antes que cobranças parem.</p>
+          </div>
+          <div class="flex-shrink-0 mt-0.5">
+            <%= u.check_box :notif_chip_disconnected,
+                  class: "sr-only peer",
+                  id: "notif_chip_disconnected" %>
+            <div class="relative w-11 h-6 bg-(--color-border-strong) rounded-full peer
+                        peer-checked:bg-(--color-brand)
+                        peer-focus:ring-2 peer-focus:ring-(--color-brand-light)
+                        after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                        after:bg-white after:rounded-full after:h-5 after:w-5
+                        after:transition-all peer-checked:after:translate-x-5">
+            </div>
+          </div>
+        </label>
+
+      </div>
+
+    <% end %>
+
+    <button type="submit"
+            class="w-full inline-flex items-center justify-center gap-2 h-11 rounded-xl bg-(--color-brand) text-(--color-text-inverse) text-sm font-semibold hover:bg-(--color-brand-dark) transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            data-controller="loadable"
+            data-loadable-loading-text-value="Salvando...">
+      <i class="ph ph-floppy-disk"></i>
+      Salvar preferências
+    </button>
+  <% end %>
+
+</div>

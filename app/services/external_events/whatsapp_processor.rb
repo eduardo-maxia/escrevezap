@@ -98,6 +98,16 @@ class ExternalEvents::WhatsappProcessor < ExternalEvents::Base
 
       installment.update!(status: :paid, proof_image: blob)
       log_info "Parcela #{installment.id} marcada como paga com comprovante da reação 👍"
+
+      # Push notification to all company owners/admins with the preference enabled
+      @chip.company.users.where(notif_proof_attached: true).each do |user|
+        PushNotificationService.notify(
+          user,
+          title: "Comprovante recebido 👍",
+          body:  "#{campaign_client.client.name} enviou o comprovante da parcela de #{ActionController::Base.helpers.number_to_currency(installment.amount, unit: 'R$ ', separator: ',', delimiter: '.', precision: 2)}.",
+          url:   "/app/campaigns/#{installment.campaign_client.campaign_id}"
+        )
+      end
     rescue => e
       log_error "Erro ao baixar ou salvar a imagem do comprovante: #{e.message}"
     end

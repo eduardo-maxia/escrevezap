@@ -103,3 +103,39 @@ self.addEventListener("fetch", (event) => {
     );
   }
 });
+
+// ── Web Push ─────────────────────────────────────────────────────────
+self.addEventListener("push", (event) => {
+  if (!event.data) return;
+
+  let data = {};
+  try { data = JSON.parse(event.data.text()); } catch {}
+
+  const title = data.title || "Cobrança em Dia";
+  const options = {
+    body:  data.body  || "",
+    icon:  "/icon-192.png",
+    badge: "/icon-72.png",
+    data:  { url: data.url || "/app" },
+    vibrate: [100, 50, 100],
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const target = event.notification.data?.url || "/app";
+
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((windowClients) => {
+      for (const client of windowClients) {
+        if (client.url.includes(self.location.origin) && "focus" in client) {
+          client.navigate(target);
+          return client.focus();
+        }
+      }
+      return clients.openWindow(target);
+    })
+  );
+});

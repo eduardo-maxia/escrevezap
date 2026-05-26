@@ -15,6 +15,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Cobrança em Dia">
+    <meta name="vapid-public-key" content="<%= Rails.application.credentials.dig(:vapid, :public_key) %>">
 
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
@@ -136,6 +137,7 @@
       </main>
 
       <%# Mobile bottom nav — Flowbite bottom navigation component %>
+      <% unless content_for?(:hide_bottom_nav) %>
       <% has_campanhas_mobile = current_user.company&.feature_campanhas? %>
       <nav class="md:hidden bg-(--color-sidebar-bg) border-t border-(--color-sidebar-border) flex-shrink-0" style="padding-bottom: env(safe-area-inset-bottom);">
         <div class="grid h-16 <%= has_campanhas_mobile ? 'grid-cols-5' : 'grid-cols-4' %> font-medium">
@@ -153,6 +155,7 @@
                 unless_paths: (has_campanhas_mobile ? [] : [settings_cobranca_path]) %>
         </div>
       </nav>
+      <% end %>
 
     </div>
 

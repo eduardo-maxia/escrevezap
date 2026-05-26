@@ -133,6 +133,17 @@ class SettingsController < ApplicationController
     end
   end
 
+  # ── Notificações ───────────────────────────────────────────────────
+  def notifications; end
+
+  def update_notifications
+    if current_user.update(notification_prefs_params)
+      redirect_to settings_notifications_path, notice: "Preferências de notificação salvas."
+    else
+      redirect_to settings_notifications_path, alert: "Não foi possível salvar as preferências."
+    end
+  end
+
   private
 
   def empresa_params
@@ -149,5 +160,9 @@ class SettingsController < ApplicationController
 
   def cobranca_params
     params.require(:campaign).permit(:start_time, :end_time, template: [:body])
+  end
+
+  def notification_prefs_params
+    params.require(:user).permit(:notif_proof_attached, :notif_chip_disconnected)
   end
 end

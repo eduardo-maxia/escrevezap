@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_26_023621) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_26_190114) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -145,6 +145,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_023621) do
     t.index ["sender_type", "sender_id"], name: "index_notifications_on_sender"
   end
 
+  create_table "push_subscriptions", force: :cascade do |t|
+    t.string "auth", null: false
+    t.datetime "created_at", null: false
+    t.text "endpoint", null: false
+    t.string "p256dh", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["endpoint"], name: "index_push_subscriptions_on_endpoint", unique: true
+    t.index ["user_id"], name: "index_push_subscriptions_on_user_id"
+  end
+
   create_table "solid_queue_blocked_executions", force: :cascade do |t|
     t.string "concurrency_key", null: false
     t.datetime "created_at", null: false
@@ -272,6 +283,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_023621) do
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "name"
+    t.boolean "notif_chip_disconnected", default: true, null: false
+    t.boolean "notif_proof_attached", default: true, null: false
     t.boolean "onboarding_completed", default: false, null: false
     t.integer "otp_attempts", default: 0, null: false
     t.string "otp_digest"
@@ -300,6 +313,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_023621) do
   add_foreign_key "installments", "campaign_clients"
   add_foreign_key "notifications", "campaign_clients"
   add_foreign_key "notifications", "installments"
+  add_foreign_key "push_subscriptions", "users"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
