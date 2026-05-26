@@ -63,3 +63,6 @@ application.register("pwa-install", PwaInstallController)
 
 import ScrollHeaderController from "./scroll_header_controller"
 application.register("scroll-header", ScrollHeaderController)
+
+import SpeedDialController from "./speed_dial_controller"
+application.register("speed-dial", SpeedDialController)

@@ -848,53 +848,67 @@
 </div>
 
 <%# ════════════════ MOBILE SPEED DIAL ════════════════ %>
-<div data-dial-init class="md:hidden fixed end-5 bottom-20 z-50 group">
-  <div id="client-actions-dial"
-       class="flex flex-col items-end gap-2.5 mb-3 hidden">
-    <% if wa_url %>
-      <div class="flex items-center gap-2">
-        <span class="px-2.5 py-1 rounded-md bg-(--color-text) text-(--color-text-inverse) text-xs font-medium shadow-md">WhatsApp</span>
-        <a href="<%= wa_url %>" target="_blank" rel="noopener"
-           class="w-12 h-12 rounded-full bg-(--color-surface) text-(--color-success) shadow-lg ring-1 ring-(--color-border) flex items-center justify-center active:scale-95 transition-transform">
-          <i class="ph-fill ph-whatsapp-logo text-xl"></i>
+<div data-controller="speed-dial"
+     class="md:hidden fixed bottom-20 right-5 z-50 flex flex-col items-end gap-3">
+
+  <%# Action items — stacked above FAB, hidden by default %>
+  <div data-speed-dial-target="menu"
+       class="flex flex-col items-end gap-2.5 pointer-events-none opacity-0 transition-opacity duration-200">
+
+    <%# Delete — always visible, furthest from FAB %>
+    <div data-speed-dial-target="item"
+         class="flex items-center gap-3 opacity-0 translate-y-4 transition-all duration-200">
+      <span class="px-3 py-1 rounded-lg bg-(--color-text) text-(--color-text-inverse) text-xs font-semibold shadow-md whitespace-nowrap">Excluir</span>
+      <%= button_to client_path(@client), method: :delete,
+            form: { class: "contents" },
+            class: "w-12 h-12 rounded-full bg-(--color-surface) text-(--color-danger) shadow-lg ring-1 ring-(--color-border) flex items-center justify-center active:scale-95 transition-transform",
+            data: { turbo_confirm: "Tem certeza que deseja remover \"#{@client.name}\"?" } do %>
+        <i class="ph-fill ph-trash text-xl"></i>
+      <% end %>
+    </div>
+
+    <% if mail_url %>
+      <div data-speed-dial-target="item"
+           class="flex items-center gap-3 opacity-0 translate-y-4 transition-all duration-200">
+        <span class="px-3 py-1 rounded-lg bg-(--color-text) text-(--color-text-inverse) text-xs font-semibold shadow-md whitespace-nowrap">E-mail</span>
+        <a href="<%= mail_url %>"
+           class="w-12 h-12 rounded-full bg-(--color-surface) text-(--color-text-muted) shadow-lg ring-1 ring-(--color-border) flex items-center justify-center active:scale-95 transition-transform">
+          <i class="ph-fill ph-envelope text-xl"></i>
         </a>
       </div>
     <% end %>
+
     <% if tel_url %>
-      <div class="flex items-center gap-2">
-        <span class="px-2.5 py-1 rounded-md bg-(--color-text) text-(--color-text-inverse) text-xs font-medium shadow-md">Ligar</span>
+      <div data-speed-dial-target="item"
+           class="flex items-center gap-3 opacity-0 translate-y-4 transition-all duration-200">
+        <span class="px-3 py-1 rounded-lg bg-(--color-text) text-(--color-text-inverse) text-xs font-semibold shadow-md whitespace-nowrap">Ligar</span>
         <a href="<%= tel_url %>"
            class="w-12 h-12 rounded-full bg-(--color-surface) text-(--color-brand) shadow-lg ring-1 ring-(--color-border) flex items-center justify-center active:scale-95 transition-transform">
           <i class="ph-fill ph-phone text-xl"></i>
         </a>
       </div>
     <% end %>
-    <% if mail_url %>
-      <div class="flex items-center gap-2">
-        <span class="px-2.5 py-1 rounded-md bg-(--color-text) text-(--color-text-inverse) text-xs font-medium shadow-md">E-mail</span>
-        <a href="<%= mail_url %>"
-           class="w-12 h-12 rounded-full bg-(--color-surface) text-(--color-text) shadow-lg ring-1 ring-(--color-border) flex items-center justify-center active:scale-95 transition-transform">
-          <i class="ph-fill ph-envelope text-xl"></i>
+
+    <% if wa_url %>
+      <%# WhatsApp — closest to FAB (most used) %>
+      <div data-speed-dial-target="item"
+           class="flex items-center gap-3 opacity-0 translate-y-4 transition-all duration-200">
+        <span class="px-3 py-1 rounded-lg bg-(--color-text) text-(--color-text-inverse) text-xs font-semibold shadow-md whitespace-nowrap">WhatsApp</span>
+        <a href="<%= wa_url %>" target="_blank" rel="noopener"
+           class="w-12 h-12 rounded-full bg-(--color-surface) text-(--color-success) shadow-lg ring-1 ring-(--color-border) flex items-center justify-center active:scale-95 transition-transform">
+          <i class="ph-fill ph-whatsapp-logo text-xl"></i>
         </a>
       </div>
     <% end %>
-    <div class="flex items-center gap-2">
-      <span class="px-2.5 py-1 rounded-md bg-(--color-text) text-(--color-text-inverse) text-xs font-medium shadow-md">Excluir</span>
-      <%= button_to client_path(@client), method: :delete,
-            form_class: "contents",
-            class: "w-12 h-12 rounded-full bg-(--color-surface) text-(--color-danger) shadow-lg ring-1 ring-(--color-border) flex items-center justify-center active:scale-95 transition-transform",
-            data: { turbo_confirm: "Tem certeza que deseja remover \"#{@client.name}\"?" } do %>
-        <i class="ph-fill ph-trash text-xl"></i>
-      <% end %>
-    </div>
   </div>
+
+  <%# FAB trigger %>
   <button type="button"
-          data-dial-toggle="client-actions-dial"
-          data-dial-trigger="click"
-          aria-controls="client-actions-dial"
-          aria-expanded="false"
+          data-speed-dial-target="trigger"
+          data-action="click->speed-dial#toggle"
           aria-label="Ações do cliente"
-          class="w-14 h-14 rounded-full bg-(--color-brand) text-(--color-text-inverse) shadow-lg shadow-(--color-brand)/30 flex items-center justify-center transition-transform aria-expanded:rotate-45 active:scale-95">
-    <i class="ph ph-plus text-2xl"></i>
+          class="w-14 h-14 rounded-full bg-(--color-brand) text-(--color-text-inverse) shadow-xl flex items-center justify-center active:scale-95">
+    <i data-speed-dial-target="icon"
+       class="ph ph-plus text-2xl transition-transform duration-300"></i>
   </button>
 </div>
