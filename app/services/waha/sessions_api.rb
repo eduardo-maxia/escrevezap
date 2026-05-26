@@ -27,7 +27,12 @@ module Waha
                 attempts: 10
               }
             }
-          ]
+          ],
+          ignore: {
+            groups: true,
+            channels: true,
+            broadcast: true
+          }
         }
       })
     end

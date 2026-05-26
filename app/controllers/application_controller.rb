@@ -5,6 +5,7 @@ class ApplicationController < ActionController::Base
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   # allow_browser versions: :modern
 
+  before_action :redirect_www
   before_action :check_onboarding
 
   # Never 404 — bad record IDs fall back to a sensible page.
@@ -27,6 +28,12 @@ class ApplicationController < ActionController::Base
   end
 
   private
+
+  def redirect_www
+    return unless request.host.start_with?("www.")
+    redirect_to "https://cobrancaemdia.com.br#{request.fullpath}",
+                status: :moved_permanently, allow_other_host: true
+  end
 
   def handle_not_found(_exception = nil)
     target = user_signed_in? ? authenticated_root_path : new_user_session_path
