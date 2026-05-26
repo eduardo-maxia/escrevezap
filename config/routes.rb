@@ -79,6 +79,10 @@ Rails.application.routes.draw do
 
     resources :installments, only: [:edit, :update]
 
+    get  "share-receipt",        to: "share_receipts#new",     as: :share_receipt
+    post "share-receipt",        to: "share_receipts#receive"
+    post "share-receipt/attach", to: "share_receipts#attach",  as: :attach_share_receipt
+
     resources :campaigns, except: [:edit] do
       resources :campaign_clients, only: [:show, :create, :update, :destroy], shallow: true
     end

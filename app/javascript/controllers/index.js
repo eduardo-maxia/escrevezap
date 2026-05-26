@@ -66,3 +66,6 @@ application.register("scroll-header", ScrollHeaderController)
 
 import SpeedDialController from "./speed_dial_controller"
 application.register("speed-dial", SpeedDialController)
+
+import ShareReceiptPickerController from "./share_receipt_picker_controller"
+application.register("share-receipt-picker", ShareReceiptPickerController)

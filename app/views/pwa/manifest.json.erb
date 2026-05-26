@@ -38,5 +38,18 @@
   "theme_color": "#0D2E67",
   "background_color": "#F8FAFC",
   "lang": "pt-BR",
-  "categories": ["business", "finance"]
+  "categories": ["business", "finance"],
+  "share_target": {
+    "action": "/app/share-receipt",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "files": [
+        {
+          "name": "receipt",
+          "accept": ["image/*", "application/pdf"]
+        }
+      ]
+    }
+  }
 }

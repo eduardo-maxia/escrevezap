@@ -242,6 +242,7 @@
     </div>
 
     <%# 1. WhatsApp status — most critical (hero card) %>
+    <% unless chip_working %>
     <% if @chip && @chip.waha_chat_id.blank? %>
       <%# Never connected — chip created but WhatsApp never paired %>
       <%= link_to chip_path(@chip),
@@ -299,6 +300,7 @@
         <p class="text-sm font-semibold text-(--color-text)">Conectar WhatsApp</p>
         <p class="text-xs text-(--color-text-muted) mt-0.5">Necessário para enviar cobranças</p>
       <% end %>
+    <% end %>
     <% end %>
 
     <%# 2. Faturamento do mês — hero number %>
@@ -380,9 +382,7 @@
           <h3 class="text-sm font-semibold text-(--color-text)">Pendências recentes</h3>
           <p class="text-[11px] text-(--color-text-muted)">Toque em <i class="ph ph-check-circle align-middle text-(--color-success)"></i> para dar baixa</p>
         </div>
-        <%= link_to clients_path, class: "text-xs text-(--color-brand) font-semibold" do %>
-          Ver todos <i class="ph ph-caret-right align-middle text-[10px]"></i>
-        <% end %>
+
       </div>
       <ul class="divide-y divide-(--color-border)">
           <% @recent_pending.each do |inst| %>
@@ -639,9 +639,7 @@
           <h3 class="font-semibold text-(--color-text)">Pendências recentes</h3>
           <p class="text-xs text-(--color-text-muted) mt-0.5">Clique em <i class="ph ph-check-circle align-middle text-(--color-success)"></i> para dar baixa diretamente</p>
         </div>
-        <%= link_to clients_path, class: "text-sm text-(--color-brand) hover:text-(--color-brand-dark) font-medium" do %>
-          Ver todos →
-        <% end %>
+
       </div>
       <table class="w-full text-sm">
         <thead>

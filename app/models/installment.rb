@@ -9,6 +9,20 @@ class Installment < ApplicationRecord
 
   scope :valid, -> { where.not(status: :cancelled) }
 
+  # Installments that should appear in the share-receipt picker:
+  # pending ones AND paid ones that still have no proof attached.
+  scope :selectable_for_receipt, -> {
+    where(
+      "installments.status = 'pending' OR " \
+      "(installments.status = 'paid' AND NOT EXISTS (" \
+      "  SELECT 1 FROM active_storage_attachments asa" \
+      "  WHERE asa.record_type = 'Installment'" \
+      "    AND asa.record_id   = installments.id" \
+      "    AND asa.name        = 'proof_image'" \
+      "))"
+    )
+  }
+
   validate :single_active_installment_per_month
 
   after_update :purge_proof_if_not_paid

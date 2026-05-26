@@ -1,4 +1,5 @@
-const CACHE_NAME = "cobranca-em-dia-v1";
+const CACHE_NAME   = "cobranca-em-dia-v2";
+const SHARED_CACHE = "shared-receipts";
 
 // App shell: pages to pre-cache on install
 const APP_SHELL = [
@@ -17,18 +18,50 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+        keys
+          .filter((key) => key !== CACHE_NAME && key !== SHARED_CACHE)
+          .map((key) => caches.delete(key))
       )
     )
   );
   self.clients.claim();
 });
 
-// Network-first for navigation requests; fall back to cache then /offline
-self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") return;
+// ── Web Share Target handler ──────────────────────────────────────────
+async function handleShareTarget(request) {
+  try {
+    const formData = await request.formData();
+    const file = formData.get("receipt");
+    if (!file || !file.size) {
+      return Response.redirect("/app/share-receipt?error=no_file", 303);
+    }
+    const token = crypto.randomUUID();
+    const cache = await caches.open(SHARED_CACHE);
+    const headers = new Headers({
+      "Content-Type": file.type || "application/octet-stream",
+      "X-Filename":   encodeURIComponent(file.name || "comprovante"),
+    });
+    await cache.put(`/__shared/${token}`, new Response(file, { headers }));
+    return Response.redirect(`/app/share-receipt?token=${token}`, 303);
+  } catch {
+    return Response.redirect("/app/share-receipt?error=failed", 303);
+  }
+}
 
+self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
+
+  // Intercept Web Share Target POST before the early non-GET return
+  if (
+    event.request.method === "POST" &&
+    url.origin === self.location.origin &&
+    url.pathname === "/app/share-receipt"
+  ) {
+    event.respondWith(handleShareTarget(event.request));
+    return;
+  }
+
+  if (event.request.method !== "GET") return;
 
   // Only handle same-origin requests
   if (url.origin !== self.location.origin) return;
@@ -70,4 +103,3 @@ self.addEventListener("fetch", (event) => {
     );
   }
 });
-
