@@ -51,7 +51,7 @@
       <%# Avatar %>
       <div class="flex-shrink-0 w-14 h-14 md:w-16 md:h-16 rounded-full ring-2 ring-(--color-surface) shadow-sm overflow-hidden">
         <% if @client.avatar.attached? %>
-          <%= image_tag url_for(@client.avatar),
+          <%= image_tag @client.avatar,
                 alt: @client.name,
                 class: "w-full h-full object-cover" %>
         <% else %>
@@ -719,15 +719,10 @@
                   data: { controller: "phone-input",
                           action: "submit->phone-input#syncHidden",
                           "phone-input-check-whatsapp-url-value": onboarding_check_whatsapp_path } do |f| %>
-              <div class="flex items-center gap-2 mb-1">
-                <img data-phone-input-target="avatar"
-                     class="hidden w-8 h-8 rounded-full object-cover ring-2 ring-(--color-success) flex-shrink-0"
-                     alt="Foto do WhatsApp">
-                <input type="tel" data-phone-input-target="input"
-                       data-action="input->phone-input#checkPhone countrychange->phone-input#checkPhone"
-                       class="w-full pr-20 py-2 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors">
-              </div>
-              <p data-phone-input-target="phoneCheck" class="hidden text-xs mb-2"></p>
+              <input type="tel" data-phone-input-target="input"
+                     data-action="input->phone-input#checkPhone countrychange->phone-input#checkPhone"
+                     class="w-full pr-20 py-2 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors">
+              <div data-phone-input-target="phoneCheck" class="hidden"></div>
               <%= f.hidden_field :phone_number, data: { "phone-input-target": "hidden" } %>
               <%= render "inline_edit_actions" %>
             <% end %>
@@ -796,15 +791,10 @@
                     data: { controller: "phone-input",
                             action: "submit->phone-input#syncHidden",
                             "phone-input-check-whatsapp-url-value": onboarding_check_whatsapp_path } do |f| %>
-                <div class="flex items-center gap-2 mb-1">
-                  <img data-phone-input-target="avatar"
-                       class="hidden w-8 h-8 rounded-full object-cover ring-2 ring-(--color-success) flex-shrink-0"
-                       alt="Foto do WhatsApp">
-                  <input type="tel" data-phone-input-target="input"
-                         data-action="input->phone-input#checkPhone countrychange->phone-input#checkPhone"
-                         class="w-full pr-20 py-2 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors">
-                </div>
-                <p data-phone-input-target="phoneCheck" class="hidden text-xs mb-2"></p>
+                <input type="tel" data-phone-input-target="input"
+                       data-action="input->phone-input#checkPhone countrychange->phone-input#checkPhone"
+                       class="w-full pr-20 py-2 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors">
+                <div data-phone-input-target="phoneCheck" class="hidden"></div>
                 <%= f.hidden_field :phone_number, data: { "phone-input-target": "hidden" } %>
                 <%= render "inline_edit_actions" %>
               <% end %>

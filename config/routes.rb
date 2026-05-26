@@ -90,5 +90,7 @@ Rails.application.routes.draw do
 
   # Catch-all — redirects any unknown path to a sensible page instead of 404.
   # Must be the LAST route declaration.
-  match "*unmatched", to: "application#route_not_found", via: :all
+  # Exclude /rails/* so Active Storage, health check, etc. are not swallowed.
+  match "*unmatched", to: "application#route_not_found", via: :all,
+        constraints: ->(req) { !req.path.start_with?("/rails/") }
 end

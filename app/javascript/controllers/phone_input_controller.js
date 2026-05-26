@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 // intlTelInput is loaded via CDN (intlTelInputWithUtils.min.js) — no npm import needed
 export default class extends Controller {
-  static targets = ["input", "hidden", "phoneCheck", "submit", "avatar"]
+  static targets = ["input", "hidden", "phoneCheck", "submit"]
 
   static values = { checkWhatsappUrl: String }
 
@@ -99,44 +99,41 @@ export default class extends Controller {
 
   #clearCheck() {
     this.phoneCheckTarget.className = "hidden"
-    this.phoneCheckTarget.textContent = ""
-    this.#setAvatarPreview(null)
+    this.phoneCheckTarget.innerHTML = ""
     this.#setSubmitEnabled(false)
   }
 
   #setLoading() {
-    this.phoneCheckTarget.className = "text-xs mt-1.5 text-(--color-text-muted)"
-    this.phoneCheckTarget.textContent = "Verificando..."
-    this.#setAvatarPreview(null)
+    this.phoneCheckTarget.className = "text-xs mt-2 text-(--color-text-muted)"
+    this.phoneCheckTarget.innerHTML = "Verificando..."
     this.#setSubmitEnabled(false)
   }
 
   #setResult(exists, pictureUrl) {
     if (exists === true) {
-      this.phoneCheckTarget.className = "text-xs mt-1.5 text-(--color-success) font-medium"
-      this.phoneCheckTarget.textContent = "✓ Número tem WhatsApp"
-      this.#setAvatarPreview(pictureUrl)
+      const formatted = this.iti
+        ? this.iti.getNumber(window.intlTelInputUtils?.numberFormat?.INTERNATIONAL)
+        : ""
+      const avatarHtml = pictureUrl
+        ? `<img src="${pictureUrl}" class="w-10 h-10 rounded-full object-cover flex-shrink-0" alt="">`
+        : `<span class="w-10 h-10 rounded-full bg-(--color-success) bg-opacity-20 flex items-center justify-center flex-shrink-0"><i class="ph-fill ph-whatsapp-logo text-xl text-(--color-success)"></i></span>`
+      this.phoneCheckTarget.className = "mt-2"
+      this.phoneCheckTarget.innerHTML = `
+        <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-(--color-success-light) border border-(--color-success) border-opacity-20">
+          ${avatarHtml}
+          <div class="min-w-0">
+            <p class="text-xs font-semibold text-(--color-success) leading-tight">WhatsApp confirmado</p>
+            <p class="text-xs text-(--color-success) opacity-70 truncate mt-0.5">${formatted}</p>
+          </div>
+        </div>`
     } else if (exists === false) {
-      this.phoneCheckTarget.className = "text-xs mt-1.5 text-(--color-warning) font-medium"
-      this.phoneCheckTarget.textContent = "⚠ Número não encontrado no WhatsApp"
-      this.#setAvatarPreview(null)
+      this.phoneCheckTarget.className = "text-xs mt-2 text-(--color-warning) font-medium"
+      this.phoneCheckTarget.innerHTML = "⚠ Número não encontrado no WhatsApp"
     } else {
-      this.phoneCheckTarget.className = "text-xs mt-1.5 text-(--color-text-muted)"
-      this.phoneCheckTarget.textContent = "Não foi possível verificar"
-      this.#setAvatarPreview(null)
+      this.phoneCheckTarget.className = "text-xs mt-2 text-(--color-text-muted)"
+      this.phoneCheckTarget.innerHTML = "Não foi possível verificar"
     }
     this.#setSubmitEnabled(exists === true)
-  }
-
-  #setAvatarPreview(url) {
-    if (!this.hasAvatarTarget) return
-    if (url) {
-      this.avatarTarget.src = url
-      this.avatarTarget.classList.remove("hidden")
-    } else {
-      this.avatarTarget.classList.add("hidden")
-      this.avatarTarget.src = ""
-    }
   }
 
   #setSubmitEnabled(enabled) {

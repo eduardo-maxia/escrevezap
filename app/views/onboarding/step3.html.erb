@@ -178,22 +178,15 @@
           <label for="phone_display" class="block mb-2 text-sm font-medium text-(--color-text)">
             Número do WhatsApp <span class="text-(--color-danger)">*</span>
           </label>
-          <div class="flex items-center gap-3">
-            <img data-phone-input-target="avatar"
-                 class="hidden w-10 h-10 rounded-full object-cover ring-2 ring-(--color-success) flex-shrink-0"
-                 alt="Foto do WhatsApp">
-            <div class="flex-1 min-w-0">
-              <input type="tel"
-                     id="phone_display"
-                     data-phone-input-target="input"
-                     data-action="input->phone-input#checkPhone countrychange->phone-input#checkPhone"
-                     enterkeyhint="send"
-                     autofocus
-                     class="bg-(--color-surface-muted) border border-(--color-border) text-(--color-text) text-sm rounded-lg focus:ring-2 focus:ring-(--color-brand) focus:border-(--color-brand) block w-full p-2.5 placeholder:text-(--color-text-subtle) transition-colors">
-              <input type="hidden" name="phone_number" data-phone-input-target="hidden">
-              <p data-phone-input-target="phoneCheck" class="hidden text-xs mt-1.5"></p>
-            </div>
-          </div>
+          <input type="tel"
+                 id="phone_display"
+                 data-phone-input-target="input"
+                 data-action="input->phone-input#checkPhone countrychange->phone-input#checkPhone"
+                 enterkeyhint="send"
+                 autofocus
+                 class="bg-(--color-surface-muted) border border-(--color-border) text-(--color-text) text-sm rounded-lg focus:ring-2 focus:ring-(--color-brand) focus:border-(--color-brand) block w-full p-2.5 placeholder:text-(--color-text-subtle) transition-colors">
+          <input type="hidden" name="phone_number" data-phone-input-target="hidden">
+          <div data-phone-input-target="phoneCheck" class="hidden"></div>
           <p class="mt-2 text-xs text-(--color-text-subtle)">Informe um número válido para o teste. Pode ser o seu próprio!</p>
         </div>
 

@@ -84,7 +84,7 @@
                   class: "flex items-center gap-3 px-4 py-3 hover:bg-(--color-surface-muted) transition-colors active:bg-(--color-surface-raised)" do %>
               <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
                 <% if client.avatar.attached? %>
-                  <%= image_tag url_for(client.avatar), alt: client.name, class: "w-full h-full object-cover" %>
+                  <%= image_tag client.avatar, alt: client.name, class: "w-full h-full object-cover" %>
                 <% else %>
                   <div class="w-full h-full bg-(--color-brand-subtle) flex items-center justify-center text-sm font-bold text-(--color-brand)">
                     <%= initials %>
@@ -156,7 +156,7 @@
                     <div class="flex items-center gap-3">
                       <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
                         <% if client.avatar.attached? %>
-                          <%= image_tag url_for(client.avatar), alt: client.name, class: "w-full h-full object-cover" %>
+                          <%= image_tag client.avatar, alt: client.name, class: "w-full h-full object-cover" %>
                         <% else %>
                           <div class="w-full h-full bg-(--color-brand-subtle) flex items-center justify-center text-xs font-bold text-(--color-brand)">
                             <%= initials %>
