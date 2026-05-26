@@ -5,7 +5,7 @@ class ApplicationController < ActionController::Base
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   # allow_browser versions: :modern
 
-  before_action :redirect_www
+  # before_action :redirect_www
   before_action :check_onboarding
 
   # Never 404 — bad record IDs fall back to a sensible page.
