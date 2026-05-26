@@ -7,37 +7,35 @@ export default class extends Controller {
 
   async connect() {
     this.token = new URLSearchParams(window.location.search).get("token")
-
-    if (!this.token) {
-      this.#showStatus("Nenhum arquivo compartilhado foi encontrado. Compartilhe novamente o comprovante para continuar.", false)
-      return
-    }
+    if (!this.token) return // no shared file — list is still browsable but attach will show error
 
     try {
       const cache = await caches.open(SHARED_CACHE)
       const response = await cache.match(`/__shared/${this.token}`)
 
       if (!response) {
-        this.#showStatus("O comprovante não foi encontrado. Compartilhe novamente para continuar.", false)
+        this.#showError("O comprovante não foi encontrado no dispositivo. Tente compartilhar novamente.")
         return
       }
 
       this.fileBlob = await response.blob()
-      const rawName = response.headers.get("X-Filename") || "comprovante"
-      this.fileName = decodeURIComponent(rawName)
-
-      this.#showStatus(`Arquivo recebido: ${this.fileName}`, true)
+      this.fileName = decodeURIComponent(response.headers.get("X-Filename") || "comprovante")
     } catch {
-      this.#showStatus("Não foi possível acessar o arquivo compartilhado no momento.", false)
+      this.#showError("Não foi possível acessar o arquivo compartilhado. Tente novamente.")
     }
+  }
+
+  search(event) {
+    clearTimeout(this.#searchTimer)
+    this.#searchTimer = setTimeout(() => event.target.form.requestSubmit(), 350)
   }
 
   async attach(event) {
     const installmentId = event.params.installmentId
     const markPaid = event.params.markPaid === true || event.params.markPaid === "true"
 
-    if (!this.fileBlob || !installmentId) {
-      this.#showStatus("Arquivo indisponível. Compartilhe novamente o comprovante.", false)
+    if (!this.fileBlob) {
+      this.#showError("Arquivo indisponível. Compartilhe novamente o comprovante.")
       return
     }
 
@@ -69,31 +67,19 @@ export default class extends Controller {
       await cache.delete(`/__shared/${this.token}`)
       window.location.href = "/app?notice=Comprovante+vinculado+com+sucesso"
     } catch (error) {
-      this.#showStatus(error.message || "Falha ao salvar comprovante.", false)
+      this.#showError(error.message || "Falha ao salvar comprovante.")
       button.disabled = false
       button.innerHTML = originalHtml
     }
   }
 
-  #showStatus(message, success) {
+  // ── Private ────────────────────────────────────────────────
+  #searchTimer = null
+
+  #showError(message) {
     if (!this.hasFileStatusTarget) return
-
-    this.fileStatusTarget.classList.remove("hidden")
-    this.fileStatusTarget.classList.remove(
-      "border-(--color-success)",
-      "bg-(--color-success-light)",
-      "text-(--color-success)",
-      "border-(--color-danger)",
-      "bg-(--color-danger-light)",
-      "text-(--color-danger)"
-    )
-
-    if (success) {
-      this.fileStatusTarget.classList.add("border-(--color-success)", "bg-(--color-success-light)", "text-(--color-success)")
-    } else {
-      this.fileStatusTarget.classList.add("border-(--color-danger)", "bg-(--color-danger-light)", "text-(--color-danger)")
-    }
-
-    this.fileStatusTarget.textContent = message
+    const el = this.fileStatusTarget
+    el.className = "rounded-xl border border-(--color-danger) bg-(--color-danger-light) px-4 py-3 text-sm text-(--color-danger) flex items-center gap-2"
+    el.innerHTML = `<i class="ph ph-warning-circle flex-shrink-0"></i><span>${message}</span>`
   }
 }

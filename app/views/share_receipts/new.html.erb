@@ -1,98 +1,95 @@
 <% content_for :page_title, "Vincular comprovante" %>
 
-<div class="px-4 py-4 md:p-6 max-w-4xl mx-auto space-y-4 md:space-y-5" data-controller="share-receipt-picker">
-  <div class="rounded-xl border border-(--color-border) bg-(--color-surface) p-4 md:p-5">
-    <div class="flex items-start gap-3">
-      <div class="w-10 h-10 rounded-lg bg-(--color-brand-subtle) text-(--color-brand) flex items-center justify-center flex-shrink-0">
-        <i class="ph ph-receipt text-lg"></i>
-      </div>
-      <div class="min-w-0">
-        <h1 class="text-base md:text-lg font-bold text-(--color-text)">Escolha uma parcela para vincular o comprovante</h1>
-        <p class="text-xs md:text-sm text-(--color-text-muted) mt-1">
-          Mostramos apenas parcelas <strong>pendentes</strong> e <strong>pagas sem comprovante</strong>.
-        </p>
-      </div>
-    </div>
+<%# Mobile sticky header %>
+<div class="md:hidden flex items-center gap-2 px-4 py-3 border-b border-(--color-border) bg-(--color-surface) sticky top-0 z-10">
+  <%= link_to authenticated_root_path, class: "p-1.5 -ml-1 rounded-lg text-(--color-text) hover:bg-(--color-surface-muted) transition-colors" do %>
+    <i class="ph ph-arrow-left text-lg leading-none"></i>
+  <% end %>
+  <h1 class="text-base font-semibold text-(--color-text)">Vincular comprovante</h1>
+</div>
 
-    <% if params[:error].present? %>
-      <div class="mt-4 rounded-lg border border-(--color-warning) bg-(--color-warning-light) px-3 py-2 text-xs text-(--color-warning)">
-        Não foi possível receber o arquivo compartilhado. Tente compartilhar novamente.
-      </div>
+<div class="px-4 pt-5 pb-24 md:p-6 md:pb-6 md:max-w-2xl space-y-4" data-controller="share-receipt-picker">
+
+  <%# Desktop header %>
+  <div class="hidden md:flex items-center gap-2">
+    <%= link_to authenticated_root_path, class: "p-1.5 rounded-lg text-(--color-text-muted) hover:bg-(--color-surface-raised) transition-colors" do %>
+      <i class="ph ph-arrow-left text-base leading-none"></i>
     <% end %>
-
-    <div data-share-receipt-picker-target="fileStatus"
-         class="mt-4 hidden rounded-lg border px-3 py-2 text-xs">
-    </div>
+    <h2 class="text-2xl font-bold text-(--color-text)">Vincular comprovante</h2>
   </div>
 
-  <div class="rounded-xl border border-(--color-border) bg-(--color-surface) p-4 md:p-5">
-    <%= form_with url: share_receipt_path, method: :get, local: true, class: "flex flex-col md:flex-row gap-2 md:items-end" do %>
-      <div class="flex-1">
-        <label class="block text-xs font-medium text-(--color-text-muted) mb-1">Buscar cliente</label>
-        <%= text_field_tag :q, @query,
-              placeholder: "Digite o nome do cliente",
-              class: "w-full h-10 px-3 rounded-lg border border-(--color-border) bg-(--color-surface) text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand)" %>
-      </div>
-      <%= hidden_field_tag :token, @token if @token.present? %>
-      <button type="submit"
-              class="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-lg bg-(--color-brand) text-(--color-text-inverse) text-sm font-semibold hover:bg-(--color-brand-dark) transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-              data-controller="loadable"
-              data-loadable-loading-text-value="Buscando...">
-        <i class="ph ph-magnifying-glass"></i>
-        Buscar
-      </button>
-    <% end %>
-  </div>
+  <%# Share error (query param from SW redirect) %>
+  <% if params[:error].present? %>
+    <div class="rounded-xl border border-(--color-warning) bg-(--color-warning-light) px-4 py-3 text-sm text-(--color-warning) flex items-center gap-2">
+      <i class="ph ph-warning-circle flex-shrink-0"></i>
+      Não foi possível receber o arquivo compartilhado. Tente compartilhar novamente.
+    </div>
+  <% end %>
 
+  <%# JS error target — hidden until the controller sets an error %>
+  <div data-share-receipt-picker-target="fileStatus" class="hidden rounded-xl border px-4 py-3 text-sm"></div>
+
+  <%# Search — debounced, no submit button %>
+  <%= form_with url: share_receipt_path, method: :get, local: true do %>
+    <%= hidden_field_tag :token, @token if @token.present? %>
+    <div class="relative">
+      <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-(--color-text-muted) text-sm pointer-events-none"></i>
+      <%= text_field_tag :q, @query,
+            name: "q",
+            placeholder: "Buscar pelo nome do cliente…",
+            autocomplete: "off",
+            data: { action: "input->share-receipt-picker#search" },
+            class: "w-full h-10 pl-9 pr-4 rounded-xl border border-(--color-border) bg-(--color-surface) text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors" %>
+    </div>
+  <% end %>
+
+  <%# Installments list %>
   <div class="rounded-xl border border-(--color-border) bg-(--color-surface) overflow-hidden">
-    <div class="px-4 md:px-5 py-3 border-b border-(--color-border) flex items-center justify-between gap-3">
-      <h2 class="text-sm font-semibold text-(--color-text)">Parcelas disponíveis</h2>
-      <span class="text-xs text-(--color-text-muted)"><%= @pagy.count %> resultado<%= @pagy.count == 1 ? "" : "s" %></span>
-    </div>
-
     <% if @installments.any? %>
-      <div class="divide-y divide-(--color-border)">
+      <ul class="divide-y divide-(--color-border)">
         <% @installments.each do |installment| %>
-          <% client = installment.campaign_client.client %>
-          <div class="px-4 md:px-5 py-3 flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-semibold text-(--color-text) truncate"><%= client.name %></p>
-              <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-(--color-text-muted)">
-                <span><i class="ph ph-calendar-dots mr-1"></i><%= l(installment.due_date, format: "%d/%m/%Y") %></span>
-                <span><i class="ph ph-currency-circle-dollar mr-1"></i><%= number_to_currency(installment.amount, unit: "R$ ", separator: ",", delimiter: ".", precision: 2) %></span>
-                <% if installment.pending? %>
-                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-(--color-warning-light) text-(--color-warning) font-semibold">
-                    <i class="ph ph-clock-countdown"></i>Pendente
-                  </span>
-                <% else %>
-                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-(--color-brand-subtle) text-(--color-brand) font-semibold">
-                    <i class="ph ph-check-circle"></i>Paga sem comprovante
-                  </span>
-                <% end %>
-              </div>
-            </div>
-
+          <%
+            client     = installment.campaign_client.client
+            is_pending = installment.pending?
+          %>
+          <li>
             <button type="button"
-                    class="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-(--color-success-light) text-(--color-success) text-xs font-semibold hover:bg-(--color-success) hover:text-(--color-text-inverse) transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                    class="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-(--color-surface-muted) active:bg-(--color-surface-raised) transition-colors disabled:opacity-50 disabled:cursor-wait"
                     data-action="click->share-receipt-picker#attach"
                     data-share-receipt-picker-installment-id-param="<%= installment.id %>"
-                    data-share-receipt-picker-mark-paid-param="<%= installment.pending? %>">
-              <i class="ph ph-paperclip"></i>
-              Usar esta parcela
+                    data-share-receipt-picker-mark-paid-param="<%= is_pending %>">
+              <%# Coloured dot: orange = pending, brand = paid without proof %>
+              <span class="w-2 h-2 rounded-full flex-shrink-0 mt-px <%= is_pending ? 'bg-(--color-warning)' : 'bg-(--color-brand)' %>"></span>
+              <%# Name %>
+              <span class="flex-1 text-sm font-semibold text-(--color-text) truncate min-w-0"><%= client.name %></span>
+              <%# Amount %>
+              <span class="text-xs font-medium text-(--color-text-muted) flex-shrink-0 tabular-nums">
+                <%= number_to_currency(installment.amount, unit: "R$\u00a0", separator: ",", delimiter: ".", precision: 2) %>
+              </span>
+              <%# Date — hidden on phones < 380 px, shown otherwise %>
+              <span class="hidden sm:inline text-xs text-(--color-text-subtle) flex-shrink-0 tabular-nums">
+                <%= l(installment.due_date, format: "%d/%m") %>
+              </span>
+              <%# Caret signals tappability %>
+              <i class="ph ph-caret-right text-(--color-text-subtle) text-xs flex-shrink-0"></i>
             </button>
-          </div>
+          </li>
         <% end %>
-      </div>
-
-      <div class="px-4 md:px-5 py-3 border-t border-(--color-border)">
-        <%== pagy_nav(@pagy) if @pagy.pages > 1 %>
-      </div>
+      </ul>
+      <% if @pagy.pages > 1 %>
+        <div class="px-4 py-3 border-t border-(--color-border)">
+          <%== pagy_nav(@pagy) %>
+        </div>
+      <% end %>
     <% else %>
-      <div class="px-4 md:px-5 py-8 text-center">
-        <i class="ph ph-magnifying-glass text-2xl text-(--color-text-subtle)"></i>
+      <div class="py-10 px-4 text-center">
+        <i class="ph ph-receipt text-2xl text-(--color-text-subtle)"></i>
         <p class="mt-2 text-sm font-medium text-(--color-text)">Nenhuma parcela encontrada</p>
-        <p class="text-xs text-(--color-text-muted) mt-1">Tente buscar por outro nome de cliente.</p>
+        <p class="text-xs text-(--color-text-muted) mt-0.5">
+          <%= @query.present? ? "Tente outro nome." : "Não há parcelas pendentes ou pagas sem comprovante." %>
+        </p>
       </div>
     <% end %>
   </div>
+
 </div>
