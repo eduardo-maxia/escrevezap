@@ -82,8 +82,14 @@
             <%= link_to client_path(client),
                   data: { turbo_frame: "_top" },
                   class: "flex items-center gap-3 px-4 py-3 hover:bg-(--color-surface-muted) transition-colors active:bg-(--color-surface-raised)" do %>
-              <div class="w-10 h-10 rounded-full bg-(--color-brand-subtle) flex items-center justify-center flex-shrink-0 text-sm font-bold text-(--color-brand)">
-                <%= initials %>
+              <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                <% if client.avatar.attached? %>
+                  <%= image_tag url_for(client.avatar), alt: client.name, class: "w-full h-full object-cover" %>
+                <% else %>
+                  <div class="w-full h-full bg-(--color-brand-subtle) flex items-center justify-center text-sm font-bold text-(--color-brand)">
+                    <%= initials %>
+                  </div>
+                <% end %>
               </div>
               <div class="min-w-0 flex-1">
                 <p class="font-medium text-(--color-text) truncate"><%= client.name %></p>
@@ -148,8 +154,14 @@
                 <tr class="hover:bg-(--color-surface-muted) transition-colors group">
                   <td class="px-5 py-4">
                     <div class="flex items-center gap-3">
-                      <div class="w-8 h-8 rounded-full bg-(--color-brand-subtle) flex items-center justify-center flex-shrink-0 text-xs font-bold text-(--color-brand)">
-                        <%= initials %>
+                      <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                        <% if client.avatar.attached? %>
+                          <%= image_tag url_for(client.avatar), alt: client.name, class: "w-full h-full object-cover" %>
+                        <% else %>
+                          <div class="w-full h-full bg-(--color-brand-subtle) flex items-center justify-center text-xs font-bold text-(--color-brand)">
+                            <%= initials %>
+                          </div>
+                        <% end %>
                       </div>
                       <div>
                         <%= link_to client.name, client_path(client),

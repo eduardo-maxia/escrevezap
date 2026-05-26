@@ -4,6 +4,7 @@ class Client < ApplicationRecord
 
   belongs_to :company
 
+  has_one_attached :avatar
   has_many :campaign_clients, dependent: :destroy
   has_many :campaigns, through: :campaign_clients
 

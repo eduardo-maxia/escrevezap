@@ -20,7 +20,7 @@ class ClientsController < ApplicationController
       scope = scope.where(waha_chat_id: [ nil, "" ])
     end
 
-    @pagy, @clients = pagy(scope)
+    @pagy, @clients = pagy(scope.with_attached_avatar)
   end
 
   def show
@@ -67,6 +67,7 @@ class ClientsController < ApplicationController
 
     if current_user.company.feature_campanhas?
       if @client.save
+        FetchClientProfilePictureJob.perform_later(@client.id) if @client.waha_chat_id.present?
         redirect_to @client, notice: "Cliente criado com sucesso!"
       else
         render :new, status: :unprocessable_entity
@@ -83,6 +84,7 @@ class ClientsController < ApplicationController
           @campaign_client.client   = @client
           @campaign_client.save!
         end
+        FetchClientProfilePictureJob.perform_later(@client.id) if @client.waha_chat_id.present?
         redirect_to @client, notice: "Cliente criado com sucesso!"
       rescue ActiveRecord::RecordInvalid
         render :new, status: :unprocessable_entity
@@ -95,6 +97,7 @@ class ClientsController < ApplicationController
 
   def update
     if @client.update(client_params)
+      FetchClientProfilePictureJob.perform_later(@client.id) if @client.waha_chat_id.present? && @client.saved_change_to_phone_number?
       redirect_to @client, notice: "Cliente atualizado!"
     else
       if current_user.company.feature_campanhas?

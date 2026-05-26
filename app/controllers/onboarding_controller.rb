@@ -123,15 +123,31 @@ class OnboardingController < ApplicationController
   # Responds with { exists: true/false, chat_id: "...@c.us" }.
   def check_whatsapp_exists
     ensure_company!
-    chip = current_user.company.chips.first
+    chip = current_user.company.chips.find_by(provider: :waha)
+
+    unless chip&.working?
+      render json: { error: "Chip não conectado." }, status: :service_unavailable and return
+    end
 
     phone = params[:phone].to_s.gsub(/\D/, "")
     if phone.blank? || phone.length < 10
       render json: { error: "Número inválido." }, status: :unprocessable_entity and return
     end
 
-    result = Waha::Client.new(session: chip.waha_session).contacts.check_exists(phone: phone)
-    render json: { exists: result["numberExists"], chat_id: result["chatId"] }
+    waha   = Waha::Client.new(session: chip.waha_session)
+    result = waha.contacts.check_exists(phone: phone)
+
+    picture_url = nil
+    if result["numberExists"] && result["chatId"].present?
+      begin
+        pic = waha.contacts.profile_picture(contact_id: result["chatId"])
+        picture_url = pic.is_a?(Hash) ? pic["profilePictureURL"] : nil
+      rescue ApiRequest::ApiClientError, ApiRequest::ApiServerError, ApiRequest::ApiConnectionError
+        # não bloqueia — imagem é opcional
+      end
+    end
+
+    render json: { exists: result["numberExists"], chat_id: result["chatId"], picture_url: picture_url }
   rescue ApiRequest::ApiClientError, ApiRequest::ApiConnectionError, ApiRequest::ApiServerError
     render json: { error: "Não foi possível verificar." }, status: :service_unavailable
   end

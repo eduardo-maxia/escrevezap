@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 // intlTelInput is loaded via CDN (intlTelInputWithUtils.min.js) — no npm import needed
 export default class extends Controller {
-  static targets = ["input", "hidden", "phoneCheck", "submit"]
+  static targets = ["input", "hidden", "phoneCheck", "submit", "avatar"]
 
   static values = { checkWhatsappUrl: String }
 
@@ -87,7 +87,11 @@ export default class extends Controller {
       const url = `${this.checkWhatsappUrlValue}?phone=${encodeURIComponent(phone)}`
       const resp = await fetch(url, { headers: { "Accept": "application/json" } })
       const data = await resp.json()
-      this.#setResult(!resp.ok || data.error ? null : data.exists)
+      if (!resp.ok || data.error) {
+        this.#setResult(null, null)
+      } else {
+        this.#setResult(data.exists, data.exists ? data.picture_url : null)
+      }
     } catch {
       this.#clearCheck()
     }
@@ -96,27 +100,43 @@ export default class extends Controller {
   #clearCheck() {
     this.phoneCheckTarget.className = "hidden"
     this.phoneCheckTarget.textContent = ""
+    this.#setAvatarPreview(null)
     this.#setSubmitEnabled(false)
   }
 
   #setLoading() {
     this.phoneCheckTarget.className = "text-xs mt-1.5 text-(--color-text-muted)"
     this.phoneCheckTarget.textContent = "Verificando..."
+    this.#setAvatarPreview(null)
     this.#setSubmitEnabled(false)
   }
 
-  #setResult(exists) {
+  #setResult(exists, pictureUrl) {
     if (exists === true) {
       this.phoneCheckTarget.className = "text-xs mt-1.5 text-(--color-success) font-medium"
       this.phoneCheckTarget.textContent = "✓ Número tem WhatsApp"
+      this.#setAvatarPreview(pictureUrl)
     } else if (exists === false) {
       this.phoneCheckTarget.className = "text-xs mt-1.5 text-(--color-warning) font-medium"
       this.phoneCheckTarget.textContent = "⚠ Número não encontrado no WhatsApp"
+      this.#setAvatarPreview(null)
     } else {
       this.phoneCheckTarget.className = "text-xs mt-1.5 text-(--color-text-muted)"
       this.phoneCheckTarget.textContent = "Não foi possível verificar"
+      this.#setAvatarPreview(null)
     }
     this.#setSubmitEnabled(exists === true)
+  }
+
+  #setAvatarPreview(url) {
+    if (!this.hasAvatarTarget) return
+    if (url) {
+      this.avatarTarget.src = url
+      this.avatarTarget.classList.remove("hidden")
+    } else {
+      this.avatarTarget.classList.add("hidden")
+      this.avatarTarget.src = ""
+    }
   }
 
   #setSubmitEnabled(enabled) {
