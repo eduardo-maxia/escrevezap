@@ -123,7 +123,7 @@
                     <%= number_to_currency(cc.amount, unit: "R$\u00a0", separator: ",", delimiter: ".", precision: 2) %>
                   </td>
                   <td class="px-4 py-3.5 text-(--color-text-muted) text-xs whitespace-nowrap">
-                    <%= cc.next_due_date&.strftime("%d/%m/%Y") || "—" %>
+                    dia <%= cc.due_day %>
                   </td>
                   <td class="px-4 py-3.5">
                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium <%= cc_status_class %>">

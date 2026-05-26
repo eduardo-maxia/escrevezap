@@ -9,20 +9,26 @@ class CampaignClient < ApplicationRecord
 
   scope :visible, -> { where.not(status: :inactive) }
 
-  validates :amount,        presence: true, numericality: { greater_than: 0, message: "deve ser maior que zero" }
-  validates :next_due_date, presence: true
-  validate  :next_due_date_not_in_past, if: :next_due_date_changed?
+  validates :amount,  presence: true, numericality: { greater_than: 0, message: "deve ser maior que zero" }
+  validates :due_day, presence: true, inclusion: { in: 1..30, message: "deve ser entre 1 e 30" }
 
   # Rule 1: create first installment right after the campaign_client is created.
   after_create :create_initial_installment
 
-  # Rule 2: when due date or amount changes, cancel future pending installments
+  # Rule 2: when due day or amount changes, cancel future pending installments
   # (cascading to their notifications) and schedule a fresh one.
   before_update :sync_future_installments,
-                if: -> { next_due_date_changed? || amount_changed? }
+                if: -> { due_day_changed? || amount_changed? }
 
   def soft_delete!
     update_columns(status: "inactive", inactivated_at: Time.current)
+  end
+
+  # Returns the next upcoming occurrence of due_day on or after today.
+  def upcoming_due_date
+    today = Date.current
+    this_month = safe_due_date(today.year, today.month)
+    this_month >= today ? this_month : safe_due_date((today >> 1).year, (today >> 1).month)
   end
 
   # Builds the WhatsApp message payload for a given installment,
@@ -41,14 +47,15 @@ class CampaignClient < ApplicationRecord
 
   private
 
-  def next_due_date_not_in_past
-    return if next_due_date.blank?
-    errors.add(:next_due_date, "não pode ser uma data passada") if next_due_date < Date.today
+  # Builds a Date for the given year/month, clamping due_day to the last valid day of that month.
+  def safe_due_date(year, month)
+    max_day = Date.new(year, month, -1).day
+    Date.new(year, month, [due_day, max_day].min)
   end
 
   def create_initial_installment
     installments.create!(
-      due_date: next_due_date,
+      due_date: upcoming_due_date,
       amount:   amount,
       status:   :pending
     )
@@ -69,14 +76,16 @@ class CampaignClient < ApplicationRecord
       inst.update_columns(status: "cancelled")
     end
 
-    # Se já existe uma parcela paga para o mesmo mês/ano E a alteração foi APENAS de valor, retorna aqui sem fazer nada, para evitar um rollback da transação devido à condição de validação da installment
-    if installments.exists?(status: :paid, due_date: next_due_date.beginning_of_month..next_due_date.end_of_month) && !next_due_date_changed?
+    next_due = upcoming_due_date
+
+    # If only amount changed and there's already a paid installment this month, skip.
+    if !due_day_changed? && installments.exists?(status: :paid, due_date: next_due.beginning_of_month..next_due.end_of_month)
       return
     end
-    
+
     # Build the replacement installment and validate before the parent saves.
     new_inst = installments.build(
-      due_date: next_due_date,
+      due_date: next_due,
       amount:   amount,
       status:   :pending
     )

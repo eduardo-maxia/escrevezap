@@ -175,11 +175,11 @@ class OnboardingController < ApplicationController
     )
 
     campaign_client = CampaignClient.create!(
-      campaign:      campaign,
-      client:        client,
-      amount:        1,
-      next_due_date: Date.tomorrow,
-      status:        "active"
+      campaign: campaign,
+      client:   client,
+      amount:   1,
+      due_day:  Date.tomorrow.day,
+      status:   "active"
     )
 
     # Remember this test client so we can delete it when onboarding finishes.

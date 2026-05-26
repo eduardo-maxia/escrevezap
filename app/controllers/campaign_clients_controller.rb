@@ -15,9 +15,9 @@ class CampaignClientsController < ApplicationController
     ActiveRecord::Base.transaction do
       client = resolve_client!
       @campaign_client = @campaign.campaign_clients.build(
-        client:        client,
-        amount:        params.dig(:campaign_client, :amount).presence,
-        next_due_date: params.dig(:campaign_client, :next_due_date).presence
+        client:  client,
+        amount:  params.dig(:campaign_client, :amount).presence,
+        due_day: params.dig(:campaign_client, :due_day).presence
       )
       @campaign_client.save!
     end
@@ -89,6 +89,6 @@ class CampaignClientsController < ApplicationController
   end
 
   def campaign_client_params
-    params.require(:campaign_client).permit(:client_id, :amount, :next_due_date, :status)
+    params.require(:campaign_client).permit(:client_id, :amount, :due_day, :status)
   end
 end

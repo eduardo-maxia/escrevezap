@@ -103,13 +103,15 @@
 
               <div>
                 <label class="block text-sm font-medium text-(--color-text) mb-1.5">
-                  Próx. vencimento <span class="text-(--color-danger)">*</span>
+                  Dia de vencimento <span class="text-(--color-danger)">*</span>
                 </label>
-                <input type="date"
-                       name="campaign_client[next_due_date]"
+                <input type="number"
+                       name="campaign_client[due_day]"
                        required
-                       min="<%= Date.today.to_s %>"
-                       value="<%= @campaign_client&.next_due_date %>"
+                       min="1"
+                       max="30"
+                       placeholder="Ex: 15"
+                       value="<%= @campaign_client&.due_day %>"
                        class="w-full px-3.5 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-(--color-brand) transition-colors">
               </div>
             </div>

@@ -137,6 +137,6 @@ class ClientsController < ApplicationController
   end
 
   def campaign_client_simple_params
-    params.require(:campaign_client).permit(:amount, :next_due_date)
+    params.require(:campaign_client).permit(:amount, :due_day)
   end
 end

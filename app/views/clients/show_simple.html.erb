@@ -7,9 +7,6 @@
 
 <%
   edit_btn_cls = "md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1 rounded-md hover:bg-(--color-surface-raised) text-(--color-text-subtle) hover:text-(--color-text-muted) flex-shrink-0"
-  save_cls     = "px-2.5 py-1.5 bg-(--color-brand) text-(--color-text-inverse) text-xs font-medium rounded-lg hover:bg-(--color-brand-dark) transition-colors cursor-pointer whitespace-nowrap"
-  cancel_cls   = "px-2.5 py-1.5 border border-(--color-border) text-xs font-medium text-(--color-text-muted) rounded-lg hover:text-(--color-text) transition-colors whitespace-nowrap"
-  input_cls    = "w-full px-3 py-2 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand) transition-colors"
 
   # Avatar initials (max 2 chars)
   initials = @client.name.to_s.split(/\s+/).reject(&:empty?).first(2).map { |w| w[0] }.join.upcase.presence || "?"
@@ -84,12 +81,11 @@
               </span>
             </div>
           </div>
-          <div data-inline-edit-target="editor" class="hidden">
-            <%= form_with model: @client, class: "flex items-center gap-2 flex-wrap" do |f| %>
+          <div data-inline-edit-target="editor" class="hidden mt-1">
+            <%= form_with model: @client, class: "relative" do |f| %>
               <%= f.text_field :name, data: { inline_edit_target: "field" },
-                    class: "px-3 py-1.5 text-lg font-bold border border-(--color-border) rounded-lg focus:outline-none focus:border-(--color-brand) text-(--color-text) bg-(--color-surface) min-w-[12rem] flex-1" %>
-              <%= f.submit "Salvar", class: save_cls %>
-              <button type="button" data-action="click->inline-edit#cancel" class="<%= cancel_cls %>">Cancelar</button>
+                    class: "w-full pr-20 px-3 py-1.5 text-lg font-bold border border-(--color-border) rounded-lg focus:outline-none focus:border-(--color-brand) text-(--color-text) bg-(--color-surface)" %>
+              <%= render "inline_edit_actions" %>
             <% end %>
           </div>
         </div>
@@ -149,7 +145,7 @@
           pencil_cls = "opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md hover:bg-(--color-surface-raised) text-(--color-text-subtle) hover:text-(--color-text-muted) flex-shrink-0 cursor-pointer"
 
           today_d = Date.current
-          due_d   = @campaign_client.next_due_date
+          due_d   = @campaign_client.upcoming_due_date
           diff_d  = (due_d - today_d).to_i
           rel_label =
             if diff_d <  0 then "atrasada há #{-diff_d}d"
@@ -166,36 +162,8 @@
 
         <%# ── MOBILE: hero stat card ── %>
         <div class="md:hidden bg-(--color-surface) rounded-xl border border-(--color-border) overflow-hidden">
-          <%# Top row: label + status (inline edit) %>
-          <div class="px-4 pt-4 pb-2 flex items-center justify-between gap-3 group" data-controller="inline-edit">
-            <div data-inline-edit-target="view" class="flex items-center justify-between gap-3 w-full">
-              <div class="flex items-center gap-1.5 text-(--color-text-muted)">
-                <i class="ph ph-invoice text-base"></i>
-                <p class="text-xs font-semibold uppercase tracking-wide">Cobrança</p>
-              </div>
-              <button type="button" data-action="click->inline-edit#edit"
-                      class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium <%= cc_status_color %> hover:opacity-80 transition-opacity">
-                <span class="w-1.5 h-1.5 rounded-full <%= cc_status_dot %>"></span>
-                <%= cc_status_label %>
-              </button>
-            </div>
-            <div data-inline-edit-target="editor" class="hidden w-full">
-              <%= form_with model: @campaign_client, url: campaign_client_path(@campaign_client), method: :patch,
-                    class: "flex items-center gap-2" do |f| %>
-                <%= hidden_field_tag :from_client, "1" %>
-                <%= f.select :status,
-                      [["Ativo", "active"], ["Pausado", "paused"], ["Concluído", "completed"]],
-                      { selected: @campaign_client.status },
-                      data: { inline_edit_target: "field" },
-                      class: "flex-1 px-3 py-1.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand)" %>
-                <%= f.submit "Salvar", class: save_cls %>
-                <button type="button" data-action="click->inline-edit#cancel" class="<%= cancel_cls %>">×</button>
-              <% end %>
-            </div>
-          </div>
-
           <%# Hero amount %>
-          <div class="px-4 pb-3 group" data-controller="inline-edit">
+          <div class="px-4 pb-3 group mt-4" data-controller="inline-edit">
             <div data-inline-edit-target="view">
               <p class="text-[11px] font-medium text-(--color-text-muted)">Valor mensal</p>
               <div class="flex items-end justify-between gap-3 mt-0.5">
@@ -238,14 +206,14 @@
             </div>
           </div>
 
-          <%# Footer: next due date %>
+          <%# Footer: due day %>
           <div class="px-4 py-3 bg-(--color-surface-muted) border-t border-(--color-border) group" data-controller="inline-edit">
             <div data-inline-edit-target="view" class="flex items-center justify-between gap-3">
               <div class="flex items-center gap-2 min-w-0">
                 <i class="ph ph-calendar-blank text-base text-(--color-text-muted) flex-shrink-0"></i>
                 <div class="min-w-0">
-                  <p class="text-[11px] text-(--color-text-muted) leading-tight">Próximo vencimento</p>
-                  <p class="text-sm font-medium text-(--color-text) leading-tight"><%= due_d.strftime("%d/%m/%Y") %></p>
+                  <p class="text-[11px] text-(--color-text-muted) leading-tight">Vence todo dia</p>
+                  <p class="text-sm font-semibold text-(--color-text) leading-tight">dia <%= @campaign_client.due_day %><span class="font-normal text-(--color-text-muted)"> · próx. <%= due_d.strftime("%d/%m") %></span></p>
                 </div>
               </div>
               <div class="flex items-center gap-1">
@@ -254,20 +222,39 @@
                 </span>
                 <button type="button" data-action="click->inline-edit#edit"
                         class="p-1.5 rounded-md text-(--color-text-muted) hover:bg-(--color-surface-raised)"
-                        aria-label="Editar vencimento">
+                        aria-label="Editar dia de vencimento">
                   <i class="ph ph-pencil-simple text-xs"></i>
                 </button>
               </div>
             </div>
-            <div data-inline-edit-target="editor" class="hidden">
+            <div data-inline-edit-target="editor" class="hidden mt-2">
               <%= form_with model: @campaign_client, url: campaign_client_path(@campaign_client), method: :patch,
-                    class: "flex items-center gap-2" do |f| %>
+                    class: "relative" do |f| %>
                 <%= hidden_field_tag :from_client, "1" %>
-                <%= f.date_field :next_due_date, value: @campaign_client.next_due_date,
+                <%= f.number_field :due_day,
+                      in: 1..30,
                       data: { inline_edit_target: "field" },
-                      class: "flex-1 px-3 py-1.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand)" %>
-                <%= f.submit "Salvar", class: save_cls %>
-                <button type="button" data-action="click->inline-edit#cancel" class="<%= cancel_cls %>">×</button>
+                      class: "w-full pr-20 px-3 py-1.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand)" %>
+                <%= render "inline_edit_actions" %>
+              <% end %>
+            </div>
+          </div>
+
+          <%# Footer: status pills %>
+          <div class="px-4 py-3 border-t border-(--color-border)">
+            <p class="text-[11px] text-(--color-text-muted) mb-2 uppercase tracking-wide font-medium">Status da cobrança</p>
+            <div class="flex gap-2">
+              <% [["active", "Ativo"], ["paused", "Pausado"], ["completed", "Concluído"]].each do |val, lbl| %>
+                <% if @campaign_client.status == val %>
+                  <span class="flex-1 text-center py-2 rounded-lg text-xs font-semibold <%= cc_status_color %>"><%= lbl %></span>
+                <% else %>
+                  <%= button_to lbl, campaign_client_path(@campaign_client),
+                        method: :patch,
+                        params: { campaign_client: { status: val }, from_client: "1" },
+                        form: { class: "flex-1" },
+                        data: { controller: "loadable", "loadable-loading-text-value": lbl },
+                        class: "w-full py-2 rounded-lg text-xs font-medium text-(--color-text-muted) bg-(--color-surface-raised) hover:text-(--color-text) hover:bg-(--color-border) transition-colors cursor-pointer disabled:opacity-50" %>
+                <% end %>
               <% end %>
             </div>
           </div>
@@ -299,12 +286,9 @@
                            data-amount-input-target="display"
                            data-action="input->amount-input#format"
                            data-inline-edit-target="field"
-                           class="w-full pl-9 pr-3 py-1.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-base font-bold text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand)">
+                         class="w-full pl-9 pr-20 py-1.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-base font-bold text-(--color-text) focus:outline-none focus:border-(--color-brand) focus:ring-1 focus:ring-(--color-brand)">
                     <input type="hidden" name="campaign_client[amount]" value="<%= @campaign_client.amount %>" data-amount-input-target="hidden">
-                  </div>
-                  <div class="flex items-center gap-2 mt-2">
-                    <%= f.submit "Salvar", class: save_cls %>
-                    <button type="button" data-action="click->inline-edit#cancel" class="<%= cancel_cls %>">Cancelar</button>
+                    <%= render "inline_edit_actions" %>
                   </div>
                 <% end %>
               </div>
@@ -312,17 +296,17 @@
 
             <div class="bg-(--color-surface) p-5 group" data-controller="inline-edit">
               <div data-inline-edit-target="view">
-                <p class="text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">Próximo vencimento</p>
+                <p class="text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">Dia de vencimento</p>
                 <div class="flex items-end justify-between gap-2 mt-1">
                   <div class="min-w-0">
                     <p class="text-2xl font-bold text-(--color-text) tabular-nums leading-none">
-                      <%= due_d.strftime("%d/%m/%y") %>
+                      dia <%= @campaign_client.due_day %>
                     </p>
                     <span class="inline-flex items-center mt-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium <%= rel_color %>">
                       <%= rel_label %>
                     </span>
                   </div>
-                  <button type="button" data-action="click->inline-edit#edit" class="<%= pencil_cls %>" aria-label="Editar vencimento">
+                  <button type="button" data-action="click->inline-edit#edit" class="<%= pencil_cls %>" aria-label="Editar dia de vencimento">
                     <i class="ph ph-pencil-simple text-xs"></i>
                   </button>
                 </div>
@@ -330,44 +314,36 @@
               <div data-inline-edit-target="editor" class="hidden">
                 <%= form_with model: @campaign_client, url: campaign_client_path(@campaign_client), method: :patch do |f| %>
                   <%= hidden_field_tag :from_client, "1" %>
-                  <p class="text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">Próximo vencimento</p>
-                  <%= f.date_field :next_due_date, value: @campaign_client.next_due_date,
-                        data: { inline_edit_target: "field" },
-                        class: "w-full mt-1 px-3 py-1.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand)" %>
-                  <div class="flex items-center gap-2 mt-2">
-                    <%= f.submit "Salvar", class: save_cls %>
-                    <button type="button" data-action="click->inline-edit#cancel" class="<%= cancel_cls %>">Cancelar</button>
+                  <p class="text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">Dia de vencimento</p>
+                  <div class="relative mt-1">
+                    <%= f.number_field :due_day,
+                          in: 1..30,
+                          data: { inline_edit_target: "field" },
+                          class: "w-full pr-20 px-3 py-1.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand)" %>
+                    <%= render "inline_edit_actions" %>
                   </div>
                 <% end %>
               </div>
             </div>
 
-            <div class="bg-(--color-surface) p-5 group" data-controller="inline-edit">
-              <div data-inline-edit-target="view">
-                <p class="text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">Status</p>
-                <div class="flex items-end justify-between gap-2 mt-1">
-                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-medium <%= cc_status_color %>">
-                    <span class="w-1.5 h-1.5 rounded-full <%= cc_status_dot %>"></span>
-                    <%= cc_status_label %>
-                  </span>
-                  <button type="button" data-action="click->inline-edit#edit" class="<%= pencil_cls %>" aria-label="Editar status">
-                    <i class="ph ph-pencil-simple text-xs"></i>
-                  </button>
-                </div>
-              </div>
-              <div data-inline-edit-target="editor" class="hidden">
-                <%= form_with model: @campaign_client, url: campaign_client_path(@campaign_client), method: :patch do |f| %>
-                  <%= hidden_field_tag :from_client, "1" %>
-                  <p class="text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">Status</p>
-                  <%= f.select :status,
-                        [["Ativo", "active"], ["Pausado", "paused"], ["Concluído", "completed"]],
-                        { selected: @campaign_client.status },
-                        data: { inline_edit_target: "field" },
-                        class: "w-full mt-1 px-3 py-1.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand)" %>
-                  <div class="flex items-center gap-2 mt-2">
-                    <%= f.submit "Salvar", class: save_cls %>
-                    <button type="button" data-action="click->inline-edit#cancel" class="<%= cancel_cls %>">Cancelar</button>
-                  </div>
+            <div class="bg-(--color-surface) p-5">
+              <p class="text-xs font-medium text-(--color-text-muted) uppercase tracking-wide mb-3">Status</p>
+              <div class="flex flex-col gap-1.5">
+                <% [["active", "Ativo"], ["paused", "Pausado"], ["completed", "Concluído"]].each do |val, lbl| %>
+                  <% if @campaign_client.status == val %>
+                    <div class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold <%= cc_status_color %>">
+                      <span class="w-1.5 h-1.5 rounded-full flex-shrink-0 bg-current"></span>
+                      <span><%= lbl %></span>
+                      <span class="ml-auto text-[10px] font-medium opacity-60 uppercase tracking-wide">Atual</span>
+                    </div>
+                  <% else %>
+                    <%= button_to lbl, campaign_client_path(@campaign_client),
+                          method: :patch,
+                          params: { campaign_client: { status: val }, from_client: "1" },
+                          form: { class: "contents" },
+                          data: { controller: "loadable", "loadable-loading-text-value": lbl },
+                          class: "flex items-center gap-2.5 w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-(--color-text-muted) hover:bg-(--color-surface-raised) hover:text-(--color-text) transition-colors cursor-pointer disabled:opacity-50" %>
+                  <% end %>
                 <% end %>
               </div>
             </div>

@@ -55,8 +55,7 @@ class DailyBillingJob < ApplicationJob
 
     SendMessageJob.set(wait_until: scheduled_at).perform_later(notification.id)
 
-    # Advance the installment cycle: create next month's installment and
-    # update next_due_date on the campaign_client (bypasses model callbacks).
+    # Advance the installment cycle: create next month's installment.
     advance_cycle(campaign_client, installment)
 
   rescue => e
@@ -75,7 +74,10 @@ class DailyBillingJob < ApplicationJob
   end
 
   def advance_cycle(campaign_client, current_installment)
-    next_due    = current_installment.due_date >> 1   # +1 month; Rails handles end-of-month
+    # Compute next month's due date using due_day, clamped to the last valid day of that month.
+    next_month  = current_installment.due_date >> 1
+    max_day     = Date.new(next_month.year, next_month.month, -1).day
+    next_due    = Date.new(next_month.year, next_month.month, [campaign_client.due_day, max_day].min)
     month_start = next_due.beginning_of_month
     month_end   = next_due.end_of_month
 
@@ -92,8 +94,5 @@ class DailyBillingJob < ApplicationJob
         status:   :pending
       )
     end
-
-    # update_columns bypasses model callbacks, preventing a sync_future_installments loop.
-    campaign_client.update_columns(next_due_date: next_due)
   end
 end

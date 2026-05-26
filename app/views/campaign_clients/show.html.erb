@@ -85,9 +85,9 @@
               </div>
             </div>
             <div>
-              <label class="block text-xs font-medium text-(--color-text-muted) mb-1.5">Próx. vencimento <span class="text-(--color-danger)">*</span></label>
-              <%= f.date_field :next_due_date,
-                    min: Date.today.to_s,
+              <label class="block text-xs font-medium text-(--color-text-muted) mb-1.5">Dia de vencimento <span class="text-(--color-danger)">*</span></label>
+              <%= f.number_field :due_day,
+                    in: 1..30,
                     required: true,
                     class: input_cls %>
             </div>

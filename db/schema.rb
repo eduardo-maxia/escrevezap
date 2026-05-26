@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_23_010000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_26_023621) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -48,8 +48,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_23_010000) do
     t.bigint "campaign_id"
     t.bigint "client_id"
     t.datetime "created_at", null: false
+    t.integer "due_day", null: false
     t.datetime "inactivated_at"
-    t.date "next_due_date"
     t.string "status"
     t.datetime "updated_at", null: false
     t.index ["campaign_id"], name: "index_campaign_clients_on_campaign_id"

@@ -178,11 +178,13 @@
                   </div>
                 </div>
                 <div>
-                  <label class="block text-xs font-medium text-(--color-text-muted) mb-1.5">Próx. vencimento <span class="text-(--color-danger)">*</span></label>
-                  <input type="date"
-                         name="campaign_client[next_due_date]"
+                  <label class="block text-xs font-medium text-(--color-text-muted) mb-1.5">Dia de vencimento <span class="text-(--color-danger)">*</span></label>
+                  <input type="number"
+                         name="campaign_client[due_day]"
                          required
-                         min="<%= Date.today.to_s %>"
+                         min="1"
+                         max="30"
+                         placeholder="Ex: 15"
                          class="w-full px-3 py-2.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-sm text-(--color-text) focus:outline-none focus:border-(--color-brand) transition-colors">
                 </div>
                 <div>
@@ -264,7 +266,7 @@
                     <span class="font-medium text-(--color-text)"><%= number_to_currency(cc.amount, unit: "R$\u00a0", separator: ",", delimiter: ".", precision: 2) %></span>
                   </td>
                   <td class="px-4 py-3.5 whitespace-nowrap">
-                    <span class="text-xs text-(--color-text-muted)"><%= cc.next_due_date&.strftime("%d/%m/%Y") || "—" %></span>
+                    <span class="text-xs text-(--color-text-muted)">dia <%= cc.due_day %></span>
                   </td>
                   <td class="px-4 py-3.5">
                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium <%= cc_status_class %>">
