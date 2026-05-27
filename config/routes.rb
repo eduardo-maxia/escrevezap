@@ -35,6 +35,7 @@ Rails.application.routes.draw do
 
       # Onboarding (first-time WhatsApp connection — auth layout, no app chrome)
       get  "conectar",          to: "onboarding#show",             as: :onboarding
+      post "conectar/reconectar", to: "onboarding#reconnect",      as: :onboarding_reconnect
       get  "primeiros-passos",  to: "onboarding#step3",            as: :onboarding_step3
       post "primeiros-passos/pular", to: "onboarding#dismiss_contacts", as: :onboarding_dismiss_contacts
 
