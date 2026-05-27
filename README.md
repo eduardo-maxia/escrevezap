@@ -1,1 +1,1 @@
-VISUAL="code --wait" bin/rails credentials:edit --environment development
+VISUAL="code --wait" bin/rails credentials:edit --environment development# escrevezap
