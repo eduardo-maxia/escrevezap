@@ -37,6 +37,9 @@ Rails.application.routes.draw do
       get  "conectar",          to: "onboarding#show",             as: :onboarding
       post "conectar/reconectar", to: "onboarding#reconnect",      as: :onboarding_reconnect
       get  "primeiros-passos",  to: "onboarding#step3",            as: :onboarding_step3
+      get  "primeiros-passos/contatos-whatsapp", to: "onboarding#step3_whatsapp_contacts", as: :onboarding_step3_whatsapp_contacts
+      post "primeiros-passos/contato", to: "onboarding#create_contact", as: :onboarding_create_contact
+      get  "primeiros-passos/concluido", to: "onboarding#step3_done", as: :onboarding_step3_done
       post "primeiros-passos/pular", to: "onboarding#dismiss_contacts", as: :onboarding_dismiss_contacts
 
       # WhatsApp connection

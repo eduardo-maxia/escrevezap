@@ -1,0 +1,62 @@
+<% content_for :title, "Pronto! Tudo configurado — EscreveZap" %>
+
+<% content_for :auth_left do %>
+  <div class="flex-1 flex flex-col justify-center relative z-10">
+    <div class="flex items-center gap-3 mb-12">
+      <%= image_tag "/logo.png", alt: "EscreveZap", class: "w-10 h-10" %>
+      <span class="text-xl font-bold tracking-tight">EscreveZap</span>
+    </div>
+
+    <h2 class="text-3xl font-bold leading-snug mb-3">
+      Pronto! Seu fluxo<br>está ativo.
+    </h2>
+    <p class="text-white/70 text-sm leading-relaxed mb-10">
+      O contato foi adicionado e o monitoramento já está ligado para os próximos áudios.
+    </p>
+
+    <ul class="space-y-5">
+      <li class="flex items-start gap-4">
+        <span class="flex-shrink-0 w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">✓</span>
+        <div>
+          <p class="text-sm font-medium text-white/60">Faça login</p>
+        </div>
+      </li>
+      <li class="flex items-start gap-4">
+        <span class="flex-shrink-0 w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">✓</span>
+        <div>
+          <p class="text-sm font-medium text-white/60">Conecte seu WhatsApp</p>
+        </div>
+      </li>
+      <li class="flex items-start gap-4">
+        <span class="flex-shrink-0 w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">✓</span>
+        <div>
+          <p class="text-sm font-semibold">Adicione contatos para monitorar</p>
+          <p class="text-xs text-white/60 mt-0.5">Tudo pronto para transcrever</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <p class="relative z-10 text-white/40 text-xs mt-auto">© <%= Time.current.year %> EscreveZap</p>
+<% end %>
+
+<div class="space-y-6">
+  <div class="lg:hidden fixed bottom-6 inset-x-0 z-10 flex items-center justify-center gap-1.5 pointer-events-none">
+    <span class="w-2 h-2 rounded-full" style="background:#CBD5E1"></span>
+    <span class="w-2 h-2 rounded-full" style="background:#CBD5E1"></span>
+    <span class="w-6 h-2 rounded-full bg-(--color-brand)"></span>
+  </div>
+
+  <div class="rounded-2xl border border-(--color-success) bg-(--color-success-light) px-5 py-4 flex items-start gap-3">
+    <i class="ph-fill ph-check-circle text-(--color-success) text-xl flex-shrink-0 mt-0.5"></i>
+    <div>
+      <p class="text-sm font-semibold text-(--color-text)">Contato adicionado com sucesso.</p>
+      <p class="mt-1 text-sm text-(--color-text-muted)">Agora basta mandar um áudio na conversa e ver a mágica.</p>
+    </div>
+  </div>
+
+  <%= link_to authenticated_root_path,
+        class: "w-full inline-flex items-center justify-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-5 py-3.5 rounded-xl text-sm transition-colors" do %>
+    Ir para o início
+    <i class="ph ph-arrow-right text-base"></i>
+  <% end %>
+</div>

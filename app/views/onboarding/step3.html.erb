@@ -63,18 +63,7 @@
     </p>
   </div>
 
-  <%# Contact picker %>
-  <%= link_to new_monitored_contact_path,
-        class: "flex items-center gap-3 w-full bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-5 py-4 rounded-2xl transition-colors" do %>
-    <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
-      <i class="ph ph-user-plus text-xl"></i>
-    </div>
-    <div class="text-left">
-      <p class="font-semibold">Adicionar contato</p>
-      <p class="text-sm text-white/70">Busque nos seus contatos do WhatsApp</p>
-    </div>
-    <i class="ph ph-arrow-right ml-auto text-lg text-white/70"></i>
-  <% end %>
+  <%= render "step3_contact_form", contact: @contact %>
 
   <%# Skip %>
   <div class="text-center">

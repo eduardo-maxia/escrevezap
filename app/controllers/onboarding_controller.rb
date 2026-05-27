@@ -28,6 +28,41 @@ class OnboardingController < ApplicationController
 
   def step3
     redirect_to authenticated_root_path if current_user.contacts_intro_dismissed?
+
+    @contact = waha_session.monitored_contacts.build(direction: :both)
+  end
+
+  def step3_done
+    redirect_to authenticated_root_path unless current_user.contacts_intro_dismissed?
+  end
+
+  def step3_whatsapp_contacts
+    unless waha_session&.working?
+      render json: { contacts: [] } and return
+    end
+
+    raw = waha_session.waha_client.contacts.list_all
+    contacts = raw.map do |c|
+      phone = c["id"].to_s.gsub("@c.us", "")
+      name  = c["name"].presence || c["pushname"].presence
+      { phone: phone, name: name, label: [name, phone].compact.join(" · ") }
+    end.sort_by { |c| c[:name].to_s.downcase }
+
+    render json: { contacts: contacts }
+  rescue => e
+    render json: { contacts: [], error: e.message }
+  end
+
+  def create_contact
+    @contact = waha_session.monitored_contacts.build(contact_params)
+
+    if @contact.save
+      FetchMonitoredContactProfilePictureJob.perform_later(@contact.id)
+      current_user.update!(contacts_intro_dismissed: true) unless current_user.contacts_intro_dismissed?
+      redirect_to onboarding_step3_done_path
+    else
+      render :step3, status: :unprocessable_entity
+    end
   end
 
   def dismiss_contacts
@@ -108,5 +143,13 @@ class OnboardingController < ApplicationController
 
   def redirect_if_completed
     redirect_to authenticated_root_path if current_user.onboarding_completed?
+  end
+
+  def contact_params
+    params.require(:monitored_contact).permit(:phone_number, :display_name, :direction, :enabled)
+  end
+
+  def waha_session
+    @waha_session ||= current_user.waha_session
   end
 end
