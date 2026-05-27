@@ -1,8 +1,0 @@
-<%# Renders the brand logo + tagline above an auth card.
-    Usage: <%= render "devise/shared/brand", tagline: "..." %>
-%>
-<% tagline = local_assigns.fetch(:tagline, "Gestão de cobranças via WhatsApp") %>
-<div class="mb-8 text-center flex flex-col items-center gap-3">
-  <%= image_tag "/logo.png", alt: "Cobrança em Dia", class: "h-14 w-auto" %>
-  <p class="text-(--color-text-muted) text-sm"><%= tagline %></p>
-</div>

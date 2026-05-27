@@ -1,55 +1,21 @@
 {
-  "name": "Cobrança em Dia",
-  "short_name": "Cobrança em Dia",
-  "description": "Cobranças automáticas via WhatsApp para pequenas empresas.",
+  "name": "EscreveZap",
+  "short_name": "EscreveZap",
+  "description": "Transcrição automática de áudios do WhatsApp",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1E7A52",
   "icons": [
     {
-      "src": "/logo.png",
-      "type": "image/png",
-      "sizes": "400x400"
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
     },
     {
-      "src": "/logo-padding.png",
-      "type": "image/png",
-      "sizes": "1254x1254",
-      "purpose": "maskable"
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshots/mobile-home.png",
-      "sizes": "828x1792",
-      "type": "image/png",
-      "label": "Mobile home screen"
-    },
-    {
-      "src": "/screenshots/desktop-home.png",
-      "sizes": "1354x961",
-      "type": "image/png",
-      "label": "Desktop dashboard",
-      "form_factor": "wide"
-    }
-  ],
-  "id": "/app",
-  "start_url": "/app",
-  "scope": "/",
-  "display": "standalone",
-  "orientation": "portrait",
-  "theme_color": "#0D2E67",
-  "background_color": "#F8FAFC",
-  "lang": "pt-BR",
-  "categories": ["business", "finance"],
-  "share_target": {
-    "action": "/app/share-receipt",
-    "method": "POST",
-    "enctype": "multipart/form-data",
-    "params": {
-      "files": [
-        {
-          "name": "receipt",
-          "accept": ["image/*", "application/pdf"]
-        }
-      ]
-    }
-  }
+  ]
 }

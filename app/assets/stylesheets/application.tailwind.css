@@ -3,53 +3,46 @@
 @source "../../../node_modules/flowbite";
 
 @theme {
-  /* Brand – navy + gold (trust + premium finance) */
-  --color-brand:        #0D2E67;
-  --color-brand-dark:   #0A224E;
-  --color-brand-light:  #DCE8F8;
-  --color-brand-subtle: #F4F8FD;
+  /* Brand */
+  --color-brand:         #1E7A52;
+  --color-brand-dark:    #155A3C;
+  --color-brand-light:   #DDF5E9;
+  --color-brand-subtle:  #F2FBF6;
 
-  /* Accent – gold/caramel */
-  --color-accent:        #C88437;
-  --color-accent-dark:   #A86A25;
-  --color-accent-light:  #F4E3D0;
-  --color-accent-subtle: #FBF6F0;
+  /* Accent */
+  --color-accent:        #1F2937;
+  --color-accent-soft:   #6B7280;
+  --color-accent-light:  #F3F4F6;
+  --color-accent-subtle: #F9FAFB;
 
-  /* Surfaces */
-  --color-surface:        #FFFFFF;
-  --color-surface-muted:  #F8FAFC;
-  --color-surface-raised: #EEF2F7;
+  /* Success */
+  --color-success:       #16A34A;
+  --color-success-light: #DCFCE7;
 
-  /* Borders */
-  --color-border:        #E2E8F0;
-  --color-border-strong: #CBD5E1;
+  /* Warning */
+  --color-warning:       #D97706;
+  --color-warning-light: #FEF3C7;
+
+  /* Error */
+  --color-danger:        #DC2626;
+  --color-danger-light:  #FEE2E2;
+
+  /* Surface */
+  --color-bg:            #FAFAF9;
+  --color-surface:       #FFFFFF;
+  --color-surface-soft:  #F7F7F5;
+  --color-surface-muted: #F9FAFB;
+  --color-surface-raised:#F3F4F6;
+
+  /* Border */
+  --color-border:        #E5E7EB;
+  --color-border-strong: #D1D5DB;
 
   /* Text */
   --color-text:          #111827;
-  --color-text-muted:    #64748B;
-  --color-text-subtle:   #94A3B8;
+  --color-text-muted:    #6B7280;
+  --color-text-subtle:   #9CA3AF;
   --color-text-inverse:  #FFFFFF;
-
-  /* Semantic */
-  --color-danger:         #DC2626;
-  --color-danger-light:   #FEE2E2;
-
-  --color-warning:        #D97706;
-  --color-warning-light:  #FEF3C7;
-
-  --color-success:        #15803D;
-  --color-success-light:  #DCFCE7;
-
-  --color-info:           #1E4B8F;
-  --color-info-light:     #DBEAFE;
-
-  /* Sidebar */
-  --color-sidebar-bg:          #0A224E;
-  --color-sidebar-border:      #16325F;
-  --color-sidebar-text:        #94A3B8;
-  --color-sidebar-text-hover:  #F8FAFC;
-  --color-sidebar-item-hover:  #16325F;
-  --color-sidebar-item-active: #1E4B8F;
 }
 
 /* ── intl-tel-input overrides ─────────────────────────────────────────── */
@@ -407,3 +400,11 @@
 @keyframes btn-spin {
   to { transform: rotate(360deg); }
 }
+
+/* ── Audio recorder demo ──────────────────────────────────────────────── */
+/* The pulse rings only render while the recorder is actively capturing.   */
+[data-controller~="audio-recorder"] .recording-only { display: none; }
+[data-controller~="audio-recorder"][data-state="recording"] .recording-only { display: block; }
+
+/* Contact picker — JS-injected elements can't use Tailwind class scanning */
+.contact-item-sep { border-bottom: 1px solid var(--color-border); }

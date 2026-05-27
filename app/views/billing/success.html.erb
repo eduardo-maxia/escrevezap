@@ -1,0 +1,28 @@
+<% content_for :title, "Assinatura ativada! — EscreveZap" %>
+
+<div class="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+  <div class="w-16 h-16 rounded-full bg-(--color-brand-light) flex items-center justify-center mb-6">
+    <i class="ph-fill ph-check-circle text-4xl text-(--color-brand)"></i>
+  </div>
+
+  <h1 class="text-2xl font-bold text-(--color-text) mb-2">
+    <%= @plan == "pro" ? "Bem-vindo ao Pro! 🎉" : "Assinatura ativada!" %>
+  </h1>
+
+  <p class="text-(--color-text-muted) max-w-sm mb-8">
+    <% if @plan == "pro" %>
+      Seu plano Pro está ativo. Aproveite transcrições ilimitadas, resumos automáticos com IA e muito mais.
+    <% else %>
+      Seu plano Basic está ativo. Aproveite até 500 transcrições por mês.
+    <% end %>
+  </p>
+
+  <p class="text-sm text-(--color-text-subtle) mb-8">
+    O acesso pode levar alguns instantes para ser processado. Se o plano não atualizar em até 1 minuto, recarregue a página.
+  </p>
+
+  <%= link_to authenticated_root_path, class: "inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-(--color-brand) text-(--color-text-inverse) font-semibold text-sm hover:bg-(--color-brand-dark) transition-colors" do %>
+    <i class="ph ph-house"></i>
+    Ir para o início
+  <% end %>
+</div>

@@ -80,11 +80,19 @@ module ExternalEvents
         full_id = payload[:id]
         message_id = full_id.present? ? full_id.split('_').last : nil
 
+        # Se o from for @lid, já transforma logo
+        from = @raw_data.dig(:payload, :from)
+        if from.present? && from.end_with?('@lid')
+          response = Waha::ContactsApi.new(session: @raw_data[:session]).lid_to_phone(lid: from)
+          
+          from = response["pn"] if response["pn"].present?
+        end
+
         contact_number = extract_contact_number(payload)
         contact_body = contact_number.present? ? "Usuário mandou um contato: #{contact_number}" : nil
 
         base_payload = {
-          from: payload[:from],
+          from: from,
           remoteJidAlt: payload.dig(:_data, :Info, :SenderAlt) || payload.dig(:_data, :Info, :RecipientAlt),
           fromMe: payload[:fromMe],
           message_id: message_id,

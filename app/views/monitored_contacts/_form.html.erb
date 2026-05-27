@@ -1,0 +1,81 @@
+<%= form_with model: contact, url: url, method: local_assigns.key?(:http_method) ? http_method : :post,
+      data: { turbo: true } do |f| %>
+
+  <% if contact.errors.any? %>
+    <div class="mb-5 rounded-xl bg-(--color-danger-light) border border-(--color-danger) px-4 py-3 text-sm text-(--color-danger)">
+      <p class="font-semibold mb-1">Corrija os erros:</p>
+      <ul class="list-disc list-inside space-y-0.5">
+        <% contact.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="space-y-4">
+    <%# Phone number %>
+    <div>
+      <label class="block text-sm font-medium text-(--color-text) mb-1.5">
+        Número do WhatsApp <span class="text-(--color-danger)">*</span>
+      </label>
+      <%= f.text_field :phone_number,
+            placeholder: "5511999999999",
+            inputmode: "numeric",
+            class: "w-full bg-(--color-surface) border border-(--color-border) rounded-xl px-4 py-3 text-sm text-(--color-text) placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-transparent transition" %>
+      <p class="mt-1.5 text-xs text-(--color-text-muted)">Código do país + DDD + número, sem sinais. Ex: 5511999999999</p>
+    </div>
+
+    <%# Display name %>
+    <div>
+      <label class="block text-sm font-medium text-(--color-text) mb-1.5">
+        Nome (opcional)
+      </label>
+      <%= f.text_field :display_name,
+            placeholder: "Ex: João Silva",
+            class: "w-full bg-(--color-surface) border border-(--color-border) rounded-xl px-4 py-3 text-sm text-(--color-text) placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-transparent transition" %>
+    </div>
+
+    <%# Direction %>
+    <div>
+      <label class="block text-sm font-medium text-(--color-text) mb-2">
+        Transcrever mensagens
+      </label>
+      <div class="grid grid-cols-3 gap-2">
+        <% MonitoredContact.directions.each_key do |dir| %>
+          <label class="relative cursor-pointer">
+            <%= f.radio_button :direction, dir, class: "sr-only peer" %>
+            <div class="flex flex-col items-center gap-1.5 rounded-xl border-2 px-3 py-3 text-center transition-all
+                        border-(--color-border) text-(--color-text-muted)
+                        peer-checked:border-(--color-brand) peer-checked:bg-(--color-brand-subtle) peer-checked:text-(--color-brand)">
+              <i class="ph <%= dir == 'incoming' ? 'ph-arrow-down-left' : dir == 'outgoing' ? 'ph-arrow-up-right' : 'ph-arrows-left-right' %> text-lg"></i>
+              <span class="text-xs font-medium leading-tight"><%= t("monitored_contact.direction.#{dir}") %></span>
+            </div>
+          </label>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Enabled toggle (edit only) %>
+    <% if contact.persisted? %>
+      <label class="flex items-center justify-between gap-3 bg-(--color-surface-muted) rounded-xl px-4 py-3 cursor-pointer">
+        <div>
+          <p class="text-sm font-medium text-(--color-text)">Monitoramento ativo</p>
+          <p class="text-xs text-(--color-text-muted)">Desative para pausar as transcrições</p>
+        </div>
+        <div class="relative flex-shrink-0">
+          <%= f.check_box :enabled, class: "sr-only peer" %>
+          <div class="w-11 h-6 rounded-full bg-(--color-border) peer-checked:bg-(--color-brand) transition-colors after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5 after:rounded-full after:bg-white after:shadow after:transition-all peer-checked:after:translate-x-5"></div>
+        </div>
+      </label>
+    <% end %>
+  </div>
+
+  <div class="mt-6">
+    <button type="submit"
+            data-controller="loadable"
+            data-loadable-loading-text-value="<%= contact.persisted? ? 'Salvando...' : 'Adicionando...' %>"
+            class="w-full flex items-center justify-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-4 py-3 rounded-xl text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+      <%= contact.persisted? ? "Salvar alterações" : "Adicionar contato" %>
+    </button>
+  </div>
+<% end %>

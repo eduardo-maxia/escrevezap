@@ -1,0 +1,92 @@
+<% content_for :title, "Transcrições" %>
+
+<div class="py-6">
+  <div class="flex items-center gap-3 mb-6">
+    <%= link_to authenticated_root_path, class: "p-2 -ml-2 rounded-xl hover:bg-(--color-surface-raised) text-(--color-text-muted) transition-colors" do %>
+      <i class="ph ph-arrow-left text-lg"></i>
+    <% end %>
+    <div>
+      <h1 class="text-xl font-bold text-(--color-text)">Transcrições</h1>
+      <p class="text-sm text-(--color-text-muted)">Histórico de áudios transcritos</p>
+    </div>
+  </div>
+
+  <% if @transcriptions.empty? %>
+    <div class="flex flex-col items-center justify-center gap-4 py-16 text-center">
+      <div class="w-16 h-16 rounded-2xl bg-(--color-brand-subtle) flex items-center justify-center">
+        <i class="ph ph-chat-text text-3xl text-(--color-brand)"></i>
+      </div>
+      <div>
+        <p class="font-semibold text-(--color-text)">Nenhuma transcrição ainda</p>
+        <p class="text-sm text-(--color-text-muted) mt-1 max-w-xs">Quando seus contatos enviarem áudios no WhatsApp, eles aparecerão aqui.</p>
+      </div>
+      <% if current_user.waha_session&.monitored_contacts&.none? %>
+        <%= link_to "Adicionar contato", new_monitored_contact_path,
+              class: "inline-flex items-center gap-1.5 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors" %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="space-y-2">
+      <% @transcriptions.each do |t| %>
+        <%= link_to transcription_path(t), class: "block bg-(--color-surface) border border-(--color-border) rounded-2xl px-4 py-3 hover:border-(--color-brand-light) transition-colors" do %>
+          <div class="flex items-start gap-3">
+            <%# Contact avatar %>
+            <% contact = t.monitored_contact %>
+            <% if contact.avatar_url.present? %>
+              <img src="<%= contact.avatar_url %>" alt="<%= contact.display_name %>"
+                   class="w-10 h-10 rounded-full object-cover flex-shrink-0 mt-0.5">
+            <% else %>
+              <div class="w-10 h-10 rounded-full bg-(--color-brand-subtle) flex items-center justify-center flex-shrink-0 mt-0.5">
+                <i class="ph ph-user text-base text-(--color-brand)"></i>
+              </div>
+            <% end %>
+
+            <div class="flex-1 min-w-0">
+              <%# Row 1: name + time %>
+              <div class="flex items-center justify-between gap-2 mb-1">
+                <p class="text-sm font-semibold text-(--color-text) truncate">
+                  <%= contact.display_name.presence || contact.phone_number %>
+                </p>
+                <span class="text-[10px] text-(--color-text-subtle) flex-shrink-0"><%= t.created_at.strftime("%d/%m %H:%M") %></span>
+              </div>
+
+              <%# Row 2: status / preview %>
+              <% if t.completed? %>
+                <p class="text-sm text-(--color-text-muted) line-clamp-2 leading-snug">
+                  <%= t.transcript&.truncate(120) %>
+                </p>
+              <% elsif t.processing? %>
+                <div class="flex items-center gap-1.5">
+                  <div class="w-3 h-3 border-2 border-(--color-brand) border-t-transparent rounded-full animate-spin"></div>
+                  <span class="text-xs text-(--color-text-muted)">Transcrevendo...</span>
+                </div>
+              <% else %>
+                <span class="text-xs text-(--color-danger)">Falha ao transcrever</span>
+              <% end %>
+
+              <%# Row 3: meta tags %>
+              <div class="flex items-center gap-2 mt-1.5">
+                <% if t.audio_duration.present? %>
+                  <span class="flex items-center gap-0.5 text-[10px] text-(--color-text-subtle)">
+                    <i class="ph ph-microphone text-xs"></i>
+                    <%= "%.0fs" % t.audio_duration %>
+                  </span>
+                <% end %>
+                <span class="flex items-center gap-0.5 text-[10px] text-(--color-text-subtle)">
+                  <i class="ph <%= t.direction == 'incoming' ? 'ph-arrow-down-left' : 'ph-arrow-up-right' %> text-xs"></i>
+                  <%= t.direction == 'incoming' ? 'Recebido' : 'Enviado' %>
+                </span>
+                <% if t.formatted? %>
+                  <span class="flex items-center gap-0.5 text-[10px] text-(--color-brand) font-medium">
+                    <i class="ph ph-sparkle text-xs"></i>
+                    Resumo
+                  </span>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

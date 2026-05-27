@@ -1,0 +1,24 @@
+<% content_for :title, "Editar contato" %>
+
+<div class="py-6">
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-3">
+      <%= link_to monitored_contacts_path, class: "p-2 -ml-2 rounded-xl hover:bg-(--color-surface-raised) text-(--color-text-muted) transition-colors" do %>
+        <i class="ph ph-arrow-left text-lg"></i>
+      <% end %>
+      <div>
+        <h1 class="text-xl font-bold text-(--color-text)">Editar contato</h1>
+        <p class="text-sm text-(--color-text-muted) truncate"><%= @contact.display_name.presence || @contact.phone_number %></p>
+      </div>
+    </div>
+
+    <%= button_to monitored_contact_path(@contact), method: :delete,
+          data: { turbo_confirm: "Remover #{@contact.display_name.presence || @contact.phone_number}? As transcrições serão apagadas.", controller: "loadable", "loadable-loading-text-value": "Removendo..." },
+          class: "flex items-center gap-1.5 text-sm text-(--color-danger) hover:bg-(--color-danger-light) px-3 py-2 rounded-xl transition-colors disabled:opacity-60" do %>
+      <i class="ph ph-trash text-base"></i>
+      Remover
+    <% end %>
+  </div>
+
+  <%= render "form", contact: @contact, url: monitored_contact_path(@contact), http_method: :patch %>
+</div>

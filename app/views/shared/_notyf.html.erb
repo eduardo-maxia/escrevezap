@@ -1,0 +1,144 @@
+<%# Notyf — lightweight toast library
+    CDN: https://cdn.jsdelivr.net/npm/notyf@3
+    Rendered just before </body> so document.body exists when Notyf initializes.
+    Must be placed AFTER the deferred application JS to avoid a race condition
+    where toast_controller.connect() fires before window.__notyf is set. %>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+<script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js" data-turbo-eval="false"></script>
+<script data-turbo-eval="false">
+(function () {
+  if (window.__notyf) return;
+
+  window.__notyf = new Notyf({
+    duration:    4500,
+    ripple:      false,
+    dismissible: true,
+    position:    { x: "center", y: "top" },
+    types: [
+      {
+        type:        "success",
+        background:  "transparent",
+        icon:        false,
+        dismissible: true,
+        className:   "notyf-custom notyf-custom--success",
+      },
+      {
+        type:        "error",
+        background:  "transparent",
+        icon:        false,
+        dismissible: true,
+        className:   "notyf-custom notyf-custom--error",
+      },
+    ],
+  });
+
+  // Patch: intercept open() to inject custom HTML
+  const _open = window.__notyf.open.bind(window.__notyf);
+  window.__notyf.open = function(opts) {
+    const isError = opts.type === "error";
+    const icon = isError ? "ph-warning-circle" : "ph-check-circle";
+    const color = isError ? "var(--color-danger)" : "var(--color-success, #16a34a)";
+    opts.message =
+      `<span class="notyf-inner">` +
+        `<i class="ph-fill ${icon}" style="color:${color};font-size:1.125rem;flex-shrink:0"></i>` +
+        `<span class="notyf-text">${opts.message}</span>` +
+      `</span>`;
+    return _open(opts);
+  };
+}());
+</script>
+<style>
+  /* Container position fine-tune */
+  .notyf { padding-top: max(env(safe-area-inset-top), 1rem) !important; }
+
+  /* Base toast card */
+  .notyf__toast {
+    background: #fff !important;
+    border-radius: 0.875rem !important;
+    box-shadow: 0 4px 24px rgba(0,0,0,.10), 0 1px 4px rgba(0,0,0,.06) !important;
+    padding: 0 !important;
+    min-width: 280px;
+    max-width: min(420px, calc(100vw - 2rem));
+    overflow: hidden;
+  }
+
+  /* The ripple wrapper Notyf puts around the message */
+  .notyf__ripple { display: none !important; }
+
+  .notyf__wrapper {
+    padding: 0 !important;
+    min-height: unset !important;
+    align-items: stretch !important;
+  }
+
+  /* Color bar on the left */
+  .notyf-custom--success .notyf__wrapper::before,
+  .notyf-custom--error   .notyf__wrapper::before {
+    content: "";
+    display: block;
+    width: 4px;
+    flex-shrink: 0;
+    border-radius: 0.875rem 0 0 0.875rem;
+  }
+  .notyf-custom--success .notyf__wrapper::before { background: var(--color-success, #16a34a); }
+  .notyf-custom--error   .notyf__wrapper::before { background: var(--color-danger, #dc2626); }
+
+  /* Message area */
+  .notyf__message {
+    color: #111827 !important;
+    font-family: inherit !important;
+    font-size: 0.875rem !important;
+    font-weight: 400 !important;
+    line-height: 1.4 !important;
+    padding: 0.875rem 1rem !important;
+    flex: 1;
+  }
+
+  /* Inner flex row (icon + text) */
+  .notyf-inner {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  .notyf-text {
+    font-weight: 500;
+    color: #111827;
+  }
+
+  /* Dismiss button */
+  .notyf__dismiss {
+    background: transparent !important;
+    display: flex;
+    align-items: center;
+    padding: 0 0.75rem 0 0 !important;
+    min-width: unset !important;
+  }
+  .notyf__dismiss-btn {
+    background: transparent !important;
+    border: none !important;
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+    border-radius: 0.375rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    opacity: 1 !important;
+    transition: background 0.15s !important;
+  }
+  .notyf__dismiss-btn::before,
+  .notyf__dismiss-btn::after {
+    background: #94a3b8 !important;
+    width: 10px !important;
+    height: 1.5px !important;
+    border-radius: 2px !important;
+  }
+  .notyf__dismiss-btn:hover {
+    background: #f1f5f9 !important;
+  }
+  .notyf__dismiss-btn:hover::before,
+  .notyf__dismiss-btn:hover::after { background: #475569 !important; }
+
+  /* Icon column Notyf renders (we hide the default, show our own via message HTML) */
+  .notyf__icon { display: none !important; }
+</style>

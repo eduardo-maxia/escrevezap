@@ -39,6 +39,7 @@ module CobrancaEmDia
     # Don't generate system test files.
     config.generators.system_tests = nil
 
-    config.i18n.default_locale = :"pt-BR"
+    config.i18n.default_locale    = :"pt-BR"
+    config.i18n.available_locales = [:"pt-BR"]
   end
 end

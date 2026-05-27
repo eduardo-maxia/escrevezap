@@ -1,9 +1,0 @@
-<h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#111827;">Email alterado</h1>
-<p style="margin:0 0 12px;font-size:15px;color:#374151;line-height:1.6;">Olá, <strong><%= @email %></strong>!</p>
-<% if @resource.try(:unconfirmed_email?) %>
-  <p style="margin:0;font-size:15px;color:#374151;line-height:1.6;">Informamos que o email da sua conta está sendo alterado para <strong><%= @resource.unconfirmed_email %></strong>. Você precisará confirmar o novo endereço para concluir a alteração.</p>
-<% else %>
-  <p style="margin:0;font-size:15px;color:#374151;line-height:1.6;">Informamos que o email da sua conta foi alterado com sucesso para <strong><%= @resource.email %></strong>.</p>
-<% end %>
-
-<p style="margin:32px 0 0;font-size:13px;color:#6b7280;line-height:1.6;">Se você não fez essa alteração, entre em contato com nosso suporte imediatamente.</p>

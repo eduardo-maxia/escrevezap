@@ -1,0 +1,107 @@
+<% content_for :title, "Modelo de formatação" %>
+
+<div class="py-6 space-y-6">
+
+  <%# ── Header ────────────────────────────────────────────────────────── %>
+  <div class="flex items-center gap-3">
+    <%= link_to profile_path, class: "p-1.5 -ml-1.5 rounded-lg text-(--color-text-muted) hover:bg-(--color-surface-raised) transition-colors" do %>
+      <i class="ph ph-arrow-left text-lg"></i>
+    <% end %>
+    <div>
+      <h1 class="text-xl font-bold text-(--color-text)">Modelo de formatação</h1>
+      <p class="text-xs text-(--color-text-muted) mt-0.5">Como a IA vai apresentar suas transcrições</p>
+    </div>
+  </div>
+
+  <%# ── Cards picker ──────────────────────────────────────────────────── %>
+  <div class="space-y-4">
+
+    <%# ── Polished ─────────────────────────────────────────────────────── %>
+    <%= button_to formatting_style_path,
+          method: :patch,
+          params: { formatting_style: "polished" },
+          class: "w-full text-left" do %>
+      <div class="rounded-2xl border-2 p-5 transition-all <%= current_user.polished? ? 'border-(--color-brand) bg-(--color-brand-subtle)' : 'border-(--color-border) bg-(--color-surface) hover:border-(--color-brand-light)' %>">
+        <div class="flex items-start gap-4">
+          <%# Icon badge %>
+          <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 <%= current_user.polished? ? 'bg-(--color-brand) text-white' : 'bg-(--color-surface-raised) text-(--color-text-muted)' %>">
+            <i class="ph-fill ph-article text-xl"></i>
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <p class="text-sm font-bold text-(--color-text)">Texto Polido</p>
+              <% if current_user.polished? %>
+                <span class="px-2 py-0.5 rounded-full bg-(--color-brand) text-white text-[10px] font-bold uppercase tracking-wide">Ativo</span>
+              <% end %>
+            </div>
+            <p class="text-xs text-(--color-text-muted) leading-relaxed">Texto refinado, paragrafado e com termos-chave em negrito. Inclui um resumo rápido no topo para você entender o conteúdo num segundo.</p>
+          </div>
+        </div>
+
+        <%# Preview %>
+        <div class="mt-4 rounded-xl bg-(--color-surface) border border-(--color-border) p-4 space-y-3">
+          <p class="text-[10px] font-semibold text-(--color-text-subtle) uppercase tracking-wide">Prévia</p>
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              <i class="ph ph-note-pencil text-xs text-(--color-brand)"></i>
+              <p class="text-xs font-semibold text-(--color-brand)">Resumo rápido</p>
+            </div>
+            <p class="text-xs text-(--color-text-muted) italic leading-relaxed">O cliente confirmou a reunião para sexta às 14h e pediu para levar o contrato assinado.</p>
+            <div class="h-px bg-(--color-border)"></div>
+            <div class="flex items-center gap-2">
+              <i class="ph ph-article text-xs text-(--color-text-subtle)"></i>
+              <p class="text-xs font-semibold text-(--color-text-muted)">Transcrição completa</p>
+            </div>
+            <p class="text-xs text-(--color-text) leading-relaxed">Oi, queria confirmar nossa <strong>reunião de sexta</strong>. Vou estar lá às 14h como combinado. Ah, e não esquece de trazer o <strong>contrato assinado</strong>, tá bom?</p>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <%# ── Faithful ─────────────────────────────────────────────────────── %>
+    <%= button_to formatting_style_path,
+          method: :patch,
+          params: { formatting_style: "faithful" },
+          class: "w-full text-left" do %>
+      <div class="rounded-2xl border-2 p-5 transition-all <%= current_user.faithful? ? 'border-(--color-accent) bg-(--color-accent-subtle)' : 'border-(--color-border) bg-(--color-surface) hover:border-(--color-accent-light)' %>">
+        <div class="flex items-start gap-4">
+          <%# Icon badge %>
+          <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 <%= current_user.faithful? ? 'bg-(--color-accent) text-white' : 'bg-(--color-surface-raised) text-(--color-text-muted)' %>">
+            <i class="ph-fill ph-waveform text-xl"></i>
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <p class="text-sm font-bold text-(--color-text)">Fiel ao Áudio</p>
+              <% if current_user.faithful? %>
+                <span class="px-2 py-0.5 rounded-full bg-(--color-accent) text-white text-[10px] font-bold uppercase tracking-wide">Ativo</span>
+              <% end %>
+            </div>
+            <p class="text-xs text-(--color-text-muted) leading-relaxed">O mínimo de intervenção possível. A IA corrige só erros de reconhecimento de voz e adiciona pontuação básica. O jeito de falar é preservado ao máximo.</p>
+          </div>
+        </div>
+
+        <%# Preview %>
+        <div class="mt-4 rounded-xl bg-(--color-surface) border border-(--color-border) p-4 space-y-2">
+          <p class="text-[10px] font-semibold text-(--color-text-subtle) uppercase tracking-wide">Prévia</p>
+          <div class="flex items-center gap-2">
+            <i class="ph ph-waveform text-xs text-(--color-text-subtle)"></i>
+            <p class="text-xs font-semibold text-(--color-text-muted)">Transcrição</p>
+          </div>
+          <p class="text-xs text-(--color-text) leading-relaxed">oi, queria confirmar a reunião de sexta, né? tô indo às 14h como a gente combinou. e não esquece de trazer o contrato assinado, tá?</p>
+        </div>
+      </div>
+    <% end %>
+
+  </div>
+
+  <%# ── Note ──────────────────────────────────────────────────────────── %>
+  <div class="flex items-start gap-3 rounded-2xl bg-(--color-surface-muted) border border-(--color-border) px-4 py-3">
+    <i class="ph ph-info text-base text-(--color-text-subtle) flex-shrink-0 mt-0.5"></i>
+    <p class="text-xs text-(--color-text-muted) leading-relaxed">
+      A mudança vale para os próximos áudios recebidos. Transcrições anteriores não são afetadas.
+    </p>
+  </div>
+
+</div>

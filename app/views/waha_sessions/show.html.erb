@@ -1,0 +1,119 @@
+<% content_for :title, "WhatsApp" %>
+
+<div class="py-6">
+  <h1 class="text-xl font-bold text-(--color-text) mb-6">WhatsApp</h1>
+
+  <%# ── Status card ─────────────────────────────────────────────────── %>
+  <div class="bg-(--color-surface) border border-(--color-border) rounded-2xl overflow-hidden"
+       data-controller="connect"
+       data-connect-qr-url-value="<%= qr_app_waha_session_path(format: :json) %>"
+       data-connect-pairing-url-value="<%= pairing_code_app_waha_session_path(format: :json) %>"
+       data-connect-dashboard-url-value="<%= authenticated_root_path %>"
+       data-connect-status-value="<%= @waha_session&.waha_status || 'pending' %>">
+
+    <%# Connected state %>
+    <% if @waha_session&.working? %>
+      <div class="flex items-center gap-4 px-5 py-4 border-b border-(--color-border)">
+        <% if @waha_session.avatar_url.present? %>
+          <img src="<%= @waha_session.avatar_url %>" alt="" class="w-12 h-12 rounded-full object-cover flex-shrink-0">
+        <% else %>
+          <div class="w-12 h-12 rounded-full bg-(--color-brand-light) flex items-center justify-center flex-shrink-0">
+            <i class="ph ph-whatsapp-logo text-2xl text-(--color-brand)"></i>
+          </div>
+        <% end %>
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-(--color-text) truncate">
+            <%= @waha_session.display_name.presence || "WhatsApp conectado" %>
+          </p>
+          <p class="text-xs text-(--color-text-muted)"><%= format_phone(@waha_session.waha_chat_id&.split("@")&.first) %></p>
+        </div>
+        <span class="ml-auto flex-shrink-0 inline-flex items-center gap-1.5 bg-(--color-success-light) text-(--color-success) text-xs font-medium px-2.5 py-1 rounded-full">
+          <span class="w-1.5 h-1.5 rounded-full bg-(--color-success)"></span>
+          Conectado
+        </span>
+      </div>
+      <div class="px-5 py-4">
+        <%= button_to app_waha_session_path, method: :delete,
+              data: {
+                turbo_confirm: "Desconectar o WhatsApp vai pausar todas as transcrições. Confirmar?",
+                controller: "loadable",
+                "loadable-loading-text-value": "Desconectando..."
+              },
+              class: "w-full flex items-center justify-center gap-2 border border-(--color-border) text-(--color-text-muted) hover:border-(--color-danger) hover:text-(--color-danger) font-medium px-4 py-2.5 rounded-xl text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed" do %>
+          <i class="ph ph-plug text-base"></i>
+          Desconectar WhatsApp
+        <% end %>
+      </div>
+
+    <%# Not connected / reconnecting %>
+    <% else %>
+      <div class="px-5 py-4 border-b border-(--color-border) flex items-center gap-2" data-connect-target="statusBadge">
+        <span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" data-connect-target="statusDot"></span>
+        <span class="text-sm text-(--color-text-muted)" data-connect-target="statusText">
+          <%= case @waha_session&.waha_status
+              when "stopped", "failed" then "Desconectado"
+              when "starting"          then "Iniciando..."
+              when "scan_qr_code"      then "Aguardando QR Code..."
+              else                          "Verificando..."
+              end %>
+        </span>
+      </div>
+
+      <%# Hidden Stimulus targets to avoid missing-target errors on this page %>
+      <span class="hidden" data-connect-target="tabs"></span>
+      <span class="hidden" data-connect-target="qrTabBtn"></span>
+      <span class="hidden" data-connect-target="pairingTabBtn"></span>
+      <span class="hidden" data-connect-target="pairingPanel"></span>
+      <span class="hidden" data-connect-target="phoneFormWrapper"></span>
+      <span class="hidden" data-connect-target="phoneInput"></span>
+      <span class="hidden" data-connect-target="pairingSubmitBtn"></span>
+      <span class="hidden" data-connect-target="pairingBtnText"></span>
+      <span class="hidden" data-connect-target="pairingError"></span>
+      <span class="hidden" data-connect-target="pairingErrorText"></span>
+      <span class="hidden" data-connect-target="codeWrapper"></span>
+      <span class="hidden" data-connect-target="codeText"></span>
+      <span class="hidden" data-connect-target="successPanel"></span>
+      <span class="hidden" data-connect-target="errorTitle"></span>
+      <span class="hidden" data-connect-target="errorMessage"></span>
+
+      <%# QR panel (only when scan_qr_code) %>
+      <div data-connect-target="qrPanel" class="<%= @waha_session&.waha_status == 'scan_qr_code' ? '' : 'hidden' %> px-5 pt-5">
+        <div data-connect-target="qrLoading" class="flex flex-col items-center gap-3 py-4">
+          <div class="w-8 h-8 border-[3px] border-(--color-brand) border-t-transparent rounded-full animate-spin"></div>
+          <p class="text-sm text-(--color-text-muted)">Carregando QR Code...</p>
+        </div>
+        <div data-connect-target="qrImageWrapper" class="hidden flex flex-col items-center gap-3 pb-4">
+          <div class="rounded-2xl border-2 border-(--color-border) bg-white shadow-sm overflow-hidden">
+            <img data-connect-target="qrImage" class="w-48 h-48 rounded-lg" alt="QR Code">
+          </div>
+          <p class="text-xs text-(--color-text-muted) text-center">
+            Abra o WhatsApp → <strong>Dispositivos conectados</strong> → <strong>Conectar dispositivo</strong>
+          </p>
+          <button type="button" data-action="click->connect#refreshQR"
+                  class="flex items-center gap-1.5 text-xs text-(--color-brand) font-medium">
+            <i class="ph ph-arrows-clockwise"></i> Atualizar QR
+          </button>
+        </div>
+      </div>
+
+      <div class="px-5 py-4">
+        <p class="text-sm text-(--color-text-muted) mb-4">
+          Seu WhatsApp está desconectado. Reconecte para retomar as transcrições.
+        </p>
+        <%= button_to reconnect_app_waha_session_path, method: :post,
+              data: { controller: "loadable", "loadable-loading-text-value": "Reconectando..." },
+              class: "w-full flex items-center justify-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-4 py-3 rounded-xl text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed" do %>
+          <i class="ph ph-arrows-clockwise text-base"></i>
+          Reconectar WhatsApp
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <%# ── Info ────────────────────────────────────────────────────────── %>
+  <div class="mt-6 rounded-2xl bg-(--color-surface-muted) border border-(--color-border) px-5 py-4 text-sm text-(--color-text-muted) space-y-2">
+    <p class="font-medium text-(--color-text)">Como funciona</p>
+    <p>O EscreveZap usa seu número de WhatsApp para transcrever os áudios recebidos e enviados nos contatos que você monitorar.</p>
+    <p>Seu WhatsApp funciona normalmente — em paralelo.</p>
+  </div>
+</div>

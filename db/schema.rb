@@ -10,10 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_26_190114) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_27_151954) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
-  enable_extension "pg_trgm"
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
@@ -43,282 +42,177 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_190114) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "campaign_clients", force: :cascade do |t|
-    t.decimal "amount", precision: 10, scale: 2
-    t.bigint "campaign_id"
-    t.bigint "client_id"
+  create_table "billing_events", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.integer "due_day", null: false
-    t.datetime "inactivated_at"
-    t.string "status"
+    t.string "event_id", null: false
+    t.string "event_type", null: false
+    t.jsonb "payload", default: {}, null: false
+    t.boolean "processed", default: false, null: false
+    t.datetime "processed_at"
     t.datetime "updated_at", null: false
-    t.index ["campaign_id"], name: "index_campaign_clients_on_campaign_id"
-    t.index ["client_id"], name: "index_campaign_clients_on_client_id"
-  end
-
-  create_table "campaigns", force: :cascade do |t|
-    t.bigint "chip_id"
-    t.bigint "company_id"
-    t.datetime "created_at", null: false
-    t.time "end_time"
-    t.string "name"
-    t.string "recurrence_pattern"
-    t.time "start_time"
-    t.string "status"
-    t.jsonb "template"
-    t.datetime "updated_at", null: false
-    t.index ["chip_id"], name: "index_campaigns_on_chip_id"
-    t.index ["company_id"], name: "index_campaigns_on_company_id"
-  end
-
-  create_table "chips", force: :cascade do |t|
-    t.bigint "company_id"
-    t.datetime "created_at", null: false
-    t.string "name"
-    t.string "provider"
-    t.datetime "updated_at", null: false
-    t.string "waha_chat_id"
-    t.string "waha_session"
-    t.string "waha_status"
-    t.string "waha_worker"
-    t.index ["company_id"], name: "index_chips_on_company_id"
-  end
-
-  create_table "clients", force: :cascade do |t|
-    t.bigint "company_id"
-    t.datetime "created_at", null: false
-    t.string "email"
-    t.string "name"
-    t.string "phone_number"
-    t.datetime "updated_at", null: false
-    t.string "waha_chat_id"
-    t.index ["company_id"], name: "index_clients_on_company_id"
-  end
-
-  create_table "companies", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.boolean "feature_campanhas", default: false, null: false
-    t.string "name"
-    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_billing_events_on_event_id", unique: true
   end
 
   create_table "external_events", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.jsonb "data"
+    t.jsonb "data", default: {}, null: false
     t.text "error_message"
-    t.string "event_id"
     t.string "event_type"
-    t.jsonb "parsed_event"
-    t.string "provider"
-    t.integer "retry_count"
-    t.string "status"
+    t.jsonb "parsed_event", default: {}
+    t.string "provider", default: "waha", null: false
+    t.integer "retry_count", default: 0, null: false
+    t.string "status", default: "pending", null: false
     t.datetime "updated_at", null: false
+    t.index ["event_type"], name: "index_external_events_on_event_type"
+    t.index ["provider"], name: "index_external_events_on_provider"
+    t.index ["status"], name: "index_external_events_on_status"
   end
 
-  create_table "installments", force: :cascade do |t|
-    t.decimal "amount", precision: 10, scale: 2
-    t.bigint "campaign_client_id"
+  create_table "monitored_contacts", force: :cascade do |t|
+    t.string "avatar_url"
     t.datetime "created_at", null: false
-    t.date "due_date"
-    t.string "status"
+    t.datetime "deleted_at"
+    t.string "direction", default: "both", null: false
+    t.string "display_name"
+    t.boolean "enabled", default: true, null: false
+    t.string "phone_number", null: false
     t.datetime "updated_at", null: false
-    t.index ["campaign_client_id"], name: "index_installments_on_campaign_client_id"
+    t.string "waha_chat_id"
+    t.bigint "waha_session_id", null: false
+    t.index ["deleted_at"], name: "index_monitored_contacts_on_deleted_at"
+    t.index ["waha_chat_id"], name: "index_monitored_contacts_on_waha_chat_id"
+    t.index ["waha_session_id", "phone_number"], name: "index_monitored_contacts_on_waha_session_id_and_phone_number", unique: true
+    t.index ["waha_session_id"], name: "index_monitored_contacts_on_waha_session_id"
   end
 
-  create_table "notifications", force: :cascade do |t|
-    t.bigint "campaign_client_id"
-    t.string "cancellation_reason"
+  create_table "provider_usages", force: :cascade do |t|
+    t.float "cost_usd", default: 0.0, null: false
     t.datetime "created_at", null: false
-    t.string "event_type"
-    t.string "external_id"
-    t.bigint "installment_id"
-    t.string "notification_status"
-    t.text "payload"
-    t.datetime "scheduled_at"
-    t.bigint "sender_id"
-    t.string "sender_type"
-    t.datetime "sent_at"
+    t.jsonb "metadata", default: {}, null: false
+    t.string "provider", null: false
+    t.bigint "transcription_id", null: false
+    t.string "unit_type"
+    t.float "units"
     t.datetime "updated_at", null: false
-    t.index ["campaign_client_id"], name: "index_notifications_on_campaign_client_id"
-    t.index ["installment_id"], name: "index_notifications_on_installment_id"
-    t.index ["sender_type", "sender_id", "external_id"], name: "idx_on_sender_type_sender_id_external_id_95146eb02c", unique: true
-    t.index ["sender_type", "sender_id"], name: "index_notifications_on_sender"
+    t.index ["transcription_id"], name: "index_provider_usages_on_transcription_id"
   end
 
-  create_table "push_subscriptions", force: :cascade do |t|
-    t.string "auth", null: false
+  create_table "sign_in_tokens", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.text "endpoint", null: false
-    t.string "p256dh", null: false
+    t.datetime "expires_at", null: false
+    t.string "token", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "used_at"
+    t.bigint "user_id", null: false
+    t.index ["token"], name: "index_sign_in_tokens_on_token", unique: true
+    t.index ["user_id"], name: "index_sign_in_tokens_on_user_id"
+  end
+
+  create_table "subscriptions", force: :cascade do |t|
+    t.string "abacatepay_checkout_url"
+    t.string "abacatepay_customer_id"
+    t.string "abacatepay_subscription_id"
+    t.datetime "cancelled_at"
+    t.datetime "created_at", null: false
+    t.datetime "current_period_end"
+    t.datetime "current_period_start"
+    t.string "pending_plan"
+    t.string "plan", default: "basic", null: false
+    t.string "status", default: "inactive", null: false
+    t.datetime "trial_ends_at"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
-    t.index ["endpoint"], name: "index_push_subscriptions_on_endpoint", unique: true
-    t.index ["user_id"], name: "index_push_subscriptions_on_user_id"
+    t.index ["abacatepay_subscription_id"], name: "index_subscriptions_on_abacatepay_subscription_id", unique: true, where: "(abacatepay_subscription_id IS NOT NULL)"
+    t.index ["user_id"], name: "index_subscriptions_on_user_id"
   end
 
-  create_table "solid_queue_blocked_executions", force: :cascade do |t|
-    t.string "concurrency_key", null: false
+  create_table "transcriptions", force: :cascade do |t|
+    t.float "audio_duration"
     t.datetime "created_at", null: false
-    t.datetime "expires_at", null: false
-    t.bigint "job_id", null: false
-    t.integer "priority", default: 0, null: false
-    t.string "queue_name", null: false
-    t.index ["concurrency_key", "priority", "job_id"], name: "index_solid_queue_blocked_executions_for_release"
-    t.index ["expires_at", "concurrency_key"], name: "index_solid_queue_blocked_executions_for_maintenance"
-    t.index ["job_id"], name: "index_solid_queue_blocked_executions_on_job_id", unique: true
-  end
-
-  create_table "solid_queue_claimed_executions", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.bigint "job_id", null: false
-    t.bigint "process_id"
-    t.index ["job_id"], name: "index_solid_queue_claimed_executions_on_job_id", unique: true
-    t.index ["process_id", "job_id"], name: "index_solid_queue_claimed_executions_on_process_id_and_job_id"
-  end
-
-  create_table "solid_queue_failed_executions", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.text "error"
-    t.bigint "job_id", null: false
-    t.index ["job_id"], name: "index_solid_queue_failed_executions_on_job_id", unique: true
-  end
-
-  create_table "solid_queue_jobs", force: :cascade do |t|
-    t.string "active_job_id"
-    t.text "arguments"
-    t.string "class_name", null: false
-    t.string "concurrency_key"
-    t.datetime "created_at", null: false
-    t.datetime "finished_at"
-    t.integer "priority", default: 0, null: false
-    t.string "queue_name", null: false
-    t.datetime "scheduled_at"
+    t.string "direction", default: "incoming", null: false
+    t.text "error_message"
+    t.text "full_formatted"
+    t.text "media_url"
+    t.bigint "monitored_contact_id", null: false
+    t.string "reply_message_id"
+    t.string "status", default: "processing", null: false
+    t.text "summary"
+    t.text "transcript"
     t.datetime "updated_at", null: false
-    t.index ["active_job_id"], name: "index_solid_queue_jobs_on_active_job_id"
-    t.index ["class_name"], name: "index_solid_queue_jobs_on_class_name"
-    t.index ["finished_at"], name: "index_solid_queue_jobs_on_finished_at"
-    t.index ["queue_name", "finished_at"], name: "index_solid_queue_jobs_for_filtering"
-    t.index ["scheduled_at", "finished_at"], name: "index_solid_queue_jobs_for_alerting"
+    t.string "waha_message_id"
+    t.index ["monitored_contact_id", "created_at"], name: "index_transcriptions_on_monitored_contact_id_and_created_at"
+    t.index ["monitored_contact_id"], name: "index_transcriptions_on_monitored_contact_id"
+    t.index ["status"], name: "index_transcriptions_on_status"
+    t.index ["waha_message_id"], name: "index_transcriptions_on_waha_message_id"
   end
 
-  create_table "solid_queue_pauses", force: :cascade do |t|
+  create_table "usage_events", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.string "queue_name", null: false
-    t.index ["queue_name"], name: "index_solid_queue_pauses_on_queue_name", unique: true
-  end
-
-  create_table "solid_queue_processes", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.string "hostname"
-    t.string "kind", null: false
-    t.datetime "last_heartbeat_at", null: false
-    t.text "metadata"
-    t.string "name", null: false
-    t.integer "pid", null: false
-    t.bigint "supervisor_id"
-    t.index ["last_heartbeat_at"], name: "index_solid_queue_processes_on_last_heartbeat_at"
-    t.index ["name", "supervisor_id"], name: "index_solid_queue_processes_on_name_and_supervisor_id", unique: true
-    t.index ["supervisor_id"], name: "index_solid_queue_processes_on_supervisor_id"
-  end
-
-  create_table "solid_queue_ready_executions", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.bigint "job_id", null: false
-    t.integer "priority", default: 0, null: false
-    t.string "queue_name", null: false
-    t.index ["job_id"], name: "index_solid_queue_ready_executions_on_job_id", unique: true
-    t.index ["priority", "job_id"], name: "index_solid_queue_poll_all"
-    t.index ["queue_name", "priority", "job_id"], name: "index_solid_queue_poll_by_queue"
-  end
-
-  create_table "solid_queue_recurring_executions", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.bigint "job_id", null: false
-    t.datetime "run_at", null: false
-    t.string "task_key", null: false
-    t.index ["job_id"], name: "index_solid_queue_recurring_executions_on_job_id", unique: true
-    t.index ["task_key", "run_at"], name: "index_solid_queue_recurring_executions_on_task_key_and_run_at", unique: true
-  end
-
-  create_table "solid_queue_recurring_tasks", force: :cascade do |t|
-    t.text "arguments"
-    t.string "class_name"
-    t.string "command", limit: 2048
-    t.datetime "created_at", null: false
-    t.text "description"
-    t.string "key", null: false
-    t.integer "priority", default: 0
-    t.string "queue_name"
-    t.string "schedule", null: false
-    t.boolean "static", default: true, null: false
+    t.string "event_type", null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.datetime "occurred_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["key"], name: "index_solid_queue_recurring_tasks_on_key", unique: true
-    t.index ["static"], name: "index_solid_queue_recurring_tasks_on_static"
-  end
-
-  create_table "solid_queue_scheduled_executions", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.bigint "job_id", null: false
-    t.integer "priority", default: 0, null: false
-    t.string "queue_name", null: false
-    t.datetime "scheduled_at", null: false
-    t.index ["job_id"], name: "index_solid_queue_scheduled_executions_on_job_id", unique: true
-    t.index ["scheduled_at", "priority", "job_id"], name: "index_solid_queue_dispatch_all"
-  end
-
-  create_table "solid_queue_semaphores", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "expires_at", null: false
-    t.string "key", null: false
-    t.datetime "updated_at", null: false
-    t.integer "value", default: 1, null: false
-    t.index ["expires_at"], name: "index_solid_queue_semaphores_on_expires_at"
-    t.index ["key", "value"], name: "index_solid_queue_semaphores_on_key_and_value"
-    t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
+    t.bigint "user_id", null: false
+    t.index ["event_type"], name: "index_usage_events_on_event_type"
+    t.index ["user_id", "occurred_at"], name: "index_usage_events_on_user_id_and_occurred_at"
+    t.index ["user_id"], name: "index_usage_events_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
+    t.boolean "admin", default: false, null: false
     t.string "avatar_url"
-    t.bigint "company_id"
-    t.string "email", default: "", null: false
-    t.string "encrypted_password", default: "", null: false
+    t.boolean "contacts_intro_dismissed", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "current_sign_in_at"
+    t.string "current_sign_in_ip"
+    t.string "email", null: false
+    t.string "formatting_style", default: "polished", null: false
+    t.datetime "last_sign_in_at"
+    t.string "last_sign_in_ip"
     t.string "name"
-    t.boolean "notif_chip_disconnected", default: true, null: false
-    t.boolean "notif_proof_attached", default: true, null: false
     t.boolean "onboarding_completed", default: false, null: false
-    t.integer "otp_attempts", default: 0, null: false
-    t.string "otp_digest"
-    t.datetime "otp_expires_at"
-    t.datetime "otp_sent_at"
+    t.string "plan", default: "free", null: false
     t.string "provider"
     t.datetime "remember_created_at"
-    t.datetime "reset_password_sent_at"
-    t.string "reset_password_token"
-    t.string "role"
+    t.integer "sign_in_count", default: 0, null: false
     t.string "uid"
-    t.index ["company_id"], name: "index_users_on_company_id"
+    t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
-    t.index ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true
-    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["plan"], name: "index_users_on_plan"
+    t.index ["provider", "uid"], name: "index_users_on_provider_uid", unique: true, where: "(provider IS NOT NULL)"
+  end
+
+  create_table "waha_session_events", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "from_status"
+    t.datetime "occurred_at", null: false
+    t.string "to_status", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "waha_session_id", null: false
+    t.index ["waha_session_id"], name: "index_waha_session_events_on_waha_session_id"
+  end
+
+  create_table "waha_sessions", force: :cascade do |t|
+    t.string "avatar_url"
+    t.datetime "created_at", null: false
+    t.string "display_name"
+    t.string "session_name", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.string "waha_chat_id"
+    t.string "waha_status", default: "pending", null: false
+    t.index ["session_name"], name: "index_waha_sessions_on_session_name", unique: true
+    t.index ["user_id"], name: "index_waha_sessions_on_user_id", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "campaign_clients", "campaigns"
-  add_foreign_key "campaign_clients", "clients"
-  add_foreign_key "campaigns", "chips"
-  add_foreign_key "campaigns", "companies"
-  add_foreign_key "chips", "companies"
-  add_foreign_key "clients", "companies"
-  add_foreign_key "installments", "campaign_clients"
-  add_foreign_key "notifications", "campaign_clients"
-  add_foreign_key "notifications", "installments"
-  add_foreign_key "push_subscriptions", "users"
-  add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
-  add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
-  add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
-  add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
-  add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
-  add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
-  add_foreign_key "users", "companies"
+  add_foreign_key "monitored_contacts", "waha_sessions"
+  add_foreign_key "provider_usages", "transcriptions"
+  add_foreign_key "sign_in_tokens", "users"
+  add_foreign_key "subscriptions", "users"
+  add_foreign_key "transcriptions", "monitored_contacts"
+  add_foreign_key "usage_events", "users"
+  add_foreign_key "waha_session_events", "waha_sessions"
+  add_foreign_key "waha_sessions", "users"
 end

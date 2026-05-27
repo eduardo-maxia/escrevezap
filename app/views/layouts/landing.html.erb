@@ -1,93 +1,159 @@
 <!DOCTYPE html>
-<html lang="pt-BR" prefix="og: https://ogp.me/ns#">
+<html lang="pt-BR" class="scroll-smooth">
   <head>
-    <%# ── Primary ─────────────────────────────────────────────────────────── %>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Cobrança em Dia — Cobranças automáticas via WhatsApp</title>
-    <meta name="title"       content="Cobrança em Dia — Cobranças automáticas via WhatsApp">
-    <meta name="description" content="Pare de cobrar manualmente. Envie lembretes de vencimento pelo WhatsApp de forma automática, acompanhe quem pagou e mantenha seus clientes em dia. Configure em menos de 5 minutos.">
-    <meta name="keywords"    content="cobrança automática whatsapp, lembrete de vencimento whatsapp, cobrar clientes pelo whatsapp, automatizar cobrança, gestão de inadimplência, cobranças recorrentes">
-    <meta name="robots"      content="index, follow">
-    <meta name="author"      content="Cobrança em Dia">
-    <meta name="theme-color" content="#0D2E67">
-    <link rel="canonical"    href="https://cobrancaemdia.com.br<%= request.path %>">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="turbo-cache-control" content="no-preview">
+    <title><%= content_for?(:title) ? yield(:title) + " — EscreveZap" : "EscreveZap — Transcrição automática de áudios no WhatsApp" %></title>
+    <meta name="description" content="<%= content_for?(:description) ? yield(:description) : 'Não consegue ouvir o áudio agora? EscreveZap transcreve automaticamente os áudios do WhatsApp e responde direto na conversa.' %>">
+    <%# ── SEO ──────────────────────────────────────────────────────────── %>
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="EscreveZap">
+    <link rel="canonical" href="https://escrevezap.com.br<%= request.path %>">
 
-    <%# ── Open Graph (WhatsApp / Facebook / LinkedIn) ─────────────────────── %>
+    <%# Open Graph %>
     <meta property="og:type"        content="website">
-    <meta property="og:url"         content="https://cobrancaemdia.com.br<%= request.path %>">
-    <meta property="og:site_name"   content="Cobrança em Dia">
-    <meta property="og:locale"      content="pt_BR">
-    <meta property="og:title"       content="Cobranças automáticas via WhatsApp — Cobrança em Dia">
-    <meta property="og:description" content="Pare de cobrar manualmente. Configure uma vez e deixe a plataforma enviar os lembretes, acompanhar os pagamentos e organizar tudo por você.">
-    <meta property="og:image"       content="https://cobrancaemdia.com.br/og-image.png">
-    <meta property="og:image:secure_url" content="https://cobrancaemdia.com.br/og-image.png">
-    <meta property="og:image:type"  content="image/png">
-    <meta property="og:image:width" content="1200">
+    <meta property="og:site_name"   content="EscreveZap">
+    <meta property="og:title"       content="<%= content_for?(:og_title) ? yield(:og_title) : "EscreveZap — Transcrição automática de áudios no WhatsApp" %>">
+    <meta property="og:description" content="<%= content_for?(:description) ? yield(:description) : "Não consegue ouvir o áudio agora? EscreveZap transcreve automaticamente os áudios do WhatsApp e responde direto na conversa." %>">
+    <meta property="og:url"         content="https://escrevezap.com.br<%= request.path %>">
+    <meta property="og:image"       content="https://escrevezap.com.br/og-image.png">
+    <meta property="og:image:width"  content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt"   content="Cobrança em Dia — Cobranças automáticas via WhatsApp">
+    <meta property="og:locale"      content="pt_BR">
 
-    <%# ── Twitter Card ────────────────────────────────────────────────────── %>
+    <%# Twitter Card %>
     <meta name="twitter:card"        content="summary_large_image">
-    <meta name="twitter:title"       content="Cobranças automáticas via WhatsApp — Cobrança em Dia">
-    <meta name="twitter:description" content="Pare de cobrar manualmente. Configure uma vez e deixe a plataforma fazer o resto.">
-    <meta name="twitter:image"       content="https://cobrancaemdia.com.br/og-image.png">
-    <meta name="twitter:image:alt"   content="Cobrança em Dia — Cobranças automáticas via WhatsApp">
+    <meta name="twitter:site"        content="@escrevezap">
+    <meta name="twitter:title"       content="<%= content_for?(:og_title) ? yield(:og_title) : "EscreveZap — Transcrição automática de áudios no WhatsApp" %>">
+    <meta name="twitter:description" content="<%= content_for?(:description) ? yield(:description) : "Não consegue ouvir o áudio agora? EscreveZap transcreve automaticamente os áudios do WhatsApp e responde direto na conversa." %>">
+    <meta name="twitter:image"       content="https://escrevezap.com.br/og-image.png">
 
-    <%# ── Favicon ─────────────────────────────────────────────────────────── %>
-    <link rel="icon"             href="/logo.png" type="image/png">
-    <link rel="apple-touch-icon" href="/logo.png">
-
-    <%# ── Structured Data ────────────────────────────────────────────────── %>
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "Organization",
-          "@id": "https://cobrancaemdia.com.br/#organization",
-          "name": "Cobrança em Dia",
-          "url": "https://cobrancaemdia.com.br",
-          "logo": "<%= "#{request.base_url}/logo.png" %>",
-          "sameAs": []
-        },
-        {
-          "@type": "WebSite",
-          "@id": "https://cobrancaemdia.com.br/#website",
-          "url": "https://cobrancaemdia.com.br",
-          "name": "Cobrança em Dia",
-          "publisher": { "@id": "https://cobrancaemdia.com.br/#organization" },
-          "inLanguage": "pt-BR"
-        },
-        {
-          "@type": "SoftwareApplication",
-          "name": "Cobrança em Dia",
-          "url": "https://cobrancaemdia.com.br",
-          "description": "Plataforma de cobranças automáticas via WhatsApp para pequenas e médias empresas. Envie lembretes de vencimento, acompanhe pagamentos e gerencie inadimplência sem esforço manual.",
-          "applicationCategory": "BusinessApplication",
-          "operatingSystem": "Web",
-          "inLanguage": "pt-BR",
-          "publisher": { "@id": "https://cobrancaemdia.com.br/#organization" },
-          "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "BRL",
-            "description": "Crie sua conta gratuitamente"
-          }
-        }
-      ]
-    }
-    </script>
+    <%# PWA / Theme %>
+    <meta name="theme-color" content="#1E7A52">
+    <link rel="manifest" href="/manifest">
 
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
-    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-    <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+    <link rel="icon" href="/logo.png">
+    <link rel="apple-touch-icon" href="/logo.png">
   </head>
+  <body class="bg-(--color-bg) text-(--color-text) antialiased">
 
-  <body class="bg-(--color-surface) antialiased text-(--color-text)">
-    <%= yield %>
+
+    <%# ── Mobile sticky CTA ───────────────────────────────────────────── %>
+    <div class="fixed bottom-0 inset-x-0 z-50 p-4 bg-white/95 backdrop-blur border-t border-gray-100 shadow-lg md:hidden">
+      <%= link_to new_user_session_path,
+            class: "flex items-center justify-center gap-2 w-full bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold py-3.5 rounded-xl text-sm transition-colors" do %>
+        <i class="ph ph-whatsapp-logo text-lg"></i>
+        Conectar meu WhatsApp
+      <% end %>
+    </div>
+
+    <%# Flash toasts (Notyf) %>
+    <% if notice.present? %>
+      <span data-controller="toast" data-toast-type-value="notice" data-toast-message-value="<%= notice %>"></span>
+    <% end %>
+    <% if alert.present? %>
+      <span data-controller="toast" data-toast-type-value="alert" data-toast-message-value="<%= alert %>"></span>
+    <% end %>
+
+    <%# ── Sticky Navbar ────────────────────────────────────────────────── %>
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-100">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+
+          <%# Logo %>
+          <%= link_to root_path, class: "flex items-center gap-2 flex-shrink-0" do %>
+              <%= image_tag '/logo.png', alt: 'EscreveZap Logo', class: 'w-8 h-8' %>
+            <span class="font-bold text-(--color-text) tracking-tight">EscreveZap</span>
+          <% end %>
+
+          <%# Desktop nav %>
+          <nav class="hidden md:flex items-center gap-7">
+            <a href="#como-funciona" class="text-sm text-(--color-text-muted) hover:text-(--color-text) transition-colors">Como funciona</a>
+            <a href="#precos"        class="text-sm text-(--color-text-muted) hover:text-(--color-text) transition-colors">Preços</a>
+            <a href="#faq"           class="text-sm text-(--color-text-muted) hover:text-(--color-text) transition-colors">FAQ</a>
+          </nav>
+
+          <%# Desktop CTA + hamburger %>
+          <div class="flex items-center gap-3">
+            <%= link_to new_user_session_path,
+                  class: "hidden md:inline-flex items-center gap-1.5 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors" do %>
+              <i class="ph ph-whatsapp-logo"></i>
+              Conectar WhatsApp
+            <% end %>
+
+            <button type="button" id="hamburger-btn"
+                    class="md:hidden p-2 rounded-lg text-(--color-text-muted) hover:bg-(--color-surface-soft) transition-colors"
+                    aria-label="Abrir menu" aria-expanded="false">
+              <i class="ph ph-list text-xl" id="hamburger-icon"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <%# Mobile dropdown %>
+      <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100">
+        <div class="max-w-6xl mx-auto px-4 py-3 space-y-1">
+          <a href="#como-funciona" class="block px-3 py-2.5 rounded-lg text-sm text-(--color-text) hover:bg-(--color-surface-soft) transition-colors">Como funciona</a>
+          <a href="#precos"        class="block px-3 py-2.5 rounded-lg text-sm text-(--color-text) hover:bg-(--color-surface-soft) transition-colors">Preços</a>
+          <a href="#faq"           class="block px-3 py-2.5 rounded-lg text-sm text-(--color-text) hover:bg-(--color-surface-soft) transition-colors">FAQ</a>
+          <div class="pt-2 border-t border-gray-100">
+            <%= link_to "Conectar meu WhatsApp", new_user_session_path,
+                  class: "flex items-center justify-center gap-2 w-full bg-(--color-brand) text-white font-semibold py-3 rounded-xl text-sm" %>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <%# ── Page content ────────────────────────────────────────────────── %>
+    <main class="pb-24 md:pb-0">
+      <%= yield %>
+    </main>
+
+    <%# ── Footer ──────────────────────────────────────────────────────── %>
+    <footer class="bg-white border-t border-gray-100 py-8">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+          <%= link_to root_path, class: "flex items-center gap-2" do %>
+            <%= image_tag '/logo.png', alt: 'EscreveZap Logo', class: 'w-8 h-8' %>
+            <span class="text-sm font-semibold text-(--color-text)">EscreveZap</span>
+          <% end %>
+          <div class="flex items-center gap-5 text-sm text-(--color-text-muted)">
+            <a href="#precos"                                                          class="hover:text-(--color-text) transition-colors">Preços</a>
+            <%= link_to "Privacidade", privacidade_path, class: "hover:text-(--color-text) transition-colors" %>
+            <%= link_to "Termos",      termos_path,      class: "hover:text-(--color-text) transition-colors" %>
+          </div>
+          <p class="text-xs text-(--color-text-muted)">© <%= Time.current.year %> EscreveZap</p>
+        </div>
+      </div>
+    </footer>
+
+    <%# ── Scripts ─────────────────────────────────────────────────────── %>
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+    <script>
+      (function() {
+        var btn  = document.getElementById('hamburger-btn');
+        var menu = document.getElementById('mobile-menu');
+        var icon = document.getElementById('hamburger-icon');
+        if (!btn || !menu) return;
+        btn.addEventListener('click', function() {
+          var open = menu.classList.toggle('hidden') === false;
+          btn.setAttribute('aria-expanded', open);
+          icon.className = open ? 'ph ph-x text-xl' : 'ph ph-list text-xl';
+        });
+        menu.querySelectorAll('a').forEach(function(a) {
+          a.addEventListener('click', function() {
+            menu.classList.add('hidden');
+            btn.setAttribute('aria-expanded', 'false');
+            icon.className = 'ph ph-list text-xl';
+          });
+        });
+      })();
+    </script>
+    <%= render "shared/notyf" %>
   </body>
 </html>

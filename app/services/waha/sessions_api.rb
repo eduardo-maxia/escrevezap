@@ -20,7 +20,7 @@ module Waha
           webhooks: [
             {
               url: webhook_url || default_webhook_url,
-              events: ["message.ack", "session.status", "message.reaction"],
+              events: ["message.any", "session.status"],
               retries: {
                 policy: "exponential",
                 delaySeconds: 2,
@@ -113,7 +113,7 @@ module Waha
     #
     # GET /api/{session}/auth/qr
     def qr(name = @session)
-      @api_request.get("/api/#{name}/auth/qr")
+      JSON.parse(@api_request.get("/api/#{name}/auth/qr"))
     end
 
     private

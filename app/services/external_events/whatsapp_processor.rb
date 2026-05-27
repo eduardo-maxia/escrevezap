@@ -1,234 +1,140 @@
 class ExternalEvents::WhatsappProcessor < ExternalEvents::Base
-  # This processor handles WhatsApp webhooks from different providers (NOWEB/WAHA, Meta)
-  # It uses specific parsers to normalize payloads into a standard format before processing
+  # MIME types that indicate an audio message. Waha can return several variants.
+  AUDIO_MIMETYPES = %w[
+    audio/ogg audio/mpeg audio/mp4 audio/wav audio/webm audio/aac audio/opus
+  ].freeze
 
   def process(worker_type: :waha)
     @data = parse_payload(worker_type)
     @external_event.update!(parsed_event: @data)
 
-    # Primeiro, vamos extrair os dados base e fazer pre processamento do evento
-    return unless preprocess # Returna false se o webhook deve ser ignorado
+    return unless preprocess
 
     case @data[:event]
-    when 'session.status'
+    when "session.status"
       process_session_status
-    when 'message.ack'
-      process_ack_message
-    when 'message.reaction'
-      process_message_reaction
+    when "message", "message.any"
+      process_incoming_message
+    when "message.ack", "message.reaction"
+      log_info "Evento #{@data[:event]} recebido — ignorado nesta versão"
     else
       log_warning "Evento desconhecido: #{@data[:event]}"
-      raise "Evento desconhecido: #{@data[:event]}"
     end
-  end
-
-  def process_session_status
-    waha_status = @data[:payload][:status]
-    waha_chat_id = @data[:payload][:waha_chat_id]
-
-    @chip.update!(waha_status: waha_status)
-    if waha_chat_id.present? && @chip.waha_chat_id != waha_chat_id
-      @chip.update!(waha_chat_id: waha_chat_id)
-    end
-  end
-
-  def process_message_reaction
-    log_info "A mensagem é do tipo reaction"
-    # Se a reação não for: 👍, dropa
-    unless @data.dig(:payload, :body) == "👍"
-      log_info "Reação ignorada: #{@data.dig(:payload, :body)}"
-      return
-    end
-
-    chat_id = @data.dig(:payload, :from)
-    log_info "Chat ID da reação: #{chat_id}"
-
-    # TODO: Se for, temos que buscar a mensagem original e descobrir se é uma imagem. Se for, guardamos ela como comprovante.
-    # 1 - Vamos ter que achar o campaign_client através do chat_id e do chip
-    possible_campaign_clients = CampaignClient.joins(:client)
-      .where(campaign: @chip.campaigns)
-      .where(clients: { waha_chat_id: chat_id })
-
-    # Se tiver mais de um já mata.
-    if possible_campaign_clients.count > 1
-      log_info "Mais de um campaign_client encontrado para chat_id #{chat_id} e chip_id #{@chip.id}"
-      return
-    end
-
-    campaign_client = possible_campaign_clients.first
-    if campaign_client.nil?
-      log_info "Nenhum campaign_client encontrado para chat_id #{chat_id} e chip_id #{@chip.id}"
-      return
-    end
-
-    # 2 - Agora vamos caçar a mensagem original que recebeu a reação
-    message_id = @data.dig(:payload, :reply_to_id)
-    response = Waha::Client.new(session: @chip.waha_session).messaging.get_message(chat_id: chat_id, message_id: message_id)
-    
-    is_image = response["hasMedia"] && response.dig("media", "mimetype")&.start_with?("image/")
-    unless is_image
-      log_info "Mensagem original não é uma imagem, ignorando reação. message_id: #{message_id}, type: #{response["type"]}"
-      return
-    end
-
-    # 3 - Se for imagem, baixa ela e salva como comprovante da primeira parcela que esteja em aberto do campaign_client
-    installment = campaign_client.installments.pending.first
-    unless installment.present?
-      log_info "Nenhuma parcela pendente encontrada para o campaign_client #{campaign_client.id}, ignorando reação."
-      return
-    end
-
-    image_url = response.dig("media", "url")
-    if image_url.blank?
-      log_info "URL da imagem não encontrada na mensagem original, ignorando reação. message_id: #{message_id}"
-      return
-    end
-
-    # Baixa a imagem e salva como comprovante
-    begin
-      downloaded_image = Waha::Client.new(session: @chip.waha_session).messaging.download_media_from_url(media_url: image_url) # This is raw binary data
-
-      io = StringIO.new(downloaded_image)
-
-      blob = ActiveStorage::Blob.create_and_upload!(
-        io: io,
-        filename: "comprovante_#{installment.id}.#{response.dig("media", "mimetype").split("/").last}",
-        content_type: response.dig("media", "mimetype")
-      )
-
-      installment.update!(status: :paid, proof_image: blob)
-      log_info "Parcela #{installment.id} marcada como paga com comprovante da reação 👍"
-
-      # Push notification to all company owners/admins with the preference enabled
-      @chip.company.users.where(notif_proof_attached: true).each do |user|
-        PushNotificationService.notify(
-          user,
-          title: "Comprovante recebido 👍",
-          body:  "#{campaign_client.client.name} enviou o comprovante da parcela de #{ActionController::Base.helpers.number_to_currency(installment.amount, unit: 'R$ ', separator: ',', delimiter: '.', precision: 2)}.",
-          url:   "/app/campaigns/#{installment.campaign_client.campaign_id}"
-        )
-      end
-    rescue => e
-      log_error "Erro ao baixar ou salvar a imagem do comprovante: #{e.message}"
-    end
-  end
-
-  def preprocess
-    log_info "Recebendo webhook do WhatsApp, session: #{@data[:session]}, event: #{@data[:event]}"
-
-    @external_event.update!(event_type: @data[:event])
-
-    @chip = Chip.waha.find_by(waha_session: @data[:session])
-    if @chip.nil?
-      log_warning "Não foi encontrado um chip para a sessão #{@data[:session]}"
-      return false
-    end
-
-    return true
   end
 
   private
 
-  def process_ack_message
-    log_info "A mensagem é do tipo ack"
+  # ── Pre-processing: resolve the WahaSession from the session name ──────
 
-    @message_id = @data[:payload][:message_id]
-    ack_status = @data[:payload][:ack]
+  def preprocess
+    log_info "Webhook: session=#{@data[:session]} event=#{@data[:event]}"
 
-    message = Notification.message.find_by(external_id: @message_id, sender: @chip)
-    if message.present?
-      message.set_ack(ack_status)
-      # message.update!(created_at: @data[:payload][:created_at]) if @data[:payload][:created_at].present?
-    else
-      log_error "Mensagem não encontrada: #{@message_id}"
-      # Se o chat nem existe, não precisa nem dar retry.
-      return unless @data[:payload][:fromMe] && @data[:payload][:from].present?
+    @external_event.update!(event_type: @data[:event])
 
-      log_error "Chat ID: #{@data[:payload][:from]}"
-      client_exists = Client.where(waha_chat_id: @data[:payload][:from]).joins(:campaign_clients).where(campaign_clients: { campaign: @chip.campaigns }).exists?
-      
-      return unless client_exists
+    @waha_session = WahaSession.find_by(session_name: @data[:session])
+    if @waha_session.nil?
+      log_warning "Nenhuma WahaSession encontrada para session=#{@data[:session]}"
+      return false
+    end
 
-      # Se existe pelo menos o chat, pode tentar de novo
-      raise ScheduleRetryError, "Mensagem não encontrada: #{@message_id}"
+    true
+  end
+
+  # ── session.status ────────────────────────────────────────────────────
+
+  def process_session_status
+    status       = @data.dig(:payload, :status)
+    waha_chat_id = @data.dig(:payload, :waha_chat_id)
+
+    if status.present? && WahaSession.waha_statuses.key?(status)
+      @waha_session.update!(waha_status: status)
+    end
+
+    if waha_chat_id.present? && @waha_session.waha_chat_id != waha_chat_id
+      @waha_session.update!(waha_chat_id: waha_chat_id)
+    end
+
+    log_info "WahaSession #{@waha_session.id} → status=#{status} chat_id=#{waha_chat_id}"
+  end
+
+  # ── message / message.any ─────────────────────────────────────────────
+
+  def process_incoming_message
+    payload = @data[:payload]
+
+    unless audio_message?(payload)
+      log_info "Mensagem ignorada: não é áudio (hasMedia=#{payload[:hasMedia]})"
+      return
+    end
+
+    from_me = payload[:fromMe]
+    chat_id = payload[:from].to_s
+    phone   = chat_id.split("@").first
+
+    contact = resolve_monitored_contact(phone, chat_id)
+    if contact.nil?
+      log_info "Contato #{chat_id} não monitorado — descartando"
+      return
+    end
+
+    # Respect per-contact direction preference
+    if from_me && contact.incoming?
+      log_info "Áudio próprio ignorado (contato configurado como incoming)"
+      return
+    end
+
+    if !from_me && contact.outgoing?
+      log_info "Áudio do contato ignorado (contato configurado como outgoing)"
+      return
+    end
+
+    log_info "Criando transcription: contact=#{contact.id} message=#{payload[:message_id]}"
+
+    direction = from_me ? "outgoing" : "incoming"
+
+    transcription = Transcription.create!(
+      monitored_contact: contact,
+      waha_message_id:   payload[:message_id],
+      direction:         direction,
+      media_url:         payload.dig(:media, :url),
+      status:            :processing
+    )
+
+    ActiveRecord.after_all_transactions_commit do
+      TranscribeAudioJob.perform_later(transcription.id)
     end
   end
 
-  def format_waha_chat_id(waha_chat_id)
-    return nil unless waha_chat_id.present?
+  # ── Helpers ───────────────────────────────────────────────────────────
 
-    # waha_chat_id: 5521936181803@c.us
-    # formatted: (21) 93618-1803
-    phone_number = waha_chat_id.split('@').first # "5521936181803"
-    country_code = phone_number[0..1] # "55"
-    area_code = phone_number[2..3]    # "21"
-    number = phone_number[4..-1]      # "936181803"
-    formatted_number = if number.length == 9
-                         "#{number[0]}#{number[1..4]}-#{number[5..8]}"
-                       else
-                         "#{number[0..3]}-#{number[4..7]}"
-                       end
-    "(#{area_code}) #{formatted_number}"
+  def audio_message?(payload)
+    return false unless payload[:hasMedia]
+
+    mimetype = payload.dig(:media, :mimetype).to_s
+    mimetype.start_with?("audio/") || AUDIO_MIMETYPES.include?(mimetype)
+  end
+
+  # Look up the MonitoredContact by phone number or waha_chat_id.
+  # Update waha_chat_id in the record if we discovered it here.
+  def resolve_monitored_contact(phone, chat_id)
+    contact = @waha_session.monitored_contacts.enabled
+                           .find_by(phone_number: phone)
+                           .presence ||
+              @waha_session.monitored_contacts.enabled
+                           .find_by(waha_chat_id: chat_id)
+
+    if contact && contact.waha_chat_id.blank?
+      contact.update_columns(waha_chat_id: chat_id)
+    end
+
+    contact
   end
 
   def parse_payload(worker_type)
-    # A ideia aqui é transformar todos os payloads em um formato padrão
-    # O formato padrão vai ser definido para cada tipo de evento
-    
-    # Para eventos do tipo message, o formato padrão será:
-    # {
-    #   event: 'message',
-    #   session: 'session_id',
-    #   payload: {
-    #     from: 'waha_chat_id', # Chat id do contato
-    #     fromMe: true/false,
-    #     message_id: 'message_id',
-    #     created_at: Time object,
-    #     body: 'message body',
-    #     hasMedia: true/false,
-    #     media: {
-    #       url: 'media url' (opcional, pode ser nil para Meta),
-    #       media_id: 'media_id' (para Meta),
-    #       mimetype: 'media mimetype',
-    #       filename: 'media filename'
-    #     }
-    #   }
-    # }
-
-    # Para eventos do tipo message.ack, o formato padrão será:
-    # {
-    #   event: 'message.ack',
-    #   session: 'session_id',
-    #   payload: {
-    #     message_id: 'message_id',
-    #     ack: 'ack status (em lowercase)'
-    #   }
-    # }
-
-    # Para eventos do tipo session.status, o formato padrão será:
-    # {
-    #   event: 'session.status',
-    #   session: 'session_id',
-    #   payload: {
-    #     status: 'status string (em lowercase)',
-    #     waha_chat_id: 'waha_chat_id' (opcional)
-    #   }
-    # }
-
-    parser = 
-      case worker_type
-      when :waha
-        # Investiga o environment do evento
-        case @data.dig(:environment, :engine)
-        when 'GOWS'
-          ExternalEvents::WhatsappParsers::GowsParser.new(@data)
-        else
-          raise "Engine não suportada: #{@data.dig(:environment, :engine)}"
-        end
-      else
-        raise "Worker type não suportado: #{worker_type}"
-      end
-
-    parser.parse
+    parser_class = case worker_type.to_sym
+                   when :waha then ExternalEvents::WhatsappParsers::GowsParser
+                   else            ExternalEvents::WhatsappParsers::GowsParser
+                   end
+    parser_class.new(@data).parse
   end
 end

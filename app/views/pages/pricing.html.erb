@@ -1,0 +1,94 @@
+<% content_for :title, t("pages.pricing.title") %>
+
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+  <div class="text-center mb-12">
+    <h1 class="text-3xl sm:text-4xl font-bold text-(--color-text)"><%= t("pages.pricing.title") %></h1>
+    <p class="mt-3 text-(--color-text-muted)"><%= t("pages.pricing.subtitle") %></p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+    <%# Free %>
+    <div class="bg-(--color-surface) rounded-2xl border border-gray-100 p-6 flex flex-col">
+      <div>
+        <h2 class="text-base font-bold text-(--color-text)"><%= t("pages.pricing.free.name") %></h2>
+        <div class="mt-3 flex items-end gap-1">
+          <span class="text-4xl font-bold text-(--color-text)">R$0</span>
+          <span class="text-sm text-(--color-text-muted) mb-1">/<%= t("pages.pricing.month") %></span>
+        </div>
+        <p class="mt-2 text-sm text-(--color-text-muted)"><%= t("pages.pricing.free.description") %></p>
+      </div>
+      <ul class="mt-6 space-y-3 flex-1">
+        <% t("pages.pricing.free.features").each do |feature| %>
+          <li class="flex items-start gap-2 text-sm text-(--color-text)">
+            <i class="ph ph-check text-(--color-success) mt-0.5 flex-shrink-0"></i>
+            <%= feature %>
+          </li>
+        <% end %>
+      </ul>
+      <%= link_to t("pages.pricing.cta_free"), new_user_session_path,
+            class: "mt-6 block text-center bg-(--color-surface-soft) hover:bg-gray-100 text-(--color-text) font-medium px-4 py-2.5 rounded-xl text-sm transition-colors" %>
+    </div>
+
+    <%# Basic %>
+    <div class="bg-(--color-surface) rounded-2xl border border-gray-100 p-6 flex flex-col">
+      <div>
+        <h2 class="text-base font-bold text-(--color-text)"><%= t("pages.pricing.basic.name") %></h2>
+        <div class="mt-3 flex items-end gap-1">
+          <span class="text-4xl font-bold text-(--color-text)">R$5<span class="text-xl">,99</span></span>
+          <span class="text-sm text-(--color-text-muted) mb-1">/<%= t("pages.pricing.month") %></span>
+        </div>
+        <p class="mt-2 text-sm text-(--color-text-muted)"><%= t("pages.pricing.basic.description") %></p>
+      </div>
+      <ul class="mt-6 space-y-3 flex-1">
+        <% t("pages.pricing.basic.features").each do |feature| %>
+          <li class="flex items-start gap-2 text-sm text-(--color-text)">
+            <i class="ph ph-check text-(--color-success) mt-0.5 flex-shrink-0"></i>
+            <%= feature %>
+          </li>
+        <% end %>
+      </ul>
+      <% if user_signed_in? %>
+        <%= button_to t("pages.pricing.cta_paid"), billing_upgrade_path(plan: "basic"),
+              method: :post,
+              class: "mt-6 block text-center bg-(--color-surface-raised) hover:bg-(--color-border) text-(--color-text) font-medium px-4 py-2.5 rounded-xl text-sm transition-colors",
+              data: { controller: "loadable", "loadable-loading-text-value": "Redirecionando..." } %>
+      <% else %>
+        <%= link_to t("pages.pricing.cta_paid"), new_user_session_path,
+              class: "mt-6 block text-center bg-(--color-surface-raised) hover:bg-(--color-border) text-(--color-text) font-medium px-4 py-2.5 rounded-xl text-sm transition-colors" %>
+      <% end %>
+    </div>
+
+    <%# Pro — highlighted %>
+    <div class="bg-(--color-brand) rounded-2xl p-6 flex flex-col relative overflow-hidden">
+      <div class="absolute top-3 right-3">
+        <span class="bg-white/20 text-white text-xs font-semibold px-2.5 py-1 rounded-full"><%= t("pages.pricing.popular") %></span>
+      </div>
+      <div>
+        <h2 class="text-base font-bold text-white"><%= t("pages.pricing.pro.name") %></h2>
+        <div class="mt-3 flex items-end gap-1">
+          <span class="text-4xl font-bold text-white">R$19<span class="text-xl">,90</span></span>
+          <span class="text-sm text-white/70 mb-1">/<%= t("pages.pricing.month") %></span>
+        </div>
+        <p class="mt-2 text-sm text-white/80"><%= t("pages.pricing.pro.description") %></p>
+      </div>
+      <ul class="mt-6 space-y-3 flex-1">
+        <% t("pages.pricing.pro.features").each do |feature| %>
+          <li class="flex items-start gap-2 text-sm text-white">
+            <i class="ph ph-check text-white/70 mt-0.5 flex-shrink-0"></i>
+            <%= feature %>
+          </li>
+        <% end %>
+      </ul>
+      <% if user_signed_in? %>
+        <%= button_to t("pages.pricing.cta_paid"), billing_upgrade_path(plan: "pro"),
+              method: :post,
+              class: "mt-6 block text-center bg-white text-(--color-brand) font-semibold px-4 py-2.5 rounded-xl text-sm hover:bg-(--color-brand-light) transition-colors",
+              data: { controller: "loadable", "loadable-loading-text-value": "Redirecionando..." } %>
+      <% else %>
+        <%= link_to t("pages.pricing.cta_paid"), new_user_session_path,
+              class: "mt-6 block text-center bg-white text-(--color-brand) font-semibold px-4 py-2.5 rounded-xl text-sm hover:bg-(--color-brand-light) transition-colors" %>
+      <% end %>
+    </div>
+  </div>
+</div>

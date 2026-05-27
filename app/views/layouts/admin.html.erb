@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= content_for?(:title) ? yield(:title) + " — Admin EscreveZap" : "Admin — EscreveZap" %></title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+    <%= yield :head %>
+  </head>
+  <body class="bg-(--color-surface-soft) text-(--color-text) antialiased min-h-screen">
+
+    <%# Flash toasts (Notyf) %>
+    <% if notice.present? %>
+      <span data-controller="toast" data-toast-type-value="notice" data-toast-message-value="<%= notice %>"></span>
+    <% end %>
+    <% if alert.present? %>
+      <span data-controller="toast" data-toast-type-value="alert" data-toast-message-value="<%= alert %>"></span>
+    <% end %>
+
+    <div class="flex min-h-screen">
+      <%# ── Sidebar ────────────────────────────────────────────────────── %>
+      <aside class="w-56 flex-shrink-0 bg-(--color-brand-dark) text-white flex flex-col">
+        <div class="px-4 py-5 border-b border-white/10">
+          <span class="font-bold text-base tracking-tight">EscreveZap</span>
+          <span class="ml-1 text-xs opacity-50">admin</span>
+        </div>
+
+        <nav class="flex-1 p-3 space-y-1 text-sm">
+          <%= link_to admin_root_path,
+                class: "flex items-center gap-2.5 px-3 py-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors #{current_page?(admin_root_path) ? 'bg-white/10 text-white font-semibold' : ''}" do %>
+            <i class="ph ph-gauge text-base"></i>
+            <%= t("admin.nav.dashboard") %>
+          <% end %>
+
+          <%= link_to admin_users_path,
+                class: "flex items-center gap-2.5 px-3 py-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors #{request.path.start_with?(admin_users_path) ? 'bg-white/10 text-white font-semibold' : ''}" do %>
+            <i class="ph ph-users text-base"></i>
+            Clientes
+          <% end %>
+        </nav>
+
+        <div class="p-3 border-t border-white/10">
+          <div class="px-3 py-2 text-xs text-white/50">
+            <%= current_user.display_name %>
+          </div>
+          <%= button_to destroy_user_session_path, method: :delete,
+                class: "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-white/70 hover:text-white hover:bg-white/10 transition-colors" do %>
+            <i class="ph ph-sign-out text-base"></i>
+            <%= t("nav.sign_out") %>
+          <% end %>
+        </div>
+      </aside>
+
+      <%# ── Main area ───────────────────────────────────────────────────── %>
+      <div class="flex-1 flex flex-col min-w-0">
+        <header class="bg-(--color-surface) border-b border-gray-200 px-6 py-4">
+          <h1 class="text-base font-semibold text-(--color-text)">
+            <%= content_for?(:page_title) ? yield(:page_title) : t("admin.dashboard.title") %>
+          </h1>
+        </header>
+
+        <main class="flex-1 p-6 overflow-auto">
+          <%= yield %>
+        </main>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+    <%= render "shared/notyf" %>
+  </body>
+</html>

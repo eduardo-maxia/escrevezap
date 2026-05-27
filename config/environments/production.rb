@@ -58,7 +58,7 @@ Rails.application.configure do
   # config.action_mailer.raise_delivery_errors = false
 
   # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "cobrancaemdia.com.br", protocol: "https" }
+  config.action_mailer.default_url_options = { host: "escrevezap.com.br", protocol: "https" }
 
   # Resend SMTP — configure credentials with: bin/rails credentials:edit
   # Add: resend: { api_key: "re_..." }

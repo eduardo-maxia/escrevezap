@@ -4,9 +4,8 @@ require "json"
 require "timeout"
 require "securerandom"
 
-include Loggable
-
 class ApiRequest
+  include Loggable
   class ApiError < StandardError; end
   class ApiClientError < ApiError; end       # Erros 4xx
   class ApiServerError < ApiError; end       # Erros 5xx

@@ -59,6 +59,21 @@ module Waha
       JSON.parse(@api_request.get("/api/#{@session}/lids/pn/#{escape(phone)}"))
     end
 
+    # List all contacts saved in the WhatsApp account.
+    # Returns an array of contact hashes with keys like "id", "name", "pushname".
+    # Filters to individual chats only (excludes groups).
+    #
+    # GET /api/contacts/all?session={session}
+    #
+    # Returns: [{ "id" => "5511...@c.us", "name" => "João", "pushname" => "João Silva" }, ...]
+    def list_all
+      response = @api_request.get("/api/contacts/all", { session: @session })
+      contacts = JSON.parse(response)
+      contacts.select { |c| c["id"].to_s.end_with?("@c.us") }
+    rescue
+      []
+    end
+
     private
 
     # @ must be percent-encoded in path segments.

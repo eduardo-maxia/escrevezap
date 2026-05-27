@@ -223,3 +223,128 @@ pt-BR:
       long: "%d de %B de %Y, %H:%M"
       short: "%d de %B, %H:%M"
     pm: pm
+
+  # ── EscreveZap app strings ───────────────────────────────────────────
+  app:
+    name: "EscreveZap"
+    tagline: "Seu WhatsApp transcreve mensagens de voz automaticamente."
+
+  nav:
+    home:    "Início"
+    pricing: "Preços"
+    sign_in: "Entrar"
+    sign_out: "Sair"
+    privacy: "Privacidade"
+    terms:   "Termos"
+
+  pages:
+    home:
+      title:           "EscreveZap"
+      hero_title:      "Pare de ouvir áudios no WhatsApp."
+      hero_subtitle:   "EscreveZap transcreve automaticamente as mensagens de voz no próprio WhatsApp, para você ler onde e quando quiser."
+      cta_primary:     "Começar grátis"
+      cta_secondary:   "Ver planos"
+      how_it_works:    "Como funciona"
+      step:            "Passo"
+      step_connect_title: "Conecte seu WhatsApp"
+      step_connect_body:  "Vincula sua conta com QR code ou Google. Leva menos de 1 minuto."
+      step_choose_title:  "Escolha os contatos"
+      step_choose_body:   "Selecione quais conversas você quer transcrever e configure as preferências."
+      step_done_title:    "Pronto"
+      step_done_body:     "Cada áudio recebido é transcrito e enviado como resposta direto no WhatsApp."
+      cta_bottom_title:   "Comece a ler em vez de ouvir"
+      cta_bottom_body:    "Grátis para sempre. Sem cartão de crédito."
+
+    pricing:
+      title:    "Planos simples e transparentes"
+      subtitle: "Escolha o plano que combina com você. Cancele quando quiser."
+      month:    "mês"
+      popular:  "Popular"
+      cta_free: "Começar grátis"
+      cta_paid: "Assinar agora"
+      free:
+        name:        "Grátis"
+        description: "Para conhecer o produto."
+        features:
+          - "20 transcrições por mês"
+          - "Transcrição com Deepgram"
+          - "Marca EscreveZap nas respostas"
+          - "1 conta WhatsApp"
+      basic:
+        name:        "Basic"
+        description: "Para uso moderado."
+        features:
+          - "500 transcrições por mês"
+          - "Sem marca nas respostas"
+          - "1 conta WhatsApp"
+          - "Suporte por email"
+      pro:
+        name:        "Pro"
+        description: "Para quem recebe muitos áudios."
+        features:
+          - "2.000 transcrições por mês"
+          - "Formatação com IA"
+          - "Dois modos: fiel ou organizado"
+          - "Sem marca nas respostas"
+          - "Prioridade na fila"
+          - "Suporte prioritário"
+
+    privacidade:
+      title: "Política de Privacidade"
+      body:  "Esta política será atualizada em breve. Para dúvidas, entre em contato pelo email ola@escrevezap.com.br"
+
+    termos:
+      title: "Termos de Uso"
+      body:  "Os termos de uso serão disponibilizados em breve. Para dúvidas, entre em contato pelo email ola@escrevezap.com.br"
+
+  auth:
+    sign_in:
+      title:             "Entrar no EscreveZap"
+      subtitle:          "Use seu email ou conta Google"
+      email_label:       "Email"
+      email_placeholder: "seu@email.com"
+      submit:            "Enviar link de acesso"
+      google:            "Entrar com Google"
+      or:                "ou"
+    check_inbox:
+      title:     "Verifique seu email"
+      message:   "Enviamos um link de acesso para %{email}. Clique no link para entrar."
+      spam_note: "Não recebeu? Verifique a pasta de spam."
+      back:      "Tentar outro email"
+    magic_link:
+      invalid_email: "Por favor, informe um email válido."
+      expired:       "Link expirado ou inválido. Solicite um novo."
+      welcome:       "Bem-vindo! Você está conectado."
+    oauth:
+      failure: "Não foi possível autenticar com o Google. Tente novamente."
+
+  dashboard:
+    title:    "Início"
+    welcome:  "Olá, %{name}!"
+    subtitle: "Seu painel está sendo configurado."
+
+  monitored_contact:
+    direction:
+      incoming: "Recebidos"
+      outgoing: "Enviados"
+      both:     "Ambos"
+
+  admin:
+    unauthorized: "Acesso não autorizado."
+    nav:
+      dashboard: "Dashboard"
+    dashboard:
+      title:       "Painel Administrativo"
+      coming_soon: "Em breve — métricas, usuários e observabilidade."
+
+  mailers:
+    footer: "Você está recebendo este email porque solicitou acesso ao EscreveZap. Se não foi você, ignore este email."
+    session:
+      magic_link:
+        subject:   "Seu link de acesso ao EscreveZap"
+        greeting:  "Olá, %{name}!"
+        instruction: "Clique no botão abaixo para entrar no EscreveZap. O link é válido por 15 minutos."
+        button:    "Entrar no EscreveZap"
+        expiry:    "Este link expira em 15 minutos e pode ser usado apenas uma vez."
+        ignore:    "Se você não solicitou este link, pode ignorar este email com segurança."
+        link_text: "Se o botão não funcionar, copie e cole este link no navegador:"

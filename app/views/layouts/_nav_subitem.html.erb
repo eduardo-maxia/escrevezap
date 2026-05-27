@@ -1,7 +1,0 @@
-<% active = request.path == path %>
-<li>
-  <%= link_to path,
-        class: "flex items-center w-full pl-11 pr-2 py-2 rounded-lg text-xs font-medium transition-colors group #{active ? 'bg-(--color-sidebar-item-active) text-(--color-sidebar-text-hover)' : 'text-(--color-sidebar-text) hover:text-(--color-sidebar-text-hover) hover:bg-(--color-sidebar-item-hover)'}" do %>
-    <%= label %>
-  <% end %>
-</li>

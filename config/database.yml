@@ -35,6 +35,15 @@ development:
     username: <%= Rails.application.credentials.dig(:database, :username) %>
     password: <%= Rails.application.credentials.dig(:database, :password) %>
     port: <%= Rails.application.credentials.dig(:database, :port) %>
+    migrations_paths: db/cable_migrate
+  queue:
+    <<: *default
+    database: cobranca_em_dia_queue_development
+    host: <%= Rails.application.credentials.dig(:database, :host) %>
+    username: <%= Rails.application.credentials.dig(:database, :username) %>
+    password: <%= Rails.application.credentials.dig(:database, :password) %>
+    port: <%= Rails.application.credentials.dig(:database, :port) %>
+    migrations_paths: db/queue_migrate
 
   # The specified database role being used to connect to PostgreSQL.
   # To create additional roles in PostgreSQL see `$ createuser --help`.

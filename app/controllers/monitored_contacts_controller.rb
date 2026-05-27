@@ -1,0 +1,71 @@
+class MonitoredContactsController < ApplicationController
+  layout "authenticated"
+  before_action :authenticate_user!
+  before_action :set_contact, only: [:edit, :update, :destroy]
+
+  def index
+    @contacts = waha_session.monitored_contacts.order(:display_name, :phone_number)
+  end
+
+  def new
+    @contact = waha_session.monitored_contacts.build
+  end
+
+  # GET /app/monitored_contacts/whatsapp_contacts.json
+  def whatsapp_contacts
+    unless waha_session&.working?
+      render json: { contacts: [] } and return
+    end
+
+    raw = waha_session.waha_client.contacts.list_all
+    contacts = raw.map do |c|
+      phone = c["id"].to_s.gsub("@c.us", "")
+      name  = c["name"].presence || c["pushname"].presence
+      { phone: phone, name: name, label: [name, phone].compact.join(" · ") }
+    end.sort_by { |c| c[:name].to_s.downcase }
+
+    render json: { contacts: contacts }
+  rescue => e
+    render json: { contacts: [], error: e.message }
+  end
+
+  def create
+    @contact = waha_session.monitored_contacts.build(contact_params)
+    if @contact.save
+      FetchMonitoredContactProfilePictureJob.perform_later(@contact.id)
+      current_user.update!(contacts_intro_dismissed: true) unless current_user.contacts_intro_dismissed?
+      redirect_to monitored_contacts_path, notice: "Contato adicionado!"
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+
+  def edit; end
+
+  def update
+    if @contact.update(contact_params)
+      redirect_to monitored_contacts_path, notice: "Contato atualizado."
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    @contact.soft_delete!
+    redirect_to monitored_contacts_path, notice: "Contato removido."
+  end
+
+  private
+
+  def set_contact
+    @contact = waha_session.monitored_contacts.find(params[:id])
+  end
+
+  def contact_params
+    params.require(:monitored_contact).permit(:phone_number, :display_name, :direction, :enabled)
+  end
+
+  def waha_session
+    @waha_session ||= current_user.waha_session
+  end
+end

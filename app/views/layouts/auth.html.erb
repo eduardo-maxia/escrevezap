@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="turbo-cache-control" content="no-preview">
+    <title><%= content_for?(:title) ? yield(:title) + " — EscreveZap" : "EscreveZap" %></title>
+    <meta name="robots" content="noindex">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+    <link rel="icon" href="/logo.png">
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1" defer></script>
+  </head>
+  <body class="min-h-screen bg-(--color-surface) text-(--color-text) antialiased">
+
+    <%# Flash toasts (Notyf) %>
+    <% if notice.present? %>
+      <span data-controller="toast" data-toast-type-value="notice" data-toast-message-value="<%= notice %>"></span>
+    <% end %>
+    <% if alert.present? %>
+      <span data-controller="toast" data-toast-type-value="alert" data-toast-message-value="<%= alert %>"></span>
+    <% end %>
+
+    <div class="flex min-h-screen">
+
+      <%# ── Left panel (desktop only) ──────────────────────────────────── %>
+      <div class="hidden lg:flex lg:w-[480px] xl:w-[520px] flex-shrink-0 flex-col bg-(--color-brand) text-white p-12 relative overflow-hidden">
+        <%# Decorative blobs %>
+        <div class="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-white/5 pointer-events-none"></div>
+        <div class="absolute -bottom-16 -left-16 w-56 h-56 rounded-full bg-white/5 pointer-events-none"></div>
+
+        <% if content_for?(:auth_left) %>
+          <%= yield :auth_left %>
+        <% else %>
+          <%# Default: login/generic %>
+          <div class="flex-1 flex flex-col justify-center relative z-10">
+            <div class="flex items-center gap-3 mb-10">
+            <div class="w-14 h-14 rounded-lg bg-white/90 flex items-center justify-center">
+              <%= image_tag "/logo.png", alt: "EscreveZap", class: "w-12 h-12" %>
+            </div>
+              <span class="text-2xl font-bold tracking-tight">EscreveZap</span>
+            </div>
+
+            <h2 class="text-3xl font-bold leading-snug mb-4">
+              Seus áudios no WhatsApp<br>em texto, automaticamente.
+            </h2>
+            <p class="text-white/70 text-base leading-relaxed mb-10">
+              Nunca mais perca informações importantes por não conseguir ouvir um áudio.
+            </p>
+
+            <ul class="space-y-4">
+              <li class="flex items-start gap-3">
+                <span class="flex-shrink-0 mt-0.5 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                  <i class="ph ph-check text-xs"></i>
+                </span>
+                <span class="text-white/80 text-sm">Funciona direto no WhatsApp — sem app extra</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="flex-shrink-0 mt-0.5 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                  <i class="ph ph-check text-xs"></i>
+                </span>
+                <span class="text-white/80 text-sm">Transcrição precisa com IA em português</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="flex-shrink-0 mt-0.5 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                  <i class="ph ph-check text-xs"></i>
+                </span>
+                <span class="text-white/80 text-sm">Resumo automático para quem tem o plano Pro</span>
+              </li>
+            </ul>
+          </div>
+
+          <p class="relative z-10 text-white/40 text-xs mt-auto">© <%= Time.current.year %> EscreveZap</p>
+        <% end %>
+      </div>
+
+      <%# ── Right panel ──────────────────────────────────────────────── %>
+      <div class="flex-1 flex flex-col">
+        <%# Mobile header %>
+        <div class="lg:hidden flex items-center gap-2.5 px-6 pt-6 pb-2">
+          <%= image_tag "/logo.png", alt: "EscreveZap", class: "w-8 h-8" %>
+          <span class="font-bold text-(--color-text) tracking-tight">EscreveZap</span>
+        </div>
+
+        <%# Content %>
+        <div class="flex-1 flex items-center justify-center px-6 py-10">
+          <div class="w-full max-w-sm">
+            <%= yield %>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <%= render "shared/notyf" %>
+  </body>
+</html>

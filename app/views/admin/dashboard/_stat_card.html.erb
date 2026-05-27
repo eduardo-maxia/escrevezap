@@ -1,0 +1,11 @@
+<%# locals: (label:, value:, icon:, highlight: false, danger: false) %>
+<div class="bg-(--color-surface) border <%= danger ? 'border-(--color-danger)' : 'border-(--color-border)' %> rounded-xl p-4 flex items-start gap-3">
+  <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0
+              <%= highlight ? 'bg-(--color-brand-light) text-(--color-brand)' : danger ? 'bg-(--color-danger-light) text-(--color-danger)' : 'bg-(--color-surface-raised) text-(--color-text-muted)' %>">
+    <i class="ph <%= icon %> text-lg"></i>
+  </div>
+  <div class="min-w-0">
+    <p class="text-xs text-(--color-text-muted) truncate"><%= label %></p>
+    <p class="text-lg font-bold text-(--color-text) leading-tight"><%= value %></p>
+  </div>
+</div>

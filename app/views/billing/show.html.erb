@@ -1,0 +1,192 @@
+<% content_for :title, "Assinatura" %>
+
+<%
+  sub   = @subscription
+  used  = current_user.monthly_transcriptions_used
+  limit = current_user.transcription_limit
+  pct   = [(used.to_f / limit * 100).round, 100].min
+
+  has_active_sub = sub&.active_or_trialing?
+
+  status_cfg = if sub&.active?
+    { label: "Ativo",              bg: "bg-(--color-success-light)", fg: "text-(--color-success)" }
+  elsif sub&.trialing?
+    { label: "Trial",              bg: "bg-(--color-warning-light)", fg: "text-(--color-warning)" }
+  elsif sub&.past_due?
+    { label: "Pagamento pendente", bg: "bg-(--color-warning-light)", fg: "text-(--color-warning)" }
+  elsif sub&.cancelled? || sub&.expired?
+    { label: "Cancelado",          bg: "bg-(--color-danger-light)",  fg: "text-(--color-danger)" }
+  else
+    { label: "Gratuito",           bg: "bg-(--color-surface-raised)", fg: "text-(--color-text-muted)" }
+  end
+%>
+
+<div class="space-y-5">
+
+  <%# Header %>
+  <div class="flex items-center gap-3">
+    <%= link_to profile_path, class: "w-8 h-8 rounded-full flex items-center justify-center hover:bg-(--color-surface-raised) text-(--color-text-muted) transition-colors" do %>
+      <i class="ph ph-arrow-left text-base"></i>
+    <% end %>
+    <h1 class="text-xl font-bold text-(--color-text)">Assinatura</h1>
+  </div>
+
+  <%# Current status card %>
+  <div class="bg-(--color-surface) border border-(--color-border) rounded-2xl p-5 space-y-4">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <p class="text-xs text-(--color-text-subtle) font-medium uppercase tracking-wide">Plano atual</p>
+        <p class="text-2xl font-bold text-(--color-text) mt-0.5"><%= current_user.plan.capitalize %></p>
+        <% if sub&.pending_downgrade? %>
+          <p class="text-xs text-(--color-warning) mt-1 font-medium">
+            <i class="ph ph-clock-countdown"></i>
+            Muda para <%= sub.pending_plan.capitalize %> no próximo ciclo
+            <% if sub.current_period_end.present? %>
+              (<%= sub.current_period_end.strftime("%-d/%m/%Y") %>)
+            <% end %>
+          </p>
+        <% elsif has_active_sub && sub.current_period_end.present? %>
+          <p class="text-xs text-(--color-text-muted) mt-1">
+            Renova em <%= sub.current_period_end.strftime("%-d de %B de %Y") %>
+          </p>
+        <% elsif sub&.cancelled? && sub.cancelled_at.present? %>
+          <p class="text-xs text-(--color-danger) mt-1">
+            Cancelado em <%= sub.cancelled_at.strftime("%-d de %B de %Y") %>
+          </p>
+        <% end %>
+      </div>
+      <span class="px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0 <%= status_cfg[:bg] %> <%= status_cfg[:fg] %>">
+        <%= status_cfg[:label] %>
+      </span>
+    </div>
+
+    <%# Usage %>
+    <div class="pt-4 border-t border-(--color-border)">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs text-(--color-text-muted)">Transcrições este mês</span>
+        <span class="text-xs font-semibold text-(--color-text)"><%= used %> / <%= limit %></span>
+      </div>
+      <div class="w-full h-1.5 bg-(--color-surface-raised) rounded-full overflow-hidden">
+        <div class="h-full rounded-full transition-all duration-500 <%= pct >= 90 ? 'bg-(--color-danger)' : 'bg-(--color-brand)' %>"
+             style="width: <%= pct %>%"></div>
+      </div>
+      <% if pct >= 100 %>
+        <p class="text-xs text-(--color-danger) mt-1.5 font-medium">Limite atingido — faça upgrade para continuar.</p>
+      <% elsif pct >= 80 %>
+        <p class="text-xs text-(--color-warning) mt-1.5">Você já usou <%= pct %>% do limite mensal.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Plans title %>
+  <h2 class="text-sm font-semibold text-(--color-text-muted) uppercase tracking-wide">Planos disponíveis</h2>
+
+  <%# Free %>
+  <div class="bg-(--color-surface) border <%= current_user.free? ? 'border-(--color-brand)' : 'border-(--color-border)' %> rounded-2xl p-5 flex items-center gap-4">
+    <div class="w-10 h-10 rounded-xl bg-(--color-surface-raised) flex items-center justify-center flex-shrink-0">
+      <i class="ph ph-gift text-lg text-(--color-text-muted)"></i>
+    </div>
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center gap-2">
+        <p class="text-sm font-bold text-(--color-text)">Grátis</p>
+        <% if current_user.free? %>
+          <span class="text-xs bg-(--color-brand-light) text-(--color-brand) px-2 py-0.5 rounded-full font-semibold">Atual</span>
+        <% end %>
+      </div>
+      <p class="text-xs text-(--color-text-muted) mt-0.5">20 transcrições/mês</p>
+    </div>
+    <div class="text-right flex-shrink-0">
+      <p class="text-sm font-bold text-(--color-text)">R$0</p>
+      <p class="text-xs text-(--color-text-subtle)">/mês</p>
+    </div>
+  </div>
+
+  <%# Basic %>
+  <div class="bg-(--color-surface) border <%= current_user.basic? ? 'border-(--color-brand)' : 'border-(--color-border)' %> rounded-2xl overflow-hidden">
+    <div class="p-5">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 rounded-xl bg-(--color-brand-subtle) flex items-center justify-center flex-shrink-0">
+          <i class="ph ph-lightning text-lg text-(--color-brand)"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2">
+            <p class="text-sm font-bold text-(--color-text)">Basic</p>
+            <% if current_user.basic? %>
+              <span class="text-xs bg-(--color-brand-light) text-(--color-brand) px-2 py-0.5 rounded-full font-semibold">Atual</span>
+            <% end %>
+          </div>
+          <p class="text-xs text-(--color-text-muted) mt-0.5">500 transcrições/mês · sem marca</p>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <p class="text-sm font-bold text-(--color-text)">R$5,99</p>
+          <p class="text-xs text-(--color-text-subtle)">/mês</p>
+        </div>
+      </div>
+      <% unless current_user.basic? %>
+        <% if has_active_sub %>
+          <%= link_to "Mudar para Basic",
+                billing_change_plan_confirm_path(plan: "basic"),
+                class: "mt-4 w-full bg-(--color-surface-raised) hover:bg-(--color-border) text-(--color-text) font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors inline-flex items-center justify-center gap-2",
+                data: { turbo_frame: "modal" } %>
+        <% else %>
+          <%= button_to "Assinar Basic",
+                billing_upgrade_path(plan: "basic"),
+                method: :post,
+                data: { turbo: false, controller: "loadable", "loadable-loading-text-value": "Redirecionando..." },
+                class: "mt-4 w-full bg-(--color-surface-raised) hover:bg-(--color-border) text-(--color-text) font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed" %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Pro %>
+  <div class="<%= current_user.pro? ? 'bg-(--color-surface) border border-(--color-brand)' : 'bg-(--color-brand)' %> rounded-2xl overflow-hidden">
+    <div class="p-5">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 rounded-xl <%= current_user.pro? ? 'bg-(--color-brand-subtle)' : 'bg-white/20' %> flex items-center justify-center flex-shrink-0">
+          <i class="ph ph-star text-lg <%= current_user.pro? ? 'text-(--color-brand)' : 'text-white' %>"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2">
+            <p class="text-sm font-bold <%= current_user.pro? ? 'text-(--color-text)' : 'text-white' %>">Pro</p>
+            <% if current_user.pro? %>
+              <span class="text-xs bg-(--color-brand-light) text-(--color-brand) px-2 py-0.5 rounded-full font-semibold">Atual</span>
+            <% else %>
+              <span class="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full font-semibold">Popular</span>
+            <% end %>
+          </div>
+          <p class="text-xs mt-0.5 <%= current_user.pro? ? 'text-(--color-text-muted)' : 'text-white/80' %>">2.000 transcrições/mês · IA + formatação</p>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <p class="text-sm font-bold <%= current_user.pro? ? 'text-(--color-text)' : 'text-white' %>">R$19,90</p>
+          <p class="text-xs <%= current_user.pro? ? 'text-(--color-text-subtle)' : 'text-white/70' %>">/mês</p>
+        </div>
+      </div>
+      <% unless current_user.pro? %>
+        <% if has_active_sub %>
+          <%= link_to "Mudar para Pro",
+                billing_change_plan_confirm_path(plan: "pro"),
+                class: "mt-4 w-full bg-white/20 hover:bg-white/30 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-colors inline-flex items-center justify-center gap-2",
+                data: { turbo_frame: "modal" } %>
+        <% else %>
+          <%= button_to "Assinar Pro",
+                billing_upgrade_path(plan: "pro"),
+                method: :post,
+                data: { turbo: false, controller: "loadable", "loadable-loading-text-value": "Redirecionando..." },
+                class: "mt-4 w-full bg-white/20 hover:bg-white/30 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-colors inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed" %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Cancel %>
+  <% if has_active_sub %>
+    <div class="pt-2 text-center">
+      <%= link_to "Cancelar assinatura",
+            billing_cancel_confirm_path,
+            class: "text-xs text-(--color-danger) hover:underline",
+            data: { turbo_frame: "modal" } %>
+    </div>
+  <% end %>
+
+</div>

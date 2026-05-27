@@ -1,0 +1,187 @@
+<% content_for :title, "Conectar WhatsApp" %>
+
+<%# ── Custom left panel ──────────────────────────────────────────────── %>
+<% content_for :auth_left do %>
+  <div class="flex-1 flex flex-col justify-center relative z-10">
+    <div class="flex items-center gap-3 mb-12">
+      <%= image_tag "/logo.png", alt: "EscreveZap", class: "w-10 h-10" %>
+      <span class="text-xl font-bold tracking-tight">EscreveZap</span>
+    </div>
+
+    <h2 class="text-3xl font-bold leading-snug mb-3">
+      Conecte seu WhatsApp<br>e comece agora.
+    </h2>
+    <p class="text-white/70 text-sm leading-relaxed mb-10">
+      Após conectar, o EscreveZap transcreve automaticamente os áudios das conversas que você quiser monitorar.
+    </p>
+
+    <%# Steps %>
+    <ul class="space-y-5">
+      <li class="flex items-start gap-4">
+        <span class="flex-shrink-0 w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">1</span>
+        <div>
+          <p class="text-sm font-medium">Faça login</p>
+          <p class="text-xs text-white/60 mt-0.5">Já feito ✓</p>
+        </div>
+      </li>
+      <li class="flex items-start gap-4">
+        <span class="flex-shrink-0 w-7 h-7 rounded-full bg-white flex items-center justify-center text-(--color-brand) text-xs font-bold">2</span>
+        <div>
+          <p class="text-sm font-semibold">Conecte seu WhatsApp</p>
+          <p class="text-xs text-white/60 mt-0.5">Escaneie o QR ou use um código de emparelhamento</p>
+        </div>
+      </li>
+      <li class="flex items-start gap-4">
+        <span class="flex-shrink-0 w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">3</span>
+        <div>
+          <p class="text-sm font-medium">Adicione contatos para monitorar</p>
+          <p class="text-xs text-white/60 mt-0.5">Transcrições chegam direto na conversa</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <p class="relative z-10 text-white/40 text-xs mt-auto">© <%= Time.current.year %> EscreveZap</p>
+<% end %>
+
+<%# ── Right panel content ─────────────────────────────────────────────── %>
+<div data-controller="connect"
+     data-connect-qr-url-value="<%= qr_app_waha_session_path(format: :json) %>"
+     data-connect-pairing-url-value="<%= pairing_code_app_waha_session_path(format: :json) %>"
+     data-connect-dashboard-url-value="<%= authenticated_root_path %>"
+     data-connect-redirect-on-success-value="true"
+     data-connect-status-value="<%= @waha_session.waha_status %>">
+
+  <%# Mobile steps indicator — fixed bottom (hidden on desktop) %>
+  <div class="lg:hidden fixed bottom-6 inset-x-0 z-10 flex items-center justify-center gap-1.5 pointer-events-none">
+    <span class="w-2 h-2 rounded-full" style="background:#CBD5E1"></span>
+    <span class="w-6 h-2 rounded-full bg-(--color-brand)"></span>
+    <span class="w-2 h-2 rounded-full" style="background:#CBD5E1"></span>
+  </div>
+
+  <%# Title %>
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-(--color-text)">Conectar WhatsApp</h1>
+    <p class="mt-1 text-sm text-(--color-text-muted)">Use o QR Code ou código de emparelhamento</p>
+  </div>
+
+  <%# Status badge %>
+  <div class="flex items-center gap-2 mb-6" data-connect-target="statusBadge">
+    <span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" data-connect-target="statusDot"></span>
+    <span class="text-xs text-(--color-text-muted)" data-connect-target="statusText">Iniciando sessão...</span>
+  </div>
+
+  <%# Tabs %>
+  <div class="flex rounded-xl border border-(--color-border) p-1 mb-6 bg-(--color-surface-muted)" data-connect-target="tabs">
+    <button type="button"
+            data-action="click->connect#showQRTab"
+            data-connect-target="qrTabBtn"
+            class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition-all bg-(--color-surface) shadow-sm text-(--color-text)">
+      <i class="ph ph-qr-code text-base"></i>
+      QR Code
+    </button>
+    <button type="button"
+            data-action="click->connect#showPairingTab"
+            data-connect-target="pairingTabBtn"
+            class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition-all text-(--color-text-muted)">
+      <i class="ph ph-hash text-base"></i>
+      Código
+    </button>
+  </div>
+
+  <%# ── QR Code panel ───────────────────────────────────────────────── %>
+  <div data-connect-target="qrPanel">
+    <div data-connect-target="qrLoading" class="flex flex-col items-center justify-center gap-3 py-10">
+      <div class="w-8 h-8 border-[3px] border-(--color-brand) border-t-transparent rounded-full animate-spin"></div>
+      <p class="text-sm text-(--color-text-muted)">Carregando QR Code...</p>
+    </div>
+    <div data-connect-target="qrImageWrapper" class="hidden flex flex-col items-center gap-4">
+      <div class="rounded-2xl border-2 border-(--color-border) bg-white shadow-sm overflow-hidden">
+        <img data-connect-target="qrImage" class="w-52 h-52 rounded-lg" alt="QR Code WhatsApp">
+      </div>
+      <p class="text-xs text-(--color-text-muted) text-center max-w-xs">
+        Abra o WhatsApp → <strong>Menu</strong> → <strong>Dispositivos conectados</strong> → <strong>Conectar dispositivo</strong>
+      </p>
+      <button type="button"
+              data-action="click->connect#refreshQR"
+              class="flex items-center gap-1.5 text-xs text-(--color-brand) hover:text-(--color-brand-dark) font-medium transition-colors">
+        <i class="ph ph-arrows-clockwise"></i>
+        Atualizar QR Code
+      </button>
+    </div>
+  </div>
+
+  <%# ── Pairing code panel ─────────────────────────────────────────── %>
+  <div data-connect-target="pairingPanel" class="hidden">
+    <div data-connect-target="phoneFormWrapper">
+      <p class="text-sm text-(--color-text-muted) mb-4 leading-relaxed">
+        Digite seu número do WhatsApp para receber um código de emparelhamento de 8 dígitos.
+      </p>
+      <form data-action="submit->connect#requestPairingCode" novalidate>
+        <div class="mb-3">
+          <input type="tel"
+                 name="phone_number"
+                 placeholder="5511999999999"
+                 inputmode="numeric"
+                 autocomplete="tel"
+                 class="w-full bg-(--color-surface) border border-(--color-border) rounded-xl px-4 py-3 text-sm text-(--color-text) placeholder:text-(--color-text-subtle) focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-transparent transition"
+                 data-connect-target="phoneInput">
+          <p class="mt-1.5 text-xs text-(--color-text-muted)">Com código do país, sem sinais. Ex: 5511999999999</p>
+        </div>
+        <button type="submit"
+                data-connect-target="pairingSubmitBtn"
+                class="w-full flex items-center justify-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-4 py-3 rounded-xl text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+          <span data-connect-target="pairingBtnText">Receber código</span>
+        </button>
+        <div data-connect-target="pairingError" class="hidden mt-3 flex items-center gap-2 rounded-lg bg-(--color-danger-light) border border-(--color-danger) px-3 py-2.5 text-xs text-(--color-danger)">
+          <i class="ph ph-warning-circle flex-shrink-0"></i>
+          <span data-connect-target="pairingErrorText"></span>
+        </div>
+      </form>
+    </div>
+    <div data-connect-target="codeWrapper" class="hidden flex flex-col items-center gap-5 py-4">
+      <div class="text-center">
+        <p class="text-sm text-(--color-text-muted) mb-3 leading-relaxed">
+          No WhatsApp, vá em <strong>Dispositivos conectados</strong> → <strong>Vincular com número de telefone</strong> e insira o código:
+        </p>
+        <div class="inline-flex items-center justify-center bg-(--color-brand-subtle) border-2 border-(--color-brand-light) rounded-2xl px-8 py-5">
+          <span class="font-mono text-3xl font-bold tracking-[0.2em] text-(--color-brand)" data-connect-target="codeText">- - - -</span>
+        </div>
+      </div>
+      <button type="button"
+              data-action="click->connect#resetPairing"
+              class="flex items-center gap-1.5 text-xs text-(--color-text-muted) hover:text-(--color-text) transition-colors">
+        <i class="ph ph-arrow-u-up-left"></i>
+        Usar outro número
+      </button>
+    </div>
+  </div>
+
+  <%# ── Error / stopped state ─────────────────────────────────────── %>
+  <div data-connect-target="errorPanel" class="hidden flex flex-col items-center gap-5 py-8 text-center">
+    <div class="w-16 h-16 rounded-full bg-(--color-danger-light) flex items-center justify-center">
+      <i class="ph ph-wifi-slash text-4xl text-(--color-danger)"></i>
+    </div>
+    <div>
+      <h3 class="text-lg font-bold text-(--color-text)" data-connect-target="errorTitle">Sessão encerrada</h3>
+      <p class="text-sm text-(--color-text-muted) mt-1 max-w-xs" data-connect-target="errorMessage">A sessão foi encerrada. Reinicie para reconectar seu WhatsApp.</p>
+    </div>
+    <%= button_to reconnect_app_waha_session_path, method: :post,
+          data: { controller: "loadable", "loadable-loading-text-value": "Reiniciando..." },
+          class: "inline-flex items-center justify-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-6 py-3 rounded-xl text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed" do %>
+      <i class="ph ph-arrows-clockwise text-base"></i>
+      Reiniciar sessão
+    <% end %>
+  </div>
+
+  <%# ── Success state ───────────────────────────────────────────────── %>
+  <div data-connect-target="successPanel" class="hidden flex flex-col items-center gap-4 py-8 text-center">
+    <div class="w-16 h-16 rounded-full bg-(--color-brand-light) flex items-center justify-center">
+      <i class="ph ph-check-circle text-4xl text-(--color-brand)"></i>
+    </div>
+    <div>
+      <h3 class="text-lg font-bold text-(--color-text)">Conectado com sucesso!</h3>
+      <p class="text-sm text-(--color-text-muted) mt-1">Redirecionando para o painel...</p>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,136 @@
+<% content_for :title, "Meu perfil" %>
+
+<div class="py-6 space-y-6" data-controller="profile">
+
+  <%# ── Header ────────────────────────────────────────────────────────── %>
+  <h1 class="text-xl font-bold text-(--color-text)">Meu perfil</h1>
+
+  <%# ── Avatar — auto-submits on file change ───────────────────────────── %>
+  <%= form_with model: current_user, url: profile_path, method: :patch,
+        multipart: true,
+        data: { "profile-target": "avatarForm" },
+        class: "flex items-center gap-4" do |f| %>
+    <div class="relative flex-shrink-0">
+      <% if current_user.avatar.attached? %>
+        <img src="<%= url_for(current_user.avatar) %>"
+             alt="<%= current_user.display_name %>"
+             class="w-16 h-16 rounded-full object-cover">
+      <% elsif current_user.avatar_url.present? %>
+        <img src="<%= current_user.avatar_url %>"
+             alt="<%= current_user.display_name %>"
+             class="w-16 h-16 rounded-full object-cover">
+      <% else %>
+        <span class="w-16 h-16 rounded-full bg-(--color-brand-light) text-(--color-brand) flex items-center justify-center text-2xl font-bold">
+          <%= current_user.display_name.first.upcase %>
+        </span>
+      <% end %>
+      <label for="user_avatar"
+             class="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-(--color-brand) text-white flex items-center justify-center cursor-pointer hover:bg-(--color-brand-dark) transition-colors">
+        <i class="ph ph-pencil text-xs"></i>
+      </label>
+    </div>
+    <%= f.file_field :avatar, id: "user_avatar", class: "hidden",
+          accept: "image/png,image/jpeg,image/webp",
+          data: { action: "change->profile#avatarChanged" } %>
+    <div>
+      <p class="text-sm font-semibold text-(--color-text)"><%= current_user.display_name %></p>
+      <p class="text-xs text-(--color-text-muted)"><%= current_user.email %></p>
+      <p class="text-xs text-(--color-text-subtle) mt-0.5">Plano <%= current_user.plan.capitalize %></p>
+    </div>
+  <% end %>
+
+  <%# ── Name — auto-saves on blur ──────────────────────────────────────── %>
+  <%= form_with model: current_user, url: profile_path, method: :patch,
+        data: { "profile-target": "nameForm" } do |f| %>
+    <%= f.label :name, "Nome", class: "block text-sm font-medium text-(--color-text) mb-1.5" %>
+    <%= f.text_field :name, placeholder: "Seu nome",
+          data: { "profile-target": "nameInput", action: "blur->profile#autoSaveName" },
+          class: "w-full rounded-xl border border-(--color-border) bg-(--color-surface) px-4 py-3 text-sm text-(--color-text) placeholder:text-(--color-text-subtle) focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-transparent" %>
+  <% end %>
+
+  <%# ── Email — read-only + inline change form ─────────────────────────── %>
+  <div>
+    <label class="block text-sm font-medium text-(--color-text) mb-1.5">E-mail</label>
+    <div class="flex items-center gap-3">
+      <div class="flex-1 rounded-xl border border-(--color-border) bg-(--color-surface-muted) px-4 py-3 text-sm text-(--color-text-muted) cursor-not-allowed select-none">
+        <%= current_user.email %>
+      </div>
+      <button type="button"
+              data-action="click->profile#toggleEmail"
+              class="flex-shrink-0 text-xs font-semibold text-(--color-brand) hover:underline px-1 py-1">
+        Alterar
+      </button>
+    </div>
+
+    <%# Inline email change form — hidden by default %>
+    <div data-profile-target="emailSection" class="hidden mt-3">
+      <%= form_with url: update_email_profile_path, method: :patch,
+            data: { "profile-target": "emailForm" },
+            class: "space-y-3" do |f| %>
+        <div class="rounded-xl border border-(--color-border-strong) bg-(--color-surface) p-4 space-y-3">
+          <p class="text-xs text-(--color-text-muted)">
+            Você receberá uma confirmação no novo endereço antes da troca ser efetivada.
+          </p>
+          <input type="email" name="user[email]" required
+                 placeholder="novo@email.com"
+                 class="w-full rounded-xl border border-(--color-border) bg-(--color-surface) px-4 py-2.5 text-sm text-(--color-text) placeholder:text-(--color-text-subtle) focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-transparent">
+          <div class="flex gap-2">
+            <button type="submit"
+                    data-controller="loadable"
+                    data-loadable-loading-text-value="Salvando..."
+                    class="flex-1 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+              Confirmar
+            </button>
+            <button type="button"
+                    data-action="click->profile#toggleEmail"
+                    class="px-4 py-2 rounded-xl border border-(--color-border) text-sm text-(--color-text-muted) hover:bg-(--color-surface-raised) transition-colors">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%# ── Formatting style — Pro only ────────────────────────────────────── %>
+  <% if current_user.pro? %>
+    <%= link_to formatting_style_path,
+          class: "flex items-center gap-4 bg-(--color-surface) border border-(--color-border) rounded-2xl px-5 py-4 hover:border-(--color-brand-light) transition-colors" do %>
+      <div class="w-10 h-10 rounded-xl bg-(--color-brand-subtle) flex items-center justify-center flex-shrink-0">
+        <i class="ph-fill ph-article text-lg text-(--color-brand)"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-(--color-text)">Modelo de formatação</p>
+        <p class="text-xs text-(--color-text-muted) mt-0.5">
+          <%= current_user.polished? ? "Texto Polido — resumo + formatação" : "Fiel ao Áudio — estilo original" %>
+        </p>
+      </div>
+      <i class="ph ph-arrow-right text-(--color-text-subtle)"></i>
+    <% end %>
+  <% end %>
+
+  <%# ── Billing ─────────────────────────────────────────────────────────── %>
+  <%= link_to billing_path,
+        class: "flex items-center gap-4 bg-(--color-surface) border border-(--color-border) rounded-2xl px-5 py-4 hover:border-(--color-brand-light) transition-colors" do %>
+    <div class="w-10 h-10 rounded-xl bg-(--color-brand-subtle) flex items-center justify-center flex-shrink-0">
+      <i class="ph-fill ph-credit-card text-lg text-(--color-brand)"></i>
+    </div>
+    <div class="flex-1 min-w-0">
+      <p class="text-sm font-semibold text-(--color-text)">Assinatura</p>
+      <p class="text-xs text-(--color-text-muted) mt-0.5">
+        Plano <%= current_user.plan.capitalize %> ·
+        <%= current_user.monthly_transcriptions_used %> / <%= current_user.transcription_limit %> transcrições
+      </p>
+    </div>
+    <i class="ph ph-arrow-right text-(--color-text-subtle)"></i>
+  <% end %>
+
+  <%# ── Sign out ────────────────────────────────────────────────────────── %>
+  <%= button_to destroy_user_session_path, method: :delete,
+        class: "w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-(--color-border) text-sm font-medium text-(--color-text-muted) hover:bg-(--color-surface-raised) hover:text-(--color-danger) hover:border-(--color-danger) transition-colors" do %>
+    <i class="ph ph-sign-out text-base"></i>
+    Sair da conta
+  <% end %>
+
+</div>
+

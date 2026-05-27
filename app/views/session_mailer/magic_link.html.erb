@@ -1,0 +1,29 @@
+<p style="margin: 0 0 8px 0; font-size: 16px; color: #111827;">
+  <%= t("mailers.session.magic_link.greeting", name: @user.display_name) %>
+</p>
+
+<p style="margin: 0 0 24px 0; font-size: 15px; color: #6B7280; line-height: 1.6;">
+  <%= t("mailers.session.magic_link.instruction") %>
+</p>
+
+<div style="text-align: center; margin: 28px 0;">
+  <a href="<%= @magic_link_url %>"
+     style="display: inline-block; background: #1E7A52; color: #ffffff; font-weight: 600; font-size: 15px; padding: 14px 32px; border-radius: 12px; text-decoration: none; letter-spacing: -0.01em;">
+    <%= t("mailers.session.magic_link.button") %>
+  </a>
+</div>
+
+<p style="margin: 0 0 8px 0; font-size: 13px; color: #6B7280;">
+  <%= t("mailers.session.magic_link.expiry") %>
+</p>
+
+<p style="margin: 0; font-size: 12px; color: #9CA3AF;">
+  <%= t("mailers.session.magic_link.ignore") %>
+</p>
+
+<hr style="border: none; border-top: 1px solid #E5E7EB; margin: 24px 0 0 0;">
+
+<p style="margin: 16px 0 0 0; font-size: 12px; color: #9CA3AF; word-break: break-all;">
+  <%= t("mailers.session.magic_link.link_text") %>
+  <a href="<%= @magic_link_url %>" style="color: #1E7A52;"><%= @magic_link_url %></a>
+</p>

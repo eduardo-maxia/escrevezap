@@ -1,394 +1,136 @@
-<%# ═══════════════════════════════════════════════════════════════════════════
-    Landing — Mobile-first, Flowbite-inspired
-   ═══════════════════════════════════════════════════════════════════════════ %>
-<%
-  signed_in   = user_signed_in?
-  cta_path    = signed_in ? authenticated_root_path : new_user_session_path
-  cta_primary = signed_in ? "Ir para o dashboard" : "Começar grátis"
-  cta_create  = signed_in ? "Ir para o dashboard" : "Criar conta gratuita"
-  cta_resolve = signed_in ? "Ir para o dashboard" : "Resolver isso agora"
-  cta_nav     = signed_in ? "Dashboard"           : "Entrar"
-  cta_icon    = signed_in ? "squares-four"        : "arrow-right"
-%>
+<%# ============================================================== %>
+<%# HERO %>
+<%# ============================================================== %>
+<section class="relative overflow-hidden bg-(--color-bg)">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 md:pt-24 md:pb-28">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
-<%# ── Navbar ──────────────────────────────────────────────────────────────── %>
-<header data-controller="scroll-header"
-        class="sticky top-0 z-50 bg-(--color-surface)/85 backdrop-blur-md border-b border-(--color-border)">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
-    <a href="#top" class="flex items-center gap-2.5">
-      <%= image_tag "/logo.png", alt: "Cobrança em Dia", class: "h-7 sm:h-8 w-auto" %>
-      <span class="font-semibold text-(--color-text) text-sm hidden xs:block sm:block">Cobrança em Dia</span>
-    </a>
-
-    <nav class="hidden md:flex items-center gap-7 text-sm font-medium text-(--color-text-muted)">
-      <a href="#como-funciona" class="hover:text-(--color-brand) transition-colors">Como funciona</a>
-      <a href="#recursos" class="hover:text-(--color-brand) transition-colors">Recursos</a>
-      <a href="#precos" class="hover:text-(--color-brand) transition-colors">Preços</a>
-      <a href="#duvidas" class="hover:text-(--color-brand) transition-colors">Dúvidas</a>
-    </nav>
-
-    <%= link_to cta_path,
-          class: "group inline-flex items-center gap-2 pl-3.5 pr-1.5 py-1.5 rounded-full ring-1 ring-(--color-border-strong) hover:ring-(--color-brand) text-(--color-text) hover:text-(--color-brand) text-sm font-semibold transition-all" do %>
-      <%= cta_nav %>
-      <span class="flex items-center justify-center w-6 h-6 rounded-full bg-(--color-brand) text-(--color-text-inverse) group-hover:bg-(--color-brand-dark) transition-colors">
-        <i class="ph ph-<%= cta_icon %> text-[11px]"></i>
-      </span>
-    <% end %>
-  </div>
-</header>
-
-<%# ── Hero ────────────────────────────────────────────────────────────────── %>
-<section id="top" class="relative overflow-hidden bg-(--color-brand) text-(--color-text-inverse)">
-  <%# Decorative glow blobs %>
-  <div aria-hidden="true" class="absolute -top-24 -right-24 w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-(--color-accent)/20 blur-3xl"></div>
-  <div aria-hidden="true" class="absolute -bottom-32 -left-32 w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-(--color-brand-dark)/60 blur-3xl"></div>
-
-  <div class="relative max-w-6xl mx-auto px-4 sm:px-6 pt-10 pb-14 sm:pt-20 sm:pb-24">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14 items-center">
-
-      <%# Text column %>
-      <div class="text-center md:text-left">
-        <%# Trust badge with rating %>
-        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 ring-1 ring-white/15 text-xs sm:text-sm mb-5">
-          <span class="flex items-center gap-0.5 text-(--color-accent)">
-            <i class="ph-fill ph-star text-[11px]"></i>
-            <i class="ph-fill ph-star text-[11px]"></i>
-            <i class="ph-fill ph-star text-[11px]"></i>
-            <i class="ph-fill ph-star text-[11px]"></i>
-            <i class="ph-fill ph-star text-[11px]"></i>
-          </span>
-          <span class="text-blue-100">Aprovado por +500 empresas</span>
+      <%# ── Left: copy ── %>
+      <div class="text-center lg:text-left">
+        <%# Badge %>
+        <div class="inline-flex items-center gap-1.5 bg-(--color-brand-light) text-(--color-brand) text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
+          <i class="ph ph-sparkle"></i>
+          Transcrição automática no WhatsApp
         </div>
 
-        <h1 class="text-[2rem] leading-[1.1] sm:text-5xl md:text-[3.25rem] font-extrabold tracking-tight">
-          Cobranças no <span class="text-(--color-accent)">WhatsApp</span><br class="hidden sm:block">
-          <span class="sm:hidden"> </span>no piloto automático
+        <%# Headline %>
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-(--color-text) leading-tight tracking-tight">
+          Não consegue<br class="hidden sm:block">
+          ouvir o áudio<br class="hidden sm:block">
+          <span class="text-(--color-brand)">agora? Leia.</span>
         </h1>
 
-        <p class="mt-5 sm:mt-6 text-base sm:text-lg text-blue-100/90 leading-relaxed max-w-xl mx-auto md:mx-0">
-          Você cuida do negócio. A gente cuida de lembrar seus clientes de pagar. Configure uma vez e deixe a plataforma enviar os lembretes, registrar os pagamentos e organizar tudo.
+        <%# Subheadline %>
+        <p class="mt-5 text-lg md:text-xl text-(--color-text-muted) leading-relaxed max-w-lg mx-auto lg:mx-0">
+          EscreveZap transcreve automaticamente os áudios do WhatsApp e responde direto na conversa. Sem trocar de app. Sem copiar e colar.
         </p>
 
-        <%# CTAs — full width on mobile, inline on desktop %>
-        <div class="mt-7 sm:mt-9 flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center md:justify-start">
-          <%= link_to cta_path,
-                class: "inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-(--color-accent) hover:bg-(--color-accent-dark) text-white font-semibold rounded-xl transition-colors text-sm shadow-lg shadow-(--color-accent)/30" do %>
-            <%= cta_primary %>
-            <i class="ph ph-arrow-right text-base"></i>
+        <%# CTAs %>
+        <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+          <%= link_to new_user_session_path,
+                class: "inline-flex items-center justify-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-6 py-3.5 rounded-xl transition-colors text-sm shadow-sm" do %>
+            <i class="ph ph-whatsapp-logo text-lg"></i>
+            Conectar meu WhatsApp
           <% end %>
           <a href="#como-funciona"
-             class="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white/10 hover:bg-white/15 ring-1 ring-white/20 text-white font-medium rounded-xl transition-colors text-sm">
-            <i class="ph ph-play-circle text-base"></i>
-            Como funciona
+             class="inline-flex items-center justify-center gap-1.5 text-(--color-text-muted) hover:text-(--color-text) font-medium px-6 py-3.5 text-sm transition-colors">
+            <i class="ph ph-play-circle text-lg"></i>
+            Ver como funciona
           </a>
         </div>
 
-        <%# Inline reassurances %>
-        <div class="mt-6 flex flex-wrap items-center justify-center md:justify-start gap-x-5 gap-y-2 text-xs text-blue-200/80">
-          <span class="inline-flex items-center gap-1.5">
-            <i class="ph ph-check-circle text-(--color-accent)"></i> Sem cartão
-          </span>
-          <span class="inline-flex items-center gap-1.5">
-            <i class="ph ph-check-circle text-(--color-accent)"></i> Configure em 5 min
-          </span>
-          <span class="inline-flex items-center gap-1.5">
-            <i class="ph ph-check-circle text-(--color-accent)"></i> Cancele quando quiser
-          </span>
-        </div>
+        <%# Micro-copy %>
+        <p class="mt-4 text-xs text-(--color-text-muted)">
+          Grátis para começar &middot; Cancele quando quiser
+        </p>
       </div>
 
-      <%# Phone mockup column %>
-      <div class="flex justify-center md:justify-end">
-        <div class="relative w-64 sm:w-72">
-          <%# Soft glow behind phone %>
-          <div aria-hidden="true" class="absolute inset-0 bg-(--color-accent)/30 blur-3xl rounded-full"></div>
+      <%# ── Right: WhatsApp mockup ── %>
+      <div class="flex justify-center lg:justify-end">
+        <div class="w-full max-w-xs sm:max-w-sm">
 
-          <div class="relative bg-white/5 ring-1 ring-white/15 rounded-[2rem] p-2.5 shadow-2xl backdrop-blur-sm">
-            <%# Chat header %>
-            <div class="flex items-center gap-2.5 px-3 py-2.5 bg-white/10 rounded-2xl mb-2">
-              <div class="w-9 h-9 rounded-full bg-(--color-accent)/30 flex items-center justify-center flex-shrink-0">
-                <i class="ph-fill ph-storefront text-white text-base"></i>
+          <%# Chat card %>
+          <div class="rounded-3xl shadow-2xl overflow-hidden border border-gray-200/80 ring-1 ring-black/5">
+
+            <%# Chat header — green bar %>
+            <div class="bg-(--color-brand) px-4 py-3 flex items-center gap-3">
+              <button class="text-white/70 shrink-0" tabindex="-1">
+                <i class="ph ph-arrow-left text-lg"></i>
+              </button>
+              <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                <i class="ph ph-user text-white"></i>
               </div>
-              <div>
-                <p class="text-white text-xs font-semibold">Minha Empresa</p>
-                <div class="flex items-center gap-1">
-                  <span class="relative flex w-1.5 h-1.5">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-400"></span>
-                  </span>
-                  <p class="text-blue-200 text-[10px]">enviando automaticamente</p>
+              <div class="flex-1 min-w-0">
+                <p class="text-white font-semibold text-sm leading-tight truncate">João Silva</p>
+                <p class="text-white/70 text-xs">online</p>
+              </div>
+              <div class="flex items-center gap-3.5 text-white/70 shrink-0">
+                <i class="ph ph-video-camera text-base"></i>
+                <i class="ph ph-phone text-base"></i>
+              </div>
+            </div>
+
+            <%# Chat body %>
+            <div class="bg-stone-100 px-3 py-4 space-y-3" style="min-height:380px">
+
+              <%# Time badge %>
+              <div class="flex justify-center">
+                <span class="bg-white/80 text-gray-400 text-xs px-3 py-1 rounded-full shadow-sm">Hoje</span>
+              </div>
+
+              <%# Incoming audio message %>
+              <div class="max-w-xs">
+                <div class="bg-white rounded-2xl rounded-tl-sm px-3 py-2.5 shadow-sm inline-flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-full bg-(--color-brand-light) flex items-center justify-center shrink-0">
+                    <i class="ph ph-microphone text-(--color-brand) text-sm"></i>
+                  </div>
+                  <%# Waveform bars — heights span h-1..h-6 so Tailwind JIT picks them up %>
+                  <div class="flex items-center gap-px">
+                    <div class="w-0.5 h-2 bg-gray-300 rounded-full"></div>
+                    <div class="w-0.5 h-4 bg-gray-300 rounded-full"></div>
+                    <div class="w-0.5 h-3 bg-gray-300 rounded-full"></div>
+                    <div class="w-0.5 h-5 bg-gray-400 rounded-full"></div>
+                    <div class="w-0.5 h-3 bg-gray-300 rounded-full"></div>
+                    <div class="w-0.5 h-6 bg-gray-400 rounded-full"></div>
+                    <div class="w-0.5 h-4 bg-gray-300 rounded-full"></div>
+                    <div class="w-0.5 h-5 bg-gray-400 rounded-full"></div>
+                    <div class="w-0.5 h-3 bg-gray-300 rounded-full"></div>
+                    <div class="w-0.5 h-4 bg-gray-400 rounded-full"></div>
+                    <div class="w-0.5 h-2 bg-gray-300 rounded-full"></div>
+                    <div class="w-0.5 h-3 bg-gray-300 rounded-full"></div>
+                    <div class="w-0.5 h-5 bg-gray-400 rounded-full"></div>
+                    <div class="w-0.5 h-4 bg-gray-300 rounded-full"></div>
+                    <div class="w-0.5 h-2 bg-gray-300 rounded-full"></div>
+                  </div>
+                  <span class="text-xs text-gray-400 shrink-0">0:47</span>
                 </div>
               </div>
-            </div>
-            <%# Messages %>
-            <div class="space-y-2 px-2 py-1">
-              <div class="bg-white/10 rounded-2xl rounded-tl-sm p-2.5">
-                <p class="text-white text-xs leading-relaxed">Olá Ana! 👋 Sua parcela de R$150 vence amanhã.</p>
-                <p class="text-blue-200 text-[10px] text-right mt-1">09:00 <span class="text-(--color-accent)">✓✓</span></p>
+
+              <%# EscreveZap reply bubble (right-aligned) %>
+              <div class="flex justify-end">
+                <div class="bg-(--color-brand-light) rounded-2xl rounded-tr-sm px-4 py-3 shadow-sm max-w-xs">
+                  <p class="text-xs font-bold text-(--color-brand) mb-1.5">📝 Resumo rápido</p>
+                  <p class="text-xs text-(--color-accent) leading-relaxed mb-3">
+                    Ele quer confirmar a reunião de amanhã às 14h e pediu para revisar o contrato antes.
+                  </p>
+                  <div class="h-px bg-(--color-brand)/20 mb-3"></div>
+                  <p class="text-xs font-bold text-(--color-brand) mb-1.5">📄 Transcrição completa</p>
+                  <p class="text-xs text-(--color-text-muted) italic leading-relaxed">
+                    "Então, amanhã às duas... você pode confirmar? E aquele contrato precisa ser revisado antes, tá? Me fala."
+                  </p>
+                  <div class="flex items-center justify-between mt-2.5">
+                    <span class="text-xs text-(--color-brand)/50" style="font-size:10px">via EscreveZap ✨</span>
+                    <span class="text-(--color-brand)" style="font-size:10px">✓✓</span>
+                  </div>
+                </div>
               </div>
-              <div class="bg-white/10 rounded-2xl rounded-tl-sm p-2.5">
-                <p class="text-white text-xs leading-relaxed">Oi Carlos! 📅 Lembrete: R$250 vence hoje.</p>
-                <p class="text-blue-200 text-[10px] text-right mt-1">09:00 <span class="text-(--color-accent)">✓✓</span></p>
-              </div>
-              <div class="bg-(--color-accent)/30 ring-1 ring-(--color-accent)/40 rounded-2xl rounded-tl-sm p-2.5">
-                <p class="text-white text-xs leading-relaxed">Pagamento confirmado, Ana! ✅ Obrigado!</p>
-                <p class="text-blue-100 text-[10px] text-right mt-1">10:45 <span class="text-(--color-accent)">✓✓</span></p>
-              </div>
-            </div>
-            <%# Input bar %>
-            <div class="flex items-center gap-2 px-2 py-2 mt-1">
-              <div class="flex-1 h-7 bg-white/10 rounded-full"></div>
-              <div class="w-7 h-7 rounded-full bg-(--color-accent)/40 flex items-center justify-center flex-shrink-0">
-                <i class="ph-fill ph-paper-plane-right text-white text-xs"></i>
-              </div>
+
             </div>
           </div>
-          <p class="text-center text-blue-200 text-xs mt-4">📤 Enviado automaticamente às 09:00</p>
-        </div>
-      </div>
 
-    </div>
-  </div>
-
-  <%# Decorative bottom wave %>
-  <div aria-hidden="true" class="relative -mb-px">
-    <svg viewBox="0 0 1440 60" class="w-full h-8 sm:h-12" preserveAspectRatio="none">
-      <path d="M0,40 C320,0 720,80 1440,20 L1440,60 L0,60 Z" fill="var(--color-surface)"></path>
-    </svg>
-  </div>
-</section>
-
-<%# ── Stats strip (Flowbite-inspired) ──────────────────────────────────────── %>
-<section class="py-10 sm:py-14 px-4 sm:px-6 bg-(--color-surface)">
-  <div class="max-w-5xl mx-auto">
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-px bg-(--color-border) rounded-2xl overflow-hidden border border-(--color-border)">
-
-      <div class="bg-(--color-surface) px-4 py-6 sm:py-8 text-center">
-        <p class="text-2xl sm:text-4xl font-extrabold text-(--color-brand) tracking-tight">+500</p>
-        <p class="mt-1 text-[11px] sm:text-xs text-(--color-text-muted) font-medium uppercase tracking-wide">Cobranças enviadas</p>
-      </div>
-
-      <div class="bg-(--color-surface) px-4 py-6 sm:py-8 text-center">
-        <p class="text-2xl sm:text-4xl font-extrabold text-(--color-brand) tracking-tight">5 min</p>
-        <p class="mt-1 text-[11px] sm:text-xs text-(--color-text-muted) font-medium uppercase tracking-wide">Para configurar</p>
-      </div>
-
-      <div class="bg-(--color-surface) px-4 py-6 sm:py-8 text-center">
-        <p class="text-2xl sm:text-4xl font-extrabold text-(--color-brand) tracking-tight">24/7</p>
-        <p class="mt-1 text-[11px] sm:text-xs text-(--color-text-muted) font-medium uppercase tracking-wide">Sempre ativo</p>
-      </div>
-
-      <div class="bg-(--color-surface) px-4 py-6 sm:py-8 text-center">
-        <p class="text-2xl sm:text-4xl font-extrabold text-(--color-brand) tracking-tight">0%</p>
-        <p class="mt-1 text-[11px] sm:text-xs text-(--color-text-muted) font-medium uppercase tracking-wide">Esforço manual</p>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<%# ── Pain Points (Before / After) ─────────────────────────────────────────── %>
-<section class="py-12 sm:py-20 px-4 sm:px-6 bg-(--color-surface-muted)">
-  <div class="max-w-4xl mx-auto">
-    <div class="text-center mb-8 sm:mb-12">
-      <h2 class="text-2xl sm:text-4xl font-bold text-(--color-text) leading-tight">Da bagunça manual<br class="sm:hidden"> ao piloto automático</h2>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 rounded-2xl overflow-hidden border border-(--color-border) shadow-sm bg-(--color-surface)">
-
-      <%# Before — pain %>
-      <div class="bg-(--color-danger-light)/40 p-6 sm:p-8">
-        <div class="flex items-center gap-2 mb-5">
-          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-(--color-danger)/15 text-(--color-danger)">
-            <i class="ph-fill ph-x text-sm"></i>
-          </span>
-          <p class="text-xs font-bold text-(--color-danger) uppercase tracking-widest">Sem o Cobrança em Dia</p>
-        </div>
-        <ul class="space-y-3.5">
-          <% [
-            "Esquecendo de cobrar no prazo",
-            "Mensagem manual todo mês",
-            "Horas perdidas no WhatsApp",
-            "Sem visibilidade de quem pagou",
-            "Cobrança gera desconforto"
-          ].each do |pain| %>
-            <li class="flex items-start gap-2.5">
-              <i class="ph ph-x text-(--color-danger) text-base font-bold flex-shrink-0 mt-0.5"></i>
-              <span class="text-sm text-(--color-text)"><%= pain %></span>
-            </li>
-          <% end %>
-        </ul>
-      </div>
-
-      <%# After — solution %>
-      <div class="bg-(--color-success-light)/40 p-6 sm:p-8 border-t sm:border-t-0 sm:border-l border-(--color-border)">
-        <div class="flex items-center gap-2 mb-5">
-          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-(--color-success)/15 text-(--color-success)">
-            <i class="ph-fill ph-check text-sm"></i>
-          </span>
-          <p class="text-xs font-bold text-(--color-success) uppercase tracking-widest">Com o Cobrança em Dia</p>
-        </div>
-        <ul class="space-y-3.5">
-          <% [
-            "Cobranças no prazo, sem falhar",
-            "Tudo automático pelo WhatsApp",
-            "Configurado uma vez, roda sozinho",
-            "Dashboard completo de pagamentos",
-            "Tom profissional em cada mensagem"
-          ].each do |win| %>
-            <li class="flex items-start gap-2.5">
-              <i class="ph-fill ph-check-circle text-(--color-success) text-lg flex-shrink-0 mt-0.5"></i>
-              <span class="text-sm text-(--color-text)"><%= win %></span>
-            </li>
-          <% end %>
-        </ul>
-      </div>
-
-    </div>
-
-    <div class="mt-7 sm:mt-9 text-center">
-      <%= link_to cta_path,
-            class: "inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-3.5 bg-(--color-brand) hover:bg-(--color-brand-dark) text-(--color-text-inverse) font-semibold rounded-xl transition-colors text-sm shadow-sm" do %>
-        <%= cta_resolve %>
-        <i class="ph ph-arrow-right text-base"></i>
-      <% end %>
-    </div>
-  </div>
-</section>
-
-<%# ── How it works (3 steps) ────────────────────────────────────────────── %>
-<section id="como-funciona" class="py-12 sm:py-20 px-4 sm:px-6 scroll-mt-20">
-  <div class="max-w-4xl mx-auto">
-    <div class="text-center mb-10 sm:mb-14">
-      <h2 class="text-2xl sm:text-4xl font-bold text-(--color-text) leading-tight">3 passos. É sério.</h2>
-    </div>
-
-    <%# Mobile: vertical timeline with connector line. Desktop: 3-column %>
-    <ol class="relative grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-8">
-      <%# Vertical connector — mobile only %>
-      <span aria-hidden="true" class="sm:hidden absolute left-7 top-7 bottom-7 w-px bg-(--color-border)"></span>
-
-      <% [
-        { n: 1, title: "Cadastre seus clientes", desc: "Importe ou adicione rapidamente pelo dashboard.", icon: "users-three" },
-        { n: 2, title: "Configure as cobranças", desc: "Escolha o horário de envio e personalize a mensagem.", icon: "sliders-horizontal" },
-        { n: 3, title: "A plataforma faz o resto", desc: "Envios automáticos e acompanhamento dos pagamentos.", icon: "rocket-launch" }
-      ].each do |step| %>
-        <li class="relative flex sm:flex-col items-start sm:items-center gap-4 sm:gap-0 sm:text-center p-5 sm:p-6 rounded-2xl bg-(--color-surface) sm:bg-(--color-surface-muted) border border-(--color-border) shadow-sm sm:shadow-none">
-          <div class="relative w-14 h-14 rounded-full bg-(--color-brand) text-(--color-text-inverse) flex items-center justify-center text-xl font-extrabold flex-shrink-0 sm:mb-5 shadow-md ring-4 ring-(--color-brand-light)">
-            <%= step[:n] %>
-          </div>
-          <div class="flex-1">
-            <h3 class="font-bold text-(--color-text) text-base sm:text-lg mb-1">
-              <%= step[:title] %>
-            </h3>
-            <p class="text-sm text-(--color-text-muted) leading-relaxed"><%= step[:desc] %></p>
-          </div>
-        </li>
-      <% end %>
-    </ol>
-
-    <div class="mt-8 sm:mt-12 rounded-2xl p-5 sm:p-6 text-center border border-(--color-border) bg-gradient-to-br from-(--color-brand-subtle) to-(--color-accent-subtle)">
-      <p class="text-(--color-text-muted) text-xs sm:text-sm flex items-center justify-center gap-1.5">
-        <i class="ph ph-timer text-base text-(--color-brand)"></i>
-        Tempo médio para colocar no ar
-      </p>
-      <p class="text-2xl sm:text-3xl font-extrabold text-(--color-text) mt-1">Menos de 5 minutos</p>
-    </div>
-  </div>
-</section>
-
-<%# ── Features ───────────────────────────────────────────────────────────── %>
-<section id="recursos" class="py-10 sm:py-16 px-4 sm:px-6 bg-(--color-surface-muted) scroll-mt-20">
-  <div class="max-w-6xl mx-auto">
-    <div class="text-center mb-7 sm:mb-10">
-      <h2 class="text-2xl sm:text-4xl font-bold text-(--color-text) leading-tight">Tudo para cobrar sem esforço</h2>
-      <p class="mt-2 text-(--color-text-muted) max-w-xl mx-auto text-sm sm:text-base">Uma plataforma simples que faz o trabalho pesado por você.</p>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-
-      <% [
-        { icon: "paper-plane-tilt",  title: "Disparos automáticos",    desc: "Configure uma vez e esqueça. Mensagens enviadas no dia exato do vencimento." },
-        { icon: "users-three",       title: "Gestão de clientes",      desc: "Cadastre clientes, defina valores e vencimentos. Histórico sempre à mão." },
-        { icon: "receipt",           title: "Controle de pagamentos",  desc: "Registre baixas e mantenha o financeiro dos recebíveis em um só lugar." },
-        { icon: "chat-circle-text",  title: "Mensagens personalizadas", desc: "Use variáveis como nome e valor para um tom natural em cada cobrança." },
-        { icon: "chart-line-up",     title: "Painel de inadimplência", desc: "Veja em tempo real quem pagou, quem está atrasado e quanto entrou no mês." },
-        { icon: "shield-check",      title: "Dados em segurança",      desc: "Ambiente protegido. Suas informações ficam acessíveis só por você." }
-      ].each do |feat| %>
-        <div class="group bg-(--color-surface) rounded-xl border border-(--color-border) p-4 sm:p-5 hover:border-(--color-brand) hover:shadow-md transition-all">
-          <div class="flex items-center gap-3 mb-2">
-            <div class="w-9 h-9 rounded-lg bg-(--color-brand-light) flex items-center justify-center flex-shrink-0 group-hover:bg-(--color-brand) transition-colors">
-              <i class="ph ph-<%= feat[:icon] %> text-(--color-brand) text-base group-hover:text-(--color-text-inverse) transition-colors"></i>
-            </div>
-            <h3 class="font-bold text-(--color-text) text-sm sm:text-base leading-tight"><%= feat[:title] %></h3>
-          </div>
-          <p class="text-sm text-(--color-text-muted) leading-relaxed"><%= feat[:desc] %></p>
-        </div>
-      <% end %>
-
-    </div>
-  </div>
-</section>
-
-<%# ── Trust: Security + Testimonial ────────────────────────────────────────── %>
-<section class="py-12 sm:py-20 px-4 sm:px-6">
-  <div class="max-w-5xl mx-auto">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-
-      <%# Security %>
-      <div class="bg-(--color-surface) rounded-2xl border border-(--color-border) p-6 sm:p-8 shadow-sm">
-        <div class="flex items-center gap-3 mb-5">
-          <div class="w-11 h-11 rounded-xl bg-(--color-brand-light) flex items-center justify-center flex-shrink-0">
-            <i class="ph ph-shield-check text-(--color-brand) text-2xl"></i>
-          </div>
-          <h3 class="text-lg sm:text-xl font-bold text-(--color-text)">Seus dados em boas mãos</h3>
-        </div>
-        <ul class="space-y-4">
-          <% [
-            { t: "Dados protegidos",       d: "Seus clientes e cobranças ficam em ambiente seguro." },
-            { t: "Cobranças automatizadas", d: "Nenhuma mensagem manual, nenhum esquecimento." },
-            { t: "Histórico organizado",    d: "Registro completo de parcelas e pagamentos." }
-          ].each do |item| %>
-            <li class="flex items-start gap-3">
-              <i class="ph-fill ph-check-circle text-(--color-success) text-xl flex-shrink-0 mt-0.5"></i>
-              <div>
-                <p class="font-semibold text-(--color-text) text-sm"><%= item[:t] %></p>
-                <p class="text-sm text-(--color-text-muted) mt-0.5 leading-relaxed"><%= item[:d] %></p>
-              </div>
-            </li>
-          <% end %>
-        </ul>
-      </div>
-
-      <%# Testimonial card %>
-      <div class="flex flex-col gap-5">
-        <%# Big stat %>
-        <div class="relative overflow-hidden bg-(--color-brand) text-(--color-text-inverse) rounded-2xl p-6 sm:p-7 text-center shadow-sm">
-          <div aria-hidden="true" class="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-(--color-accent)/20 blur-3xl"></div>
-          <div class="relative">
-            <p class="text-4xl sm:text-5xl font-extrabold tracking-tight">+500</p>
-            <p class="mt-2 text-blue-100">cobranças enviadas automaticamente</p>
-            <p class="mt-1 text-blue-200 text-xs sm:text-sm">por empresas que economizam horas por semana</p>
-          </div>
-        </div>
-
-        <%# Testimonial %>
-        <div class="bg-(--color-surface) rounded-2xl border border-(--color-border) p-6 sm:p-7 flex-1 shadow-sm">
-          <div class="flex gap-0.5 mb-3 text-(--color-accent)">
-            <% 5.times do %><i class="ph-fill ph-star text-sm"></i><% end %>
-          </div>
-          <p class="text-(--color-text) leading-relaxed italic text-sm sm:text-base">
-            "Antes eu esquecia de cobrar clientes toda semana. Hoje sai tudo automático pelo WhatsApp e eu nem preciso abrir o celular."
+          <p class="text-center text-xs text-(--color-text-muted) mt-3">
+            Transcrição aparece automaticamente na conversa
           </p>
-          <div class="flex items-center gap-3 mt-5 pt-5 border-t border-(--color-border)">
-            <div class="w-10 h-10 rounded-full bg-(--color-brand-light) border border-(--color-border) flex items-center justify-center flex-shrink-0">
-              <i class="ph-fill ph-user text-(--color-brand) text-base"></i>
-            </div>
-            <div>
-              <p class="font-semibold text-(--color-text) text-sm">Maria S.</p>
-              <p class="text-xs text-(--color-text-muted)">Proprietária de academia</p>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -396,401 +138,576 @@
   </div>
 </section>
 
-<%# ── Comprovantes ─────────────────────────────────────────────────────────── %>
-<section id="comprovantes" class="py-12 sm:py-20 px-4 sm:px-6 scroll-mt-20">
-  <div class="max-w-6xl mx-auto">
 
-    <%# Header %>
-    <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
-      <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-(--color-accent-subtle) text-(--color-accent-dark) text-xs font-semibold mb-4">
-        <i class="ph-fill ph-receipt"></i>
-        Novidade
-      </span>
-      <h2 class="text-2xl sm:text-4xl font-bold text-(--color-text) leading-tight">
-        Todo comprovante no lugar certo, <span class="text-(--color-brand)">sem esforço</span>
+<%# ============================================================== %>
+<%# TRUST BAR %>
+<%# ============================================================== %>
+<section class="bg-(--color-surface) border-y border-gray-100 py-8">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
+      <% [
+        { icon: "ph-check-circle",   text: "Funciona no seu próprio WhatsApp" },
+        { icon: "ph-sim-card",       text: "Sem trocar de número" },
+        { icon: "ph-timer",          text: "Configure em menos de 2 minutos" },
+        { icon: "ph-users-three",    text: "Escolha exatamente quais contatos" }
+      ].each do |t| %>
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-(--color-brand-subtle) flex items-center justify-center shrink-0">
+            <i class="ph <%= t[:icon] %> text-(--color-brand) text-sm"></i>
+          </div>
+          <span class="text-sm text-(--color-text)"><%= t[:text] %></span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+
+<%# ============================================================== %>
+<%# HOW IT WORKS %>
+<%# ============================================================== %>
+<section id="como-funciona" class="py-20 md:py-28">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <div class="text-center mb-14">
+      <h2 class="text-3xl md:text-4xl font-extrabold text-(--color-text) tracking-tight">
+        Funciona em menos de 2 minutos.
       </h2>
-      <p class="mt-3 sm:mt-4 text-sm sm:text-base text-(--color-text-muted) leading-relaxed">
-        Cansou de procurar comprovante perdido no WhatsApp, no e-mail e no rolo da câmera? Aqui você salva todos centralizados na parcela certa &mdash; do jeito mais simples que existe.
-      </p>
+      <p class="mt-3 text-(--color-text-muted) text-lg">Três passos para nunca mais precisar esperar para ouvir.</p>
     </div>
 
-    <%# Hero card — Reação de joinha (a forma mais legal) %>
-    <div class="relative rounded-3xl border-2 border-(--color-accent) bg-gradient-to-br from-(--color-accent-subtle) to-(--color-surface) p-6 sm:p-10 mb-5 sm:mb-6 overflow-hidden">
-      <%# Badge "destaque" %>
-      <span class="absolute top-4 right-4 sm:top-6 sm:right-6 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-(--color-accent) text-(--color-text-inverse) text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-sm">
-        <i class="ph-fill ph-star"></i>
-        Mais prático
-      </span>
-
-      <div class="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 sm:gap-8 items-center">
-        <%# Big thumbs-up visual %>
-        <div class="flex items-center justify-center">
-          <div class="relative">
-            <div class="w-24 h-24 sm:w-32 sm:h-32 rounded-3xl bg-(--color-accent) text-(--color-text-inverse) flex items-center justify-center shadow-lg shadow-(--color-accent)/30">
-              <i class="ph-fill ph-thumbs-up text-5xl sm:text-6xl"></i>
-            </div>
-            <div class="absolute -top-2 -right-2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-(--color-success) text-(--color-text-inverse) flex items-center justify-center shadow-md ring-4 ring-(--color-surface)">
-              <i class="ph-fill ph-check text-lg sm:text-xl"></i>
-            </div>
-          </div>
-        </div>
-
-        <%# Copy %>
-        <div class="text-center md:text-left">
-          <p class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-(--color-accent-dark) mb-2">A forma mais rápida</p>
-          <h3 class="text-xl sm:text-2xl font-bold text-(--color-text) leading-tight mb-3">
-            Reagiu com joinha no WhatsApp? <br class="hidden sm:block">Pronto, comprovante salvo.
-          </h3>
-          <p class="text-sm sm:text-base text-(--color-text-muted) leading-relaxed mb-5">
-            Cliente mandou o comprovante. Você dá um <strong class="text-(--color-text)">👍 no WhatsApp</strong>. A gente vincula automaticamente na parcela em aberto e marca como paga. Sem abrir o app. Sem digitar nada.
-          </p>
-
-          <div class="flex flex-wrap justify-center md:justify-start gap-x-5 gap-y-2 text-xs sm:text-sm">
-            <span class="inline-flex items-center gap-1.5 text-(--color-text)">
-              <i class="ph-fill ph-lightning text-(--color-accent)"></i> Leva 1 segundo
-            </span>
-            <span class="inline-flex items-center gap-1.5 text-(--color-text)">
-              <i class="ph-fill ph-hand-tap text-(--color-accent)"></i> Sem trocar de tela
-            </span>
-            <span class="inline-flex items-center gap-1.5 text-(--color-text)">
-              <i class="ph-fill ph-magic-wand text-(--color-accent)"></i> Pagamento automático
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <%# Other ways — divider with label %>
-    <div class="flex items-center gap-3 my-6 sm:my-8 text-xs sm:text-sm text-(--color-text-muted)">
-      <span class="flex-1 h-px bg-(--color-border)"></span>
-      <span class="font-semibold">Outras formas de salvar</span>
-      <span class="flex-1 h-px bg-(--color-border)"></span>
-    </div>
-
-    <%# Two more ways to save %>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
-
-      <%# Card — Compartilhar do WhatsApp %>
-      <div class="relative rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 sm:p-8 hover:shadow-md transition-shadow">
-        <div class="flex items-center gap-3 mb-4">
-          <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-(--color-brand-subtle) text-(--color-brand)">
-            <i class="ph-fill ph-share-network text-xl"></i>
-          </span>
-          <h3 class="text-base sm:text-lg font-bold text-(--color-text)">Compartilhando do WhatsApp</h3>
-        </div>
-        <p class="text-sm text-(--color-text-muted) leading-relaxed">
-          Abra o anexo, toque em <strong class="text-(--color-text)">Compartilhar</strong> e escolha o <strong class="text-(--color-text)">Cobrança em Dia</strong>. Selecione a parcela e pronto &mdash; útil quando o comprovante veio em outra conversa.
-        </p>
-      </div>
-
-      <%# Card — Salvar direto pela parcela %>
-      <div class="relative rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 sm:p-8 hover:shadow-md transition-shadow">
-        <div class="flex items-center gap-3 mb-4">
-          <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-(--color-brand-subtle) text-(--color-brand)">
-            <i class="ph-fill ph-paperclip text-xl"></i>
-          </span>
-          <h3 class="text-base sm:text-lg font-bold text-(--color-text)">Anexando direto na parcela</h3>
-        </div>
-        <p class="text-sm text-(--color-text-muted) leading-relaxed">
-          Recebeu por transferência fora do WhatsApp? Abra a parcela, anexe o comprovante (foto, PDF ou print) e marque como paga. Tudo no histórico do cliente.
-        </p>
-      </div>
-
-    </div>
-
-    <%# Bottom reassurance %>
-    <div class="mt-8 sm:mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs sm:text-sm text-(--color-text-muted)">
-      <span class="inline-flex items-center gap-1.5">
-        <i class="ph-fill ph-folder-simple text-(--color-brand)"></i> Tudo organizado por cliente
-      </span>
-      <span class="inline-flex items-center gap-1.5">
-        <i class="ph-fill ph-cloud-check text-(--color-brand)"></i> Salvo na nuvem
-      </span>
-      <span class="inline-flex items-center gap-1.5">
-        <i class="ph-fill ph-magnifying-glass text-(--color-brand)"></i> Encontre em segundos
-      </span>
-    </div>
-
-  </div>
-</section>
-
-<%# ── FAQ (Flowbite accordion) ─────────────────────────────────────────────── %>
-<section id="precos" class="py-12 sm:py-20 px-4 sm:px-6 bg-(--color-surface-muted) scroll-mt-20">
-  <div class="max-w-5xl mx-auto">
-
-    <%# Header %>
-    <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
-      <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-(--color-success-light) text-(--color-success) text-xs font-semibold mb-4">
-        <i class="ph-fill ph-gift"></i>
-        2 meses grátis para testar
-      </span>
-      <h2 class="text-2xl sm:text-4xl font-bold text-(--color-text) leading-tight">
-        Preços simples, do tamanho do seu negócio
-      </h2>
-      <p class="mt-3 text-(--color-text-muted) text-sm sm:text-base">
-        Sem fidelidade. Cancele quando quiser. Cobre só o que usar.
-      </p>
-    </div>
-
-    <%# Plans %>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 items-stretch">
-
-      <%# ── Plan 1: Essencial ─────────────────────────────────── %>
-      <div class="relative bg-(--color-surface) rounded-3xl border border-(--color-border) p-6 sm:p-8 flex flex-col shadow-sm">
-        <div class="mb-5">
-          <p class="text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Essencial</p>
-          <p class="text-(--color-text-muted) text-sm mt-2">Para quem está começando a automatizar.</p>
-        </div>
-
-        <div class="mb-6">
-          <div class="flex items-baseline gap-1.5">
-            <span class="text-4xl sm:text-5xl font-extrabold text-(--color-text) tracking-tight">R$&nbsp;49</span>
-            <span class="text-sm text-(--color-text-muted) font-medium">/mês</span>
-          </div>
-          <p class="mt-2 text-sm text-(--color-text-muted)">
-            Até <strong class="text-(--color-text)">50 cobranças</strong> inclusas no mês.
-          </p>
-          <p class="mt-1 text-xs text-(--color-text-subtle)">
-            Excedente: <strong>R$&nbsp;1,00</strong> por cobrança extra.
-          </p>
-        </div>
-
-        <ul class="space-y-3 mb-7 flex-1">
-          <% [
-            "Envio automático pelo WhatsApp",
-            "Cadastro ilimitado de clientes",
-            "Lembretes antes do vencimento",
-            "Histórico completo de pagamentos",
-            "Suporte por e-mail"
-          ].each do |feat| %>
-            <li class="flex items-start gap-2.5 text-sm text-(--color-text)">
-              <i class="ph-fill ph-check-circle text-(--color-success) text-lg flex-shrink-0 mt-0.5"></i>
-              <span><%= feat %></span>
-            </li>
-          <% end %>
-        </ul>
-
-        <%= link_to cta_path,
-              class: "w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-(--color-border-strong) text-(--color-text) text-sm font-semibold hover:border-(--color-brand) hover:text-(--color-brand) transition-colors" do %>
-          <%= cta_create %>
-          <i class="ph ph-arrow-right text-sm"></i>
-        <% end %>
-      </div>
-
-      <%# ── Plan 2: Profissional (highlighted) ──────────────── %>
-      <div class="relative bg-(--color-brand) text-(--color-text-inverse) rounded-3xl p-6 sm:p-8 flex flex-col shadow-xl ring-2 ring-(--color-accent)/40 overflow-hidden">
-        <div aria-hidden="true" class="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-(--color-accent)/30 blur-3xl"></div>
-
-        <div class="absolute top-5 right-5">
-          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-(--color-accent) text-(--color-text-inverse) text-[11px] font-bold uppercase tracking-wider shadow-sm">
-            <i class="ph-fill ph-star text-[10px]"></i>
-            Mais escolhido
-          </span>
-        </div>
-
-        <div class="relative mb-5">
-          <p class="text-xs font-semibold text-blue-200 uppercase tracking-wider">Profissional</p>
-          <p class="text-blue-100 text-sm mt-2">Para quem cobra dezenas de clientes todo mês.</p>
-        </div>
-
-        <div class="relative mb-6">
-          <div class="flex items-baseline gap-1.5">
-            <span class="text-4xl sm:text-5xl font-extrabold tracking-tight">R$&nbsp;149</span>
-            <span class="text-sm text-blue-200 font-medium">/mês</span>
-          </div>
-          <p class="mt-2 text-sm text-blue-100">
-            Até <strong class="text-white">300 cobranças</strong> inclusas no mês.
-          </p>
-          <p class="mt-1 text-xs text-blue-200">
-            Excedente: <strong>R$&nbsp;0,50</strong> por cobrança extra.
-          </p>
-        </div>
-
-        <ul class="relative space-y-3 mb-7 flex-1">
-          <% [
-            "Tudo do plano Essencial",
-            "6x mais cobranças por menos da metade do custo unitário",
-            "Múltiplos usuários na mesma conta",
-            "Relatórios mensais de cobrança",
-            "Suporte prioritário"
-          ].each do |feat| %>
-            <li class="flex items-start gap-2.5 text-sm text-white">
-              <i class="ph-fill ph-check-circle text-(--color-accent-light) text-lg flex-shrink-0 mt-0.5"></i>
-              <span><%= feat %></span>
-            </li>
-          <% end %>
-        </ul>
-
-        <%= link_to cta_path,
-              class: "relative w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-(--color-accent) text-(--color-text-inverse) text-sm font-bold hover:bg-(--color-accent-dark) transition-colors shadow-sm" do %>
-          <%= cta_create %>
-          <i class="ph ph-arrow-right text-sm"></i>
-        <% end %>
-      </div>
-
-    </div>
-
-    <%# Reassurance row %>
-    <div class="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
       <% [
-        { icon: "gift",        t: "2 meses grátis",         d: "Teste tranquilo, sem compromisso." },
-        { icon: "x-circle",    t: "Sem fidelidade",         d: "Cancele a qualquer momento." },
-        { icon: "credit-card", t: "Sem cartão no cadastro", d: "Só cobramos depois do período grátis." }
-      ].each do |item| %>
-        <div class="flex flex-col items-center gap-1.5 px-2">
-          <i class="ph ph-<%= item[:icon] %> text-(--color-brand) text-xl"></i>
-          <p class="text-sm font-semibold text-(--color-text)"><%= item[:t] %></p>
-          <p class="text-xs text-(--color-text-muted) leading-relaxed"><%= item[:d] %></p>
-        </div>
-      <% end %>
-    </div>
-
-  </div>
-</section>
-
-<section id="duvidas" class="py-12 sm:py-20 px-4 sm:px-6 bg-(--color-surface-muted) scroll-mt-20">
-  <div class="max-w-3xl mx-auto">
-    <div class="text-center mb-8 sm:mb-12">
-      <h2 class="text-2xl sm:text-4xl font-bold text-(--color-text) leading-tight">Perguntas comuns</h2>
-    </div>
-
-    <div id="faq-accordion" data-accordion="collapse" class="bg-(--color-surface) rounded-2xl border border-(--color-border) overflow-hidden shadow-sm">
-      <% faqs = [
         {
-          q: "Preciso pagar pelo WhatsApp Business API?",
-          a: "Não. A plataforma conecta direto com o WhatsApp comum, sem custo de API. Você só precisa de um número dedicado para os envios."
+          num: "1",
+          icon: "ph-qr-code",
+          title: "Conecte seu WhatsApp",
+          body:  "Escaneie o QR Code ou use o código de vinculação. Sua conta conecta em segundos, sem trocar de número."
         },
         {
-          q: "Em quanto tempo consigo colocar no ar?",
-          a: "Em menos de 5 minutos. Você cria sua conta, conecta o WhatsApp pelo QR code, cadastra seus clientes e pronto — as cobranças já começam a ser enviadas no próximo vencimento."
+          num: "2",
+          icon: "ph-users-three",
+          title: "Escolha os contatos",
+          body:  "Selecione quem terá os áudios transcritos. Configure só os seus, só os deles, ou ambos — por contato."
         },
         {
-          q: "Posso personalizar as mensagens?",
-          a: "Sim! Você define o texto da mensagem usando variáveis como nome do cliente, valor e data de vencimento. Cada cliente recebe uma mensagem natural e personalizada."
-        },
-        {
-          q: "E se um cliente pagar antes do envio?",
-          a: "Você pode marcar a parcela como paga pelo dashboard com um toque. A cobrança automática é cancelada e o histórico atualizado na hora."
-        },
-        {
-          q: "Meus dados estão seguros?",
-          a: "Sim. Todos os dados ficam armazenados em ambiente protegido e acessíveis apenas com sua conta. Seguimos boas práticas de segurança e LGPD."
-        },
-        {
-          q: "Posso cancelar quando quiser?",
-          a: "Sim, sem fidelidade. Você cria a conta grátis e só passa a pagar quando estiver realmente usando — e pode cancelar a qualquer momento."
+          num: "3",
+          icon: "ph-chat-text",
+          title: "Receba no WhatsApp",
+          body:  "As transcrições aparecem automaticamente respondendo cada áudio original. Sem abrir outro app."
         }
-      ] %>
-
-      <% faqs.each_with_index do |faq, i| %>
-        <h2 id="faq-heading-<%= i %>">
-          <button type="button"
-                  data-accordion-target="#faq-body-<%= i %>"
-                  aria-expanded="<%= i.zero? %>"
-                  aria-controls="faq-body-<%= i %>"
-                  class="flex items-center justify-between w-full p-5 font-semibold text-left text-(--color-text) hover:bg-(--color-surface-muted) transition-colors gap-3 <%= 'border-t border-(--color-border)' if i.positive? %>">
-            <span class="text-sm sm:text-base"><%= faq[:q] %></span>
-            <i class="ph ph-caret-down text-base text-(--color-text-muted) transition-transform flex-shrink-0" data-accordion-icon></i>
-          </button>
-        </h2>
-        <div id="faq-body-<%= i %>"
-             class="<%= 'hidden' unless i.zero? %>"
-             aria-labelledby="faq-heading-<%= i %>">
-          <div class="px-5 pb-5 -mt-1">
-            <p class="text-sm text-(--color-text-muted) leading-relaxed"><%= faq[:a] %></p>
+      ].each do |step| %>
+        <div class="text-center">
+          <div class="relative inline-block mb-5">
+            <div class="w-16 h-16 rounded-2xl bg-(--color-brand-light) flex items-center justify-center">
+              <i class="ph <%= step[:icon] %> text-(--color-brand) text-3xl"></i>
+            </div>
+            <div class="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-(--color-brand) text-white text-xs font-bold flex items-center justify-center">
+              <%= step[:num] %>
+            </div>
           </div>
+          <h3 class="text-base font-bold text-(--color-text) mb-2"><%= step[:title] %></h3>
+          <p class="text-sm text-(--color-text-muted) leading-relaxed"><%= step[:body] %></p>
         </div>
       <% end %>
     </div>
 
-    <p class="mt-6 text-center text-sm text-(--color-text-muted)">
-      Tem outra dúvida?
-      <a href="mailto:contato@cobrancaemdia.com.br" class="text-(--color-brand) font-semibold hover:underline">Fale com a gente</a>
+    <%# Arrow connectors — desktop only %>
+    <%# (decorative, handled by grid gap + natural reading flow) %>
+
+    <div class="mt-12 text-center">
+      <%= link_to new_user_session_path,
+            class: "inline-flex items-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-6 py-3.5 rounded-xl transition-colors text-sm" do %>
+        <i class="ph ph-whatsapp-logo text-lg"></i>
+        Começar agora
+      <% end %>
+    </div>
+  </div>
+</section>
+
+
+<%# ============================================================== %>
+<%# PAIN SECTION — "Quando ouvir não é uma opção" %>
+<%# ============================================================== %>
+<section class="bg-(--color-brand-subtle) py-20 md:py-28">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <div class="text-center mb-12">
+      <h2 class="text-3xl md:text-4xl font-extrabold text-(--color-text) tracking-tight">
+        Quando ouvir<br class="sm:hidden"> não é uma opção.
+      </h2>
+      <p class="mt-3 text-(--color-text-muted) text-lg max-w-xl mx-auto">
+        Você não precisa mais esperar o momento certo para ouvir.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <% [
+        { emoji: "💼", title: "Em reunião",           body: "Áudio chega na hora errada. Não dá pra ouvir." },
+        { emoji: "🏢", title: "No trabalho",          body: "Sem fone, sem som, sem privacidade." },
+        { emoji: "🎧", title: "Sem fone",             body: "Não tem como ouvir sem incomodar alguém." },
+        { emoji: "📍", title: "Lugar barulhento",     body: "Não consegue entender nada de qualquer jeito." },
+        { emoji: "🤫", title: "Dormindo alguém perto", body: "Volume zero. Mas a mensagem não pode esperar." },
+        { emoji: "⚡", title: "Com pressa",           body: "3 minutos de áudio. Você tem 20 segundos." }
+      ].each do |s| %>
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+          <div class="text-2xl mb-2"><%= s[:emoji] %></div>
+          <h3 class="font-semibold text-(--color-text) text-sm mb-1"><%= s[:title] %></h3>
+          <p class="text-xs text-(--color-text-muted) leading-relaxed"><%= s[:body] %></p>
+        </div>
+      <% end %>
+    </div>
+
+  </div>
+</section>
+
+
+<%# ============================================================== %>
+<%# WOW — BEFORE / AFTER — Basic vs Pro %>
+<%# ============================================================== %>
+<section class="py-20 md:py-28 bg-(--color-surface)">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <div class="text-center mb-12">
+      <h2 class="text-3xl md:text-4xl font-extrabold text-(--color-text) tracking-tight">
+        Áudio de 3 minutos?<br>Você decide quanto quer ler.
+      </h2>
+      <p class="mt-3 text-(--color-text-muted) text-lg">No plano Pro a IA organiza tudo antes de você ler.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <%# Basic — plain transcription %>
+      <div class="rounded-2xl border border-gray-200 overflow-hidden">
+        <div class="bg-(--color-surface-soft) px-5 py-3 border-b border-gray-200 flex items-center gap-2">
+          <span class="text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide">Gratuito / Basic</span>
+        </div>
+        <div class="p-5 space-y-3">
+          <%# Audio bubble %>
+          <div class="inline-flex items-center gap-2.5 bg-stone-100 rounded-xl px-3 py-2">
+            <i class="ph ph-microphone text-(--color-text-muted) text-sm"></i>
+            <div class="flex items-center gap-px">
+              <div class="w-0.5 h-2 bg-gray-300 rounded-full"></div>
+              <div class="w-0.5 h-4 bg-gray-300 rounded-full"></div>
+              <div class="w-0.5 h-3 bg-gray-300 rounded-full"></div>
+              <div class="w-0.5 h-5 bg-gray-400 rounded-full"></div>
+              <div class="w-0.5 h-3 bg-gray-300 rounded-full"></div>
+              <div class="w-0.5 h-4 bg-gray-300 rounded-full"></div>
+              <div class="w-0.5 h-2 bg-gray-300 rounded-full"></div>
+            </div>
+            <span class="text-xs text-gray-400">3:12</span>
+          </div>
+          <%# Reply bubble %>
+          <div class="bg-(--color-brand-light) rounded-xl px-4 py-3">
+            <p class="text-sm text-(--color-accent) leading-relaxed">
+              "Então, amanhã às duas você pode confirmar? E aquele contrato precisa ser revisado antes, tá? Vou precisar que você veja isso com atenção porque tem uns pontos importantes lá no terceiro parágrafo. Me manda uma mensagem quando der."
+            </p>
+            <p class="text-xs text-(--color-brand)/50 mt-2" style="font-size:10px">via EscreveZap</p>
+          </div>
+        </div>
+      </div>
+
+      <%# Pro — summary + organized transcript %>
+      <div class="rounded-2xl border-2 border-(--color-brand) overflow-hidden shadow-lg">
+        <div class="bg-(--color-brand) px-5 py-3 flex items-center justify-between">
+          <span class="text-xs font-bold text-white uppercase tracking-wide">Plano Pro</span>
+          <span class="inline-flex items-center gap-1 bg-white/20 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+            <i class="ph ph-sparkle text-xs"></i> IA
+          </span>
+        </div>
+        <div class="p-5 space-y-3">
+          <%# Audio bubble %>
+          <div class="inline-flex items-center gap-2.5 bg-stone-100 rounded-xl px-3 py-2">
+            <i class="ph ph-microphone text-(--color-text-muted) text-sm"></i>
+            <div class="flex items-center gap-px">
+              <div class="w-0.5 h-2 bg-gray-300 rounded-full"></div>
+              <div class="w-0.5 h-4 bg-gray-300 rounded-full"></div>
+              <div class="w-0.5 h-3 bg-gray-300 rounded-full"></div>
+              <div class="w-0.5 h-5 bg-gray-400 rounded-full"></div>
+              <div class="w-0.5 h-3 bg-gray-300 rounded-full"></div>
+              <div class="w-0.5 h-4 bg-gray-300 rounded-full"></div>
+              <div class="w-0.5 h-2 bg-gray-300 rounded-full"></div>
+            </div>
+            <span class="text-xs text-gray-400">3:12</span>
+          </div>
+          <%# Pro reply bubble %>
+          <div class="bg-(--color-brand-light) rounded-xl px-4 py-3 border border-(--color-brand)/20">
+            <p class="text-xs font-bold text-(--color-brand) mb-1.5">📝 Resumo rápido</p>
+            <p class="text-sm text-(--color-accent) leading-relaxed mb-3">
+              Confirmar reunião às 14h amanhã e revisar o 3º parágrafo do contrato antes.
+            </p>
+            <div class="h-px bg-(--color-brand)/20 mb-3"></div>
+            <p class="text-xs font-bold text-(--color-brand) mb-1.5">📄 Transcrição completa</p>
+            <p class="text-xs text-(--color-text-muted) italic leading-relaxed">
+              "Então, amanhã às duas você pode confirmar? E aquele contrato precisa ser revisado antes..."
+            </p>
+            <p class="text-xs text-(--color-brand)/50 mt-2" style="font-size:10px">via EscreveZap ✨</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <p class="text-center text-sm text-(--color-text-muted) mt-8">
+      Pro por apenas <strong class="text-(--color-brand)">R$19,90/mês</strong>. Menos que um café por semana.
     </p>
   </div>
 </section>
 
-<%# ── Final CTA ────────────────────────────────────────────────────────────── %>
-<section class="relative overflow-hidden bg-(--color-brand) py-14 sm:py-20 px-4 sm:px-6 text-(--color-text-inverse)">
-  <div aria-hidden="true" class="absolute -top-24 -right-12 w-72 h-72 rounded-full bg-(--color-accent)/20 blur-3xl"></div>
-  <div aria-hidden="true" class="absolute -bottom-24 -left-12 w-72 h-72 rounded-full bg-(--color-brand-dark)/60 blur-3xl"></div>
 
-  <div class="relative max-w-2xl mx-auto text-center">
-    <h2 class="text-2xl sm:text-4xl font-extrabold leading-tight">Pronto para cobrar no piloto automático?</h2>
-    <p class="mt-4 text-blue-100 text-base sm:text-lg max-w-lg mx-auto">Comece grátis agora e automatize suas cobranças em minutos.</p>
+<%# ============================================================== %>
+<%# TRY THE ENGINE — Live audio transcription demo %>
+<%# ============================================================== %>
+<section id="testar" class="py-20 md:py-28 bg-(--color-brand-subtle)">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
 
-    <div class="mt-8 flex flex-col sm:flex-row gap-3 sm:justify-center">
-      <%= link_to cta_path,
-            class: "inline-flex items-center justify-center gap-2 px-8 py-4 bg-(--color-accent) hover:bg-(--color-accent-dark) text-white font-semibold rounded-xl transition-colors shadow-lg shadow-black/20" do %>
-        <%= cta_create %>
-        <i class="ph ph-arrow-right text-base"></i>
-      <% end %>
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center gap-1.5 bg-white text-(--color-brand) text-xs font-semibold px-3 py-1.5 rounded-full mb-5 shadow-sm">
+        <i class="ph ph-sparkle"></i>
+        Teste agora — leva 10 segundos
+      </div>
+      <h2 class="text-3xl md:text-4xl font-extrabold text-(--color-text) tracking-tight">
+        Nosso motor é muito melhor<br class="hidden sm:block">
+        que o do WhatsApp.
+      </h2>
+      <p class="mt-4 text-(--color-text-muted) text-lg max-w-xl mx-auto leading-relaxed">
+        Grave um áudio de até <strong class="text-(--color-text)">10 segundos</strong> e veja o resultado completo do plano Pro: resumo + transcrição formatada por IA.
+      </p>
     </div>
 
-    <p class="mt-5 text-xs text-blue-200">Sem cartão de crédito • Cancele quando quiser</p>
+    <div data-controller="audio-recorder"
+         data-audio-recorder-url-value="<%= try_transcribe_path %>"
+         data-state="idle"
+         class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+
+      <%# Recorder UI %>
+      <div class="p-7 md:p-10">
+
+        <div class="flex flex-col items-center gap-5">
+          <%# Record button %>
+          <button type="button"
+                  data-audio-recorder-target="recordBtn"
+                  data-action="click->audio-recorder#toggle"
+                  class="group relative w-24 h-24 rounded-full bg-(--color-brand) hover:bg-(--color-brand-dark) text-white flex items-center justify-center shadow-lg shadow-(--color-brand)/30 transition-all focus:outline-none focus:ring-4 focus:ring-(--color-brand)/30">
+            <%# Pulse rings — only while recording %>
+            <span class="absolute inset-0 rounded-full bg-(--color-brand)/40 animate-ping recording-only"></span>
+            <span class="absolute inset-0 rounded-full bg-(--color-brand)/20 animate-ping recording-only" style="animation-delay:.4s"></span>
+            <i data-audio-recorder-target="recordIcon" class="ph ph-microphone text-2xl relative"></i>
+          </button>
+
+          <%# Label + status %>
+          <div class="text-center">
+            <p data-audio-recorder-target="recordLabel" class="text-base font-semibold text-(--color-text)">Gravar áudio</p>
+            <p data-audio-recorder-target="status" class="text-sm text-(--color-text-muted) mt-1 min-h-[1.25rem]"></p>
+          </div>
+
+          <%# Timer + progress bar %>
+          <div class="w-full max-w-sm">
+            <div class="flex items-center justify-between text-xs text-(--color-text-muted) mb-1.5">
+              <span data-audio-recorder-target="timer">0,0s</span>
+              <span>máx. 10s</span>
+            </div>
+            <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+              <div data-audio-recorder-target="progress"
+                   class="h-full bg-(--color-brand) rounded-full transition-all duration-100"
+                   style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <%# Error state %>
+        <div data-audio-recorder-target="error" class="hidden mt-6">
+          <div class="flex items-start gap-3 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+            <i class="ph ph-warning-circle text-red-500 text-lg shrink-0 mt-0.5"></i>
+            <p data-audio-recorder-target="errorText" class="text-sm text-red-700 leading-relaxed"></p>
+          </div>
+        </div>
+
+        <%# Result — Pro-style WhatsApp bubble %>
+        <div data-audio-recorder-target="result" class="hidden mt-8">
+          <div class="rounded-2xl border-2 border-(--color-brand) overflow-hidden shadow-lg">
+            <div class="bg-(--color-brand) px-5 py-3 flex items-center justify-between">
+              <span class="text-xs font-bold text-white uppercase tracking-wide">Resultado — Plano Pro</span>
+              <span class="inline-flex items-center gap-1 bg-white/20 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                <i class="ph ph-sparkle text-xs"></i> IA
+              </span>
+            </div>
+            <div class="p-5 bg-(--color-brand-light)">
+              <%# Audio bubble %>
+              <div class="inline-flex items-center gap-2.5 bg-white rounded-xl px-3 py-2 shadow-sm mb-4">
+                <i class="ph ph-microphone text-(--color-brand) text-sm"></i>
+                <div class="flex items-center gap-px">
+                  <div class="w-0.5 h-2 bg-(--color-brand)/40 rounded-full"></div>
+                  <div class="w-0.5 h-4 bg-(--color-brand)/40 rounded-full"></div>
+                  <div class="w-0.5 h-3 bg-(--color-brand)/40 rounded-full"></div>
+                  <div class="w-0.5 h-5 bg-(--color-brand)/60 rounded-full"></div>
+                  <div class="w-0.5 h-3 bg-(--color-brand)/40 rounded-full"></div>
+                  <div class="w-0.5 h-4 bg-(--color-brand)/40 rounded-full"></div>
+                  <div class="w-0.5 h-2 bg-(--color-brand)/40 rounded-full"></div>
+                </div>
+                <span class="text-xs text-(--color-brand)/60">seu áudio</span>
+              </div>
+
+              <%# Summary block — hidden when too short %>
+              <div data-audio-recorder-target="summaryBlock" class="hidden">
+                <p class="text-xs font-bold text-(--color-brand) mb-1.5">📝 Resumo rápido</p>
+                <p data-audio-recorder-target="summaryText" class="text-sm text-(--color-accent) leading-relaxed mb-4"></p>
+                <div class="h-px bg-(--color-brand)/20 mb-4"></div>
+              </div>
+
+              <%# Full formatted transcription %>
+              <p class="text-xs font-bold text-(--color-brand) mb-1.5">📄 Transcrição completa</p>
+              <p data-audio-recorder-target="formattedText" class="text-sm text-(--color-text) italic leading-relaxed"></p>
+              <p class="text-xs text-(--color-brand)/50 mt-3" style="font-size:10px">via EscreveZap ✨</p>
+            </div>
+          </div>
+
+          <div class="mt-5 text-center">
+            <p class="text-sm text-(--color-text-muted) mb-3">Gostou do resultado?</p>
+            <%= link_to new_user_session_path,
+                  class: "inline-flex items-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm shadow-sm" do %>
+              <i class="ph ph-whatsapp-logo text-lg"></i>
+              Quero no meu WhatsApp
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <%# Footer micro-copy %>
+      <div class="bg-(--color-surface-soft) border-t border-gray-100 px-7 py-4 flex items-center gap-2 text-xs text-(--color-text-muted)">
+        <i class="ph ph-shield-check text-(--color-brand)"></i>
+        <span>Seu áudio é processado e descartado imediatamente. Não armazenamos nada.</span>
+      </div>
+    </div>
+
   </div>
 </section>
 
-<%# ── Footer ─────────────────────────────────────────────────────────────── %>
-<footer class="border-t border-(--color-border) bg-(--color-surface-muted)">
 
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-12">
-    <div class="flex flex-col sm:flex-row justify-between gap-8 sm:gap-10">
+<%# ============================================================== %>
+<%# FEATURES %>
+<%# ============================================================== %>
+<section class="py-20 md:py-28 bg-(--color-bg)">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
 
-      <%# Brand %>
-      <div class="max-w-xs">
-        <div class="flex items-center gap-2.5 mb-3">
-          <%= image_tag "/logo.png", alt: "Cobrança em Dia", class: "h-8 w-auto" %>
-          <span class="font-semibold text-(--color-text)">Cobrança em Dia</span>
+    <div class="text-center mb-12">
+      <h2 class="text-3xl md:text-4xl font-extrabold text-(--color-text) tracking-tight">
+        Tudo que você precisa.<br>Nada que você não precisa.
+      </h2>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <% [
+        { icon: "ph-whatsapp-logo",  label: "Seu próprio WhatsApp",                  pro: false },
+        { icon: "ph-chat-text",      label: "Resposta automática na conversa",        pro: false },
+        { icon: "ph-users-three",    label: "Escolha contatos específicos",           pro: false },
+        { icon: "ph-arrows-split",   label: "Só seus, deles ou ambos — por contato", pro: false },
+        { icon: "ph-timer",          label: "Configuração em menos de 2 minutos",     pro: false },
+        { icon: "ph-sparkle",        label: "IA que organiza e formata (Pro)",         pro: true  },
+        { icon: "ph-article",        label: "Resumo inteligente dos áudios (Pro)",     pro: true  },
+        { icon: "ph-shield-check",   label: "Seus áudios ficam privados",             pro: false }
+      ].each do |f| %>
+        <div class="flex items-center gap-3 bg-(--color-surface) rounded-xl px-4 py-3.5 border border-gray-100">
+          <div class="w-8 h-8 rounded-lg <%= f[:pro] ? 'bg-(--color-brand) text-white' : 'bg-(--color-brand-subtle) text-(--color-brand)' %> flex items-center justify-center shrink-0">
+            <i class="ph <%= f[:icon] %> text-sm"></i>
+          </div>
+          <span class="text-sm text-(--color-text) flex-1"><%= f[:label] %></span>
+          <% if f[:pro] %>
+            <span class="text-xs font-semibold text-(--color-brand) bg-(--color-brand-light) px-2 py-0.5 rounded-full">Pro</span>
+          <% end %>
         </div>
-        <p class="text-sm text-(--color-text-muted) leading-relaxed">Cobranças automáticas via WhatsApp para o seu negócio.</p>
+      <% end %>
+    </div>
+
+  </div>
+</section>
+
+
+<%# ============================================================== %>
+<%# PRICING %>
+<%# ============================================================== %>
+<section id="precos" class="py-20 md:py-28 bg-(--color-surface)">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <div class="text-center mb-14">
+      <h2 class="text-3xl md:text-4xl font-extrabold text-(--color-text) tracking-tight">Preços simples.</h2>
+      <p class="mt-3 text-(--color-text-muted) text-lg">Comece grátis. Faça upgrade quando precisar.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+
+      <%# Free %>
+      <div class="rounded-2xl border border-gray-200 bg-(--color-surface) p-7 flex flex-col">
+        <div class="mb-6">
+          <p class="text-sm font-semibold text-(--color-text-muted) uppercase tracking-wide mb-3">Gratuito</p>
+          <div class="flex items-end gap-1 mb-1">
+            <span class="text-4xl font-extrabold text-(--color-text)">R$0</span>
+            <span class="text-(--color-text-muted) text-sm mb-1.5">/mês</span>
+          </div>
+          <p class="text-sm text-(--color-text-muted)">20 transcrições por mês</p>
+        </div>
+        <ul class="space-y-3 flex-1 mb-8">
+          <% [
+            "Transcrição automática",
+            "Resposta direto no WhatsApp",
+            "1 contato monitorado",
+            "Branding leve no rodapé"
+          ].each do |item| %>
+            <li class="flex items-center gap-2.5 text-sm text-(--color-text)">
+              <i class="ph ph-check text-(--color-brand) shrink-0"></i>
+              <%= item %>
+            </li>
+          <% end %>
+          <li class="flex items-center gap-2.5 text-sm text-(--color-text-muted)">
+            <i class="ph ph-x text-gray-300 shrink-0"></i>
+            Resumo com IA
+          </li>
+        </ul>
+        <%= link_to "Começar grátis", new_user_session_path,
+              class: "block w-full text-center bg-(--color-brand-subtle) hover:bg-(--color-brand-light) text-(--color-brand) font-semibold py-3 rounded-xl text-sm transition-colors" %>
       </div>
 
-      <%# Links %>
-      <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-8 sm:gap-12">
-        <div>
-          <p class="text-xs font-bold text-(--color-text) uppercase tracking-widest mb-4">Navegar</p>
-          <ul class="space-y-2.5">
-            <li><a href="#como-funciona" class="text-sm text-(--color-text-muted) hover:text-(--color-brand) transition-colors">Como funciona</a></li>
-            <li><a href="#recursos" class="text-sm text-(--color-text-muted) hover:text-(--color-brand) transition-colors">Recursos</a></li>
-            <li><a href="#duvidas" class="text-sm text-(--color-text-muted) hover:text-(--color-brand) transition-colors">Dúvidas</a></li>
-          </ul>
+      <%# Basic %>
+      <div class="rounded-2xl border border-gray-200 bg-(--color-surface) p-7 flex flex-col">
+        <div class="mb-6">
+          <p class="text-sm font-semibold text-(--color-text-muted) uppercase tracking-wide mb-3">Basic</p>
+          <div class="flex items-end gap-1 mb-1">
+            <span class="text-4xl font-extrabold text-(--color-text)">R$5,99</span>
+            <span class="text-(--color-text-muted) text-sm mb-1.5">/mês</span>
+          </div>
+          <p class="text-sm text-(--color-text-muted)">500 transcrições por mês</p>
         </div>
-        <div>
-          <p class="text-xs font-bold text-(--color-text) uppercase tracking-widest mb-4">Produto</p>
-          <ul class="space-y-2.5">
-            <% if signed_in %>
-              <li><%= link_to "Ir para o dashboard", authenticated_root_path, class: "text-sm text-(--color-text-muted) hover:text-(--color-brand) transition-colors" %></li>
-            <% else %>
-              <li><%= link_to "Entrar", new_user_session_path, class: "text-sm text-(--color-text-muted) hover:text-(--color-brand) transition-colors" %></li>
-              <li><%= link_to "Criar conta", new_user_session_path, class: "text-sm text-(--color-text-muted) hover:text-(--color-brand) transition-colors" %></li>
-            <% end %>
-          </ul>
+        <ul class="space-y-3 flex-1 mb-8">
+          <% [
+            "Transcrição automática",
+            "Resposta direto no WhatsApp",
+            "Contatos ilimitados",
+            "Sem branding",
+            "Prioridade na fila"
+          ].each do |item| %>
+            <li class="flex items-center gap-2.5 text-sm text-(--color-text)">
+              <i class="ph ph-check text-(--color-brand) shrink-0"></i>
+              <%= item %>
+            </li>
+          <% end %>
+          <li class="flex items-center gap-2.5 text-sm text-(--color-text-muted)">
+            <i class="ph ph-x text-gray-300 shrink-0"></i>
+            Resumo com IA
+          </li>
+        </ul>
+        <%= link_to "Assinar Basic", new_user_session_path,
+              class: "block w-full text-center bg-(--color-brand-subtle) hover:bg-(--color-brand-light) text-(--color-brand) font-semibold py-3 rounded-xl text-sm transition-colors" %>
+      </div>
+
+      <%# Pro — featured %>
+      <div class="rounded-2xl bg-(--color-brand) p-7 flex flex-col relative shadow-xl shadow-(--color-brand)/20">
+        <div class="absolute -top-3.5 left-1/2 -translate-x-1/2">
+          <span class="inline-flex items-center gap-1 bg-white text-(--color-brand) text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+            <i class="ph-fill ph-star text-xs"></i> Mais popular
+          </span>
         </div>
-        <div>
-          <p class="text-xs font-bold text-(--color-text) uppercase tracking-widest mb-4">Legal</p>
-          <ul class="space-y-2.5">
-            <li><%= link_to "Privacidade", privacidade_path, class: "text-sm text-(--color-text-muted) hover:text-(--color-brand) transition-colors" %></li>
-            <li><%= link_to "Termos de Uso", termos_path, class: "text-sm text-(--color-text-muted) hover:text-(--color-brand) transition-colors" %></li>
-          </ul>
+        <div class="mb-6">
+          <p class="text-sm font-semibold text-white/70 uppercase tracking-wide mb-3">Pro</p>
+          <div class="flex items-end gap-1 mb-1">
+            <span class="text-4xl font-extrabold text-white">R$19,90</span>
+            <span class="text-white/70 text-sm mb-1.5">/mês</span>
+          </div>
+          <p class="text-sm text-white/70">2.000 transcrições por mês</p>
         </div>
+        <ul class="space-y-3 flex-1 mb-8">
+          <% [
+            "Tudo do Basic",
+            "IA que organiza mensagens",
+            "Resumo inteligente dos áudios",
+            "Transcrição completa formatada",
+            "Sem branding"
+          ].each do |item| %>
+            <li class="flex items-center gap-2.5 text-sm text-white">
+              <i class="ph ph-check text-white/70 shrink-0"></i>
+              <%= item %>
+            </li>
+          <% end %>
+        </ul>
+        <%= link_to "Experimentar Pro", new_user_session_path,
+              class: "block w-full text-center bg-white hover:bg-(--color-brand-light) text-(--color-brand) font-bold py-3 rounded-xl text-sm transition-colors" %>
       </div>
 
     </div>
-  </div>
 
-  <div class="border-t border-(--color-border)">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col-reverse sm:flex-row items-center justify-between gap-3">
-      <p class="text-xs text-(--color-text-subtle) text-center sm:text-left">© <%= Date.today.year %> Cobrança em Dia. Todos os direitos reservados.</p>
-      <div class="flex items-center gap-4">
-        <a href="https://www.instagram.com/cobrancadia" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="text-(--color-text-muted) hover:text-(--color-brand) transition-colors">
-          <i class="ph ph-instagram-logo text-xl"></i>
-        </a>
-        <a href="#" target="_blank" rel="noopener noreferrer" aria-label="YouTube" class="text-(--color-text-muted) hover:text-(--color-brand) transition-colors">
-          <i class="ph ph-youtube-logo text-xl"></i>
-        </a>
-      </div>
+  </div>
+</section>
+
+
+<%# ============================================================== %>
+<%# FAQ %>
+<%# ============================================================== %>
+<section id="faq" class="py-20 md:py-28 bg-(--color-bg)">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <div class="text-center mb-12">
+      <h2 class="text-3xl md:text-4xl font-extrabold text-(--color-text) tracking-tight">Perguntas frequentes</h2>
     </div>
-  </div>
 
-</footer>
+    <div class="divide-y divide-gray-200">
+      <% [
+        {
+          q: "Isso usa meu próprio WhatsApp?",
+          a: "Sim. Você conecta sua conta pessoal via QR Code. O EscreveZap funciona como um app conectado ao seu WhatsApp, sem criar um número novo."
+        },
+        {
+          q: "Preciso trocar de número?",
+          a: "Não. Você usa exatamente o mesmo número que já tem. Nenhuma mudança visível para seus contatos."
+        },
+        {
+          q: "Posso escolher quais contatos serão transcritos?",
+          a: "Sim. Você escolhe cada contato individualmente. E por contato, você define: só seus áudios, só os deles, ou ambos."
+        },
+        {
+          q: "Como funciona o resumo inteligente?",
+          a: "No plano Pro, uma IA lê a transcrição e produz um resumo curto com os pontos principais. Perfeito para áudios longos ou mensagens com muita informação."
+        },
+        {
+          q: "Meus áudios são privados?",
+          a: "Sim. Os áudios são processados de forma segura e não são armazenados após a transcrição. Sua conversa continua sendo sua."
+        },
+        {
+          q: "Posso cancelar quando quiser?",
+          a: "Sim. Sem fidelidade, sem burocracia. Cancele a qualquer momento e continue usando até o fim do período pago."
+        }
+      ].each do |faq| %>
+        <details class="group py-4">
+          <summary class="flex items-center justify-between gap-4 cursor-pointer list-none">
+            <span class="font-semibold text-(--color-text) text-sm md:text-base"><%= faq[:q] %></span>
+            <i class="ph ph-caret-down text-(--color-text-muted) shrink-0 transition-transform duration-200 group-open:rotate-180"></i>
+          </summary>
+          <p class="mt-3 text-sm text-(--color-text-muted) leading-relaxed pr-8"><%= faq[:a] %></p>
+        </details>
+      <% end %>
+    </div>
+
+  </div>
+</section>
+
+
+<%# ============================================================== %>
+<%# FINAL CTA %>
+<%# ============================================================== %>
+<section class="bg-(--color-brand) py-20 md:py-28">
+  <div class="max-w-2xl mx-auto px-4 sm:px-6 text-center">
+    <h2 class="text-3xl md:text-4xl font-extrabold text-white leading-tight tracking-tight">
+      Pare de esperar<br>para ouvir depois.
+    </h2>
+    <p class="mt-4 text-white/75 text-lg max-w-md mx-auto leading-relaxed">
+      Leia seus áudios quando ouvir não for uma opção.
+    </p>
+    <div class="mt-10">
+      <%= link_to new_user_session_path,
+            class: "inline-flex items-center gap-2 bg-white hover:bg-(--color-brand-light) text-(--color-brand) font-bold px-8 py-4 rounded-xl transition-colors text-base shadow-lg" do %>
+        <i class="ph ph-whatsapp-logo text-xl"></i>
+        Conectar meu WhatsApp
+      <% end %>
+    </div>
+    <p class="mt-5 text-white/50 text-sm">Grátis para começar &middot; Cancele quando quiser</p>
+  </div>
+</section>
+

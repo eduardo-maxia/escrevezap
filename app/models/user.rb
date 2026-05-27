@@ -1,89 +1,73 @@
 class User < ApplicationRecord
-  # Passwordless auth: Google OAuth + email OTP code.
-  # We keep :database_authenticatable so Devise's session helpers (sign_in,
-  # current_user, etc.) work, but `password_required?` is forced to false
-  # so users without a password can be created via OTP / OAuth.
-  devise :database_authenticatable, :registerable, :validatable,
-         :omniauthable, omniauth_providers: [:google_oauth2]
+  devise :rememberable, :trackable, :omniauthable, omniauth_providers: [:google_oauth2]
 
-  belongs_to :company, optional: true
-  has_many :push_subscriptions, dependent: :destroy
+  has_one :waha_session, dependent: :destroy
+  has_one :subscription, dependent: :destroy
+  has_one_attached :avatar
 
-  enum :role, { owner: "owner", admin: "admin", member: "member" }
+  enum :plan,             { free: "free", basic: "basic", pro: "pro" }, default: :free
+  enum :formatting_style, { faithful: "faithful", polished: "polished" }, default: :polished
 
-  # ── Google OAuth ─────────────────────────────────────────────────────────
-  # Looks up by provider/uid first, then falls back to email so a user that
-  # previously signed up via OTP can link their Google account on first login.
+  validates :email, presence: true,
+                    format: { with: URI::MailTo::EMAIL_REGEXP },
+                    uniqueness: { case_sensitive: false }
+  validates :uid, uniqueness: { scope: :provider }, allow_blank: true
+
+  before_save { email.downcase! }
+
+  TRANSCRIPTION_LIMITS = { "free" => 20, "basic" => 500, "pro" => 2_000 }.freeze
+
   def self.from_google(auth)
-    user = find_by(provider: auth.provider, uid: auth.uid) ||
-           find_by(email: auth.info.email&.downcase) ||
-           new(email: auth.info.email&.downcase)
+    # Try to find by provider/uid first (returning user via Google)
+    user = find_by(provider: auth.provider, uid: auth.uid)
 
-    user.assign_attributes(
-      provider:   auth.provider,
-      uid:        auth.uid,
-      name:       user.name.presence || auth.info.name,
-      avatar_url: auth.info.image
-    )
-    user.save!(validate: user.new_record?) # email-format validation only matters on create
-    user
-  end
+    # Then try matching existing magic-link user by email
+    user ||= find_by(email: auth.info.email.downcase)
 
-  # ── OTP (email-code) authentication ──────────────────────────────────────
-  OTP_LENGTH           = 4
-  OTP_EXPIRY           = 10.minutes
-  OTP_MAX_ATTEMPTS     = 5
-  OTP_RESEND_COOLDOWN  = 30.seconds
-
-  # Generate a fresh 6-digit code, store its bcrypt digest, return the plain code.
-  def generate_otp!
-    code = SecureRandom.random_number(10**OTP_LENGTH).to_s.rjust(OTP_LENGTH, "0")
-    update!(
-      otp_digest:     ::BCrypt::Password.create(code),
-      otp_sent_at:    Time.current,
-      otp_expires_at: OTP_EXPIRY.from_now,
-      otp_attempts:   0
-    )
-    code
-  end
-
-  # Verify a submitted code. Returns one of:
-  #   :ok                 — code matches, OTP consumed
-  #   :expired            — no code on file or window elapsed
-  #   :too_many_attempts  — attempts exceeded, code revoked
-  #   :invalid            — wrong code (attempts incremented)
-  def verify_otp(code)
-    return :expired           if otp_digest.blank? || otp_expires_at.blank? || otp_expires_at < Time.current
-    return :too_many_attempts if otp_attempts >= OTP_MAX_ATTEMPTS
-
-    if ::BCrypt::Password.new(otp_digest) == code.to_s
-      clear_otp!
-      :ok
+    if user
+      user.update!(
+        provider:   auth.provider,
+        uid:        auth.uid,
+        avatar_url: auth.info.image,
+        name:       user.name.presence || auth.info.name
+      )
+      user
     else
-      increment!(:otp_attempts)
-      otp_attempts >= OTP_MAX_ATTEMPTS ? :too_many_attempts : :invalid
+      create!(
+        email:      auth.info.email.downcase,
+        name:       auth.info.name,
+        provider:   auth.provider,
+        uid:        auth.uid,
+        avatar_url: auth.info.image
+      )
     end
   end
 
-  def clear_otp!
-    update!(otp_digest: nil, otp_expires_at: nil, otp_sent_at: nil, otp_attempts: 0)
+  def display_name
+    name.presence || email.split("@").first
   end
 
-  def otp_resend_available_in
-    return 0 if otp_sent_at.blank?
-    remaining = (otp_sent_at + OTP_RESEND_COOLDOWN - Time.current).to_i
-    [remaining, 0].max
+  def admin?
+    admin
   end
 
-  def can_resend_otp?
-    otp_resend_available_in.zero?
+  def transcription_limit
+    TRANSCRIPTION_LIMITS.fetch(plan, 20)
   end
 
-  private
+  def monthly_transcriptions_used
+    waha_session&.monthly_transcription_count || 0
+  end
 
-  # Devise hook — passwords are never required since we use OTP/OAuth.
-  def password_required?
-    false
+  def transcription_limit_reached?
+    monthly_transcriptions_used >= transcription_limit
+  end
+
+  def active_subscriber?
+    subscription&.active_or_trialing? || false
+  end
+
+  def complete_onboarding!
+    update!(onboarding_completed: true)
   end
 end
-

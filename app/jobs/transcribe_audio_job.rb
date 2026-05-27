@@ -1,0 +1,214 @@
+class TranscribeAudioJob < ApplicationJob
+  queue_as :default
+
+  # Transcrições com menos caracteres que este limiar não recebem resumo/formatação AI.
+  # Precisa de pelo menos ~3-4 frases para um resumo agregar valor.
+  AI_MIN_CHARS = 350
+
+  # ── Prompts ────────────────────────────────────────────────────────────
+
+  # "Polished" — texto refinado com resumo e formatação completa.
+  AI_PROMPT_POLISHED = <<~PROMPT.freeze
+    Você é um assistente que processa transcrições de áudios do WhatsApp.
+    Dado o texto transcrito abaixo, retorne um JSON com duas chaves:
+    - "summary": Um resumo em UMA frase curta (máximo 120 caracteres) do ponto central
+      da mensagem. O resumo DEVE ser substancialmente mais curto que o texto original.
+      Se o texto for curto (menos de 3 frases distintas) ou se não for possível resumir
+      sem perder o essencial, retorne null.
+    - "full_formatted": A transcrição formatada de forma legível, corrigindo pontuação,
+      paragrafando naturalmente e destacando termos importantes com *negrito*.
+    Responda SOMENTE com o JSON válido, sem markdown, sem comentários.
+  PROMPT
+
+  # "Faithful" — o mais próximo do que foi dito, mínima intervenção AI.
+  AI_PROMPT_FAITHFUL = <<~PROMPT.freeze
+    Você é um assistente que processa transcrições de áudios do WhatsApp.
+    Dado o texto transcrito abaixo, retorne um JSON com duas chaves:
+    - "summary": null
+    - "full_formatted": O texto com erros óbvios de reconhecimento de voz corrigidos
+      e pontuação básica adicionada. Preserve absolutamente o vocabulário, as expressões,
+      o ritmo e o estilo de fala original. Não reformule, não reescreva, não resuma.
+    Responda SOMENTE com o JSON válido, sem markdown, sem comentários.
+  PROMPT
+
+  def perform(transcription_id)
+    transcription   = Transcription.find(transcription_id)
+    contact         = transcription.monitored_contact
+    waha_session    = contact.waha_session
+    user            = waha_session.user
+
+    # Guard: session must be connected
+    unless waha_session.working?
+      Rails.logger.warn "[TranscribeAudioJob] WahaSession #{waha_session.id} not working — skipping"
+      return
+    end
+
+    # Guard: monthly limit
+    if user.transcription_limit_reached?
+      Rails.logger.info "[TranscribeAudioJob] Limite mensal atingido para user #{user.id} — skipping"
+      send_limit_reached_notice(waha_session, contact)
+      fail_transcription!(transcription, "Limite mensal de transcrições atingido")
+      return
+    end
+
+    process_transcription(transcription, waha_session, contact, user)
+  end
+
+  private
+
+  def process_transcription(transcription, waha_session, contact, user)
+    media_url = transcription.media_url
+
+    unless media_url.present?
+      fail_transcription!(transcription, "URL de mídia ausente na mensagem")
+      return
+    end
+
+    # 1. Download the audio binary from Waha
+    audio_data = waha_session.waha_client.messaging.download_media_from_url(media_url: media_url)
+
+    # 2. Write to a temp file and transcribe
+    dg_duration = nil
+    transcript = Tempfile.create(["wt_audio_#{transcription.id}", ".ogg"], binmode: true) do |file|
+      file.write(audio_data)
+      file.flush
+      dg = Deepgram.new(file.path)
+      text = dg.speech_to_text
+      dg_duration = dg.duration
+      transcription.update!(audio_duration: dg.duration)
+      text
+    end
+
+    if transcript.blank?
+      fail_transcription!(transcription, "Deepgram retornou transcrição vazia")
+      return
+    end
+
+    # Track Deepgram provider cost
+    track_deepgram_usage(transcription, dg_duration)
+
+    # 3. AI formatting (Pro plan only, minimum transcript length required)
+    ai_token_count = nil
+    if user.pro? && transcript.length >= AI_MIN_CHARS
+      summary, full_formatted, ai_token_count = ai_format(transcript, user)
+    end
+    track_openai_usage(transcription, ai_token_count) if ai_token_count
+
+    # 4. Update the transcription record
+    transcription.update!(
+      transcript:     transcript,
+      summary:        summary,
+      full_formatted: full_formatted,
+      status:         :completed
+    )
+
+    # 5. Build and send the reply
+    chat_id     = contact.resolve_waha_chat_id
+    reply_to_id = transcription.waha_message_id
+    reply_text  = build_reply_text(transcript, summary, full_formatted, user)
+
+    response = waha_session.waha_client.messaging.send_message(
+      chat_id:  chat_id,
+      text:     reply_text,
+      reply_to: reply_to_id
+    )
+
+    transcription.update!(reply_message_id: response.dig("id") || response.dig("_data", "Info", "ID"))
+
+    # 6. Track usage event (async, non-critical)
+    metadata = { transcription_id: transcription.id, duration: dg_duration, plan: user.plan }
+    TrackUsageJob.perform_later(user_id: user.id, event_type: UsageEvent::TRANSCRIPTION_COMPLETED, metadata: metadata)
+    if ai_token_count
+      TrackUsageJob.perform_later(user_id: user.id, event_type: UsageEvent::AI_FORMAT_COMPLETED, metadata: { transcription_id: transcription.id, tokens: ai_token_count })
+    end
+  rescue => e
+    Rails.logger.error "[TranscribeAudioJob] Erro ao processar transcription #{transcription.id}: #{e.message}"
+    fail_transcription!(transcription, e.message)
+    raise e
+  end
+
+  # ── AI Formatting ──────────────────────────────────────────────────────
+
+  # Returns [summary, full_formatted, total_tokens]
+  def ai_format(transcript, user)
+    prompt = user.faithful? ? AI_PROMPT_FAITHFUL : AI_PROMPT_POLISHED
+    response = Llm::Client.new(model: "gpt-4o")
+                          .with_instructions(prompt)
+                          .add_message(role: "user", content: transcript)
+                          .complete
+
+    result      = JSON.parse(response.content, symbolize_names: true)
+    token_count = response.respond_to?(:usage) ? response.usage&.total_tokens : nil
+    [result[:summary], result[:full_formatted], token_count]
+  rescue JSON::ParserError, KeyError => e
+    Rails.logger.warn "[TranscribeAudioJob] AI format parse error: #{e.message}"
+    [nil, nil, nil]
+  rescue => e
+    Rails.logger.warn "[TranscribeAudioJob] AI format failed: #{e.message}"
+    [nil, nil, nil]
+  end
+
+  # ── Provider cost tracking ─────────────────────────────────────────────
+
+  def track_deepgram_usage(transcription, duration_seconds)
+    return unless duration_seconds.present?
+
+    ProviderUsage.create!(
+      transcription: transcription,
+      provider:      "deepgram",
+      units:         duration_seconds.to_f,
+      unit_type:     "seconds",
+      cost_usd:      duration_seconds.to_f * ProviderUsage::DEEPGRAM_USD_PER_SECOND
+    )
+  rescue => e
+    Rails.logger.warn "[TranscribeAudioJob] Failed to track Deepgram usage: #{e.message}"
+  end
+
+  def track_openai_usage(transcription, token_count)
+    return unless token_count.present?
+
+    ProviderUsage.create!(
+      transcription: transcription,
+      provider:      "openai",
+      units:         token_count.to_f,
+      unit_type:     "tokens",
+      cost_usd:      token_count.to_f * ProviderUsage::OPENAI_USD_PER_TOKEN
+    )
+  rescue => e
+    Rails.logger.warn "[TranscribeAudioJob] Failed to track OpenAI usage: #{e.message}"
+  end
+
+  # ── Reply text builders ────────────────────────────────────────────────
+
+  def build_reply_text(transcript, summary, full_formatted, user)
+    body = full_formatted.presence || transcript
+
+    if user.pro?
+      if user.polished? && summary.present?
+        # Hard-limit: não exibe o resumo se ele for maior/igual ao próprio corpo
+        effective_summary = summary.length < body.length ? summary : nil
+
+        if effective_summary
+          parts = []
+          parts << "� *Resumo rápido*\n\n#{effective_summary}"
+          parts << "───────────────"
+          parts << "📄 *Transcrição completa*\n\n_#{body}_"
+          parts.join("\n\n")
+        else
+          "📄 *Transcrição*\n\n#{body}"
+        end
+      else
+        # faithful style or polished but below AI_MIN_CHARS
+        "📄 *Transcrição*\n\n#{body}"
+      end
+    elsif user.free?
+      "📄 *Transcrição*\n\n#{transcript}\n\n---\n_via EscreveZap_"
+    else
+      "📄 *Transcrição*\n\n#{transcript}"
+    end
+  end
+
+  def fail_transcription!(transcription, message)
+    transcription.update!(status: :failed, error_message: message)
+  end
+end
