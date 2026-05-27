@@ -97,49 +97,59 @@
         <%= f.hidden_field :phone_number, data: { "contact-picker-target": "phone" } %>
       </div>
 
-      <details class="group">
-        <summary class="cursor-pointer text-xs text-(--color-text-muted) hover:text-(--color-text) flex items-center gap-1.5 select-none">
-          <i class="ph ph-keyboard text-sm"></i>
-          Digitar número manualmente
-          <i class="ph ph-caret-down text-xs group-open:rotate-180 transition-transform"></i>
-        </summary>
-        <div class="mt-3">
-          <input type="tel"
-                 placeholder="5511999999999"
-                 inputmode="numeric"
-                 autocomplete="tel"
-                 data-action="input->contact-picker#manualPhone"
-                 class="w-full bg-(--color-surface) border border-(--color-border) rounded-xl px-4 py-3 text-sm text-(--color-text) placeholder:text-(--color-text-subtle) focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-transparent transition">
-          <p class="mt-1.5 text-xs text-(--color-text-muted)">Código do país + DDD + número. Ex: 5511999999999</p>
-        </div>
-      </details>
+      <div class="pt-1">
+        <input id="onboarding-advanced-options" type="checkbox" class="peer sr-only">
 
-      <div>
-        <label class="block text-sm font-medium text-(--color-text) mb-1.5">
-          Nome (opcional)
+        <label for="onboarding-advanced-options"
+               class="inline-flex items-center gap-2.5 cursor-pointer select-none text-xs text-(--color-text-muted) hover:text-(--color-text) transition-colors">
+          <span class="relative w-8 h-4 rounded-full bg-(--color-border) transition-colors peer-checked:bg-(--color-brand)">
+            <span class="absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-4"></span>
+          </span>
+          Ver opções avançadas
         </label>
-        <%= f.text_field :display_name,
-              placeholder: "Ex: João Silva",
-              data: { "contact-picker-target": "name" },
-              class: "w-full bg-(--color-surface) border border-(--color-border) rounded-xl px-4 py-3 text-sm text-(--color-text) placeholder:text-(--color-text-subtle) focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-transparent transition" %>
-      </div>
 
-      <div>
-        <label class="block text-sm font-medium text-(--color-text) mb-2">
-          Transcrever mensagens
-        </label>
-        <div class="grid grid-cols-3 gap-2">
-          <% MonitoredContact.directions.each_key do |dir| %>
-            <label class="relative cursor-pointer">
-              <%= f.radio_button :direction, dir, class: "sr-only peer", checked: (contact.direction || "both") == dir %>
-              <div class="flex flex-col items-center gap-1.5 rounded-xl border-2 px-3 py-3 text-center transition-all
-                          border-(--color-border) text-(--color-text-muted)
-                          peer-checked:border-(--color-brand) peer-checked:bg-(--color-brand-subtle) peer-checked:text-(--color-brand)">
-                <i class="ph <%= dir == 'incoming' ? 'ph-arrow-down-left' : dir == 'outgoing' ? 'ph-arrow-up-right' : 'ph-arrows-left-right' %> text-lg"></i>
-                <span class="text-xs font-medium leading-tight"><%= t("monitored_contact.direction.#{dir}") %></span>
-              </div>
+        <div class="hidden peer-checked:block mt-3 space-y-4 rounded-2xl border border-(--color-border) bg-(--color-surface-muted) p-4">
+          <div>
+            <label class="block text-sm font-medium text-(--color-text) mb-1.5">
+              Número manual (opcional)
             </label>
-          <% end %>
+            <input type="tel"
+                   placeholder="5511999999999"
+                   inputmode="numeric"
+                   autocomplete="tel"
+                   data-action="input->contact-picker#manualPhone"
+                   class="w-full bg-(--color-surface) border border-(--color-border) rounded-xl px-4 py-3 text-sm text-(--color-text) placeholder:text-(--color-text-subtle) focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-transparent transition">
+            <p class="mt-1.5 text-xs text-(--color-text-muted)">Código do país + DDD + número. Ex: 5511999999999</p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-(--color-text) mb-1.5">
+              Nome (opcional)
+            </label>
+            <%= f.text_field :display_name,
+                  placeholder: "Ex: João Silva",
+                  data: { "contact-picker-target": "name" },
+                  class: "w-full bg-(--color-surface) border border-(--color-border) rounded-xl px-4 py-3 text-sm text-(--color-text) placeholder:text-(--color-text-subtle) focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-transparent transition" %>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-(--color-text) mb-2">
+              Transcrever mensagens
+            </label>
+            <div class="grid grid-cols-3 gap-2">
+              <% MonitoredContact.directions.each_key do |dir| %>
+                <label class="relative cursor-pointer">
+                  <%= f.radio_button :direction, dir, class: "sr-only peer", checked: (contact.direction || "both") == dir %>
+                  <div class="flex flex-col items-center gap-1.5 rounded-xl border-2 px-3 py-3 text-center transition-all
+                              border-(--color-border) text-(--color-text-muted)
+                              peer-checked:border-(--color-brand) peer-checked:bg-(--color-brand-subtle) peer-checked:text-(--color-brand)">
+                    <i class="ph <%= dir == 'incoming' ? 'ph-arrow-down-left' : dir == 'outgoing' ? 'ph-arrow-up-right' : 'ph-arrows-left-right' %> text-lg"></i>
+                    <span class="text-xs font-medium leading-tight"><%= t("monitored_contact.direction.#{dir}") %></span>
+                  </div>
+                </label>
+              <% end %>
+            </div>
+          </div>
         </div>
       </div>
 

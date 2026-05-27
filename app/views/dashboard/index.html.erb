@@ -36,6 +36,23 @@
     </div>
   </div>
 
+  <% unless @waha_session&.working? %>
+    <div class="rounded-2xl border border-(--color-warning) bg-(--color-warning-light) px-4 py-4 flex items-start gap-3">
+      <div class="w-9 h-9 rounded-full bg-white/70 flex items-center justify-center flex-shrink-0">
+        <i class="ph ph-whatsapp-logo text-(--color-warning) text-lg"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-(--color-text)">Conecte seu WhatsApp para ativar as transcrições</p>
+        <p class="text-xs text-(--color-text-muted) mt-1">Você pode conectar agora e começar a receber respostas automáticas nos áudios.</p>
+        <%= link_to app_waha_session_path,
+              class: "mt-3 inline-flex items-center gap-1.5 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-4 py-2 rounded-xl text-xs transition-colors" do %>
+          Conectar WhatsApp agora
+          <i class="ph ph-arrow-right text-sm"></i>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
   <%# ── Usage bar ──────────────────────────────────────────────────────── %>
   <% limit = current_user.transcription_limit %>
   <% pct   = [((@month_count.to_f / limit) * 100).round, 100].min %>

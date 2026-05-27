@@ -59,6 +59,16 @@
   <div class="mb-6">
     <h1 class="text-2xl font-bold text-(--color-text)">Conectar WhatsApp</h1>
     <p class="mt-1 text-sm text-(--color-text-muted)">Escaneie o QR Code ou use código de emparelhamento</p>
+    <div class="mt-3">
+      <%= button_to "Conectar depois",
+            onboarding_skip_connection_path,
+            method: :post,
+            data: {
+              controller: "loadable",
+              "loadable-loading-text-value": "Continuando..."
+            },
+            class: "inline-flex items-center justify-center gap-2 text-xs text-(--color-text-muted) hover:text-(--color-text) underline underline-offset-2 transition-colors bg-transparent border-none p-0 disabled:opacity-60 disabled:cursor-not-allowed" %>
+    </div>
   </div>
 
   <div class="mb-6 flex items-center gap-2 rounded-xl border border-(--color-border) bg-(--color-surface-muted) px-3 py-2" data-onboarding-connect-target="statusBadge">

@@ -26,6 +26,15 @@ class OnboardingController < ApplicationController
     end
   end
 
+  def skip_connection
+    current_user.update!(
+      onboarding_completed: true,
+      contacts_intro_dismissed: true
+    )
+
+    redirect_to authenticated_root_path, notice: "Você pode conectar seu WhatsApp depois, na aba WhatsApp."
+  end
+
   def step3
     redirect_to authenticated_root_path if current_user.contacts_intro_dismissed?
 
