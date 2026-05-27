@@ -2,7 +2,7 @@ class Transcription < ApplicationRecord
   belongs_to :monitored_contact
   has_one    :waha_session, through: :monitored_contact
   has_one    :user,         through: :waha_session
-  has_many   :provider_usages
+  has_many   :provider_usages, -> { order(created_at: :desc) }
 
   enum :status, {
     processing: "processing",

@@ -87,7 +87,7 @@
                    <i class="ph <%= t.direction == 'incoming' ? 'ph-arrow-down-left' : 'ph-arrow-up-right' %> text-xs"></i>
                    <%= t.direction == 'incoming' ? 'Recebido' : 'Enviado' %>
                  </span>
-                 <% if (usage = t.provider_usages.max_by(&:created_at)) %>
+                 <% if (usage = t.provider_usages.first) %>
                    <span class="flex items-center gap-0.5 text-[10px] text-(--color-text-subtle)">
                      <i class="ph ph-cpu text-xs"></i>
                      <%= usage.provider %>

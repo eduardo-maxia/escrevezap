@@ -26,8 +26,17 @@
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
       <p class="text-(--color-text-muted)">ID da request: <span class="font-medium text-(--color-text)">#<%= @transcription.id %></span></p>
-      <p class="text-(--color-text-muted)">Status: <span class="font-medium text-(--color-text)"><%= @transcription.status %></span></p>
-      <p class="text-(--color-text-muted)">Direção: <span class="font-medium text-(--color-text)"><%= @transcription.direction %></span></p>
+      <p class="text-(--color-text-muted)">
+        Status:
+        <% if @transcription.completed? %>
+          <span class="inline-flex items-center rounded-full bg-green-50 border border-green-200 text-green-700 px-2 py-0.5 text-[10px] font-semibold">Concluída</span>
+        <% elsif @transcription.processing? %>
+          <span class="inline-flex items-center rounded-full bg-blue-50 border border-blue-200 text-blue-700 px-2 py-0.5 text-[10px] font-semibold">Processando</span>
+        <% else %>
+          <span class="inline-flex items-center rounded-full bg-(--color-danger-light) border border-(--color-danger) text-(--color-danger) px-2 py-0.5 text-[10px] font-semibold">Falha</span>
+        <% end %>
+      </p>
+      <p class="text-(--color-text-muted)">Direção: <span class="font-medium text-(--color-text)"><%= @transcription.incoming? ? "Recebido" : "Enviado" %></span></p>
       <p class="text-(--color-text-muted)">Message ID: <span class="font-medium text-(--color-text)"><%= @transcription.waha_message_id.presence || "-" %></span></p>
       <p class="text-(--color-text-muted)">Reply ID: <span class="font-medium text-(--color-text)"><%= @transcription.reply_message_id.presence || "-" %></span></p>
       <p class="text-(--color-text-muted)">Duração: <span class="font-medium text-(--color-text)"><%= @transcription.audio_duration.present? ? "#{format('%.0f', @transcription.audio_duration)}s" : "-" %></span></p>
