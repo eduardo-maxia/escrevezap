@@ -1,6 +1,6 @@
 class WebhookController < ActionController::Base
   include Loggable
 
-  protect_from_forgery with: :null_session
-  skip_before_action :verify_authenticity_token
+  # External webhook providers do not send Rails CSRF tokens.
+  skip_forgery_protection
 end

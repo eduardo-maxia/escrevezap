@@ -1,4 +1,6 @@
 class Webhook::AbacatePayController < WebhookController
+  skip_forgery_protection
+
   # POST /webhook/abacate_pay?webhookSecret=SECRET
   def create
     # 1. Validate URL secret
