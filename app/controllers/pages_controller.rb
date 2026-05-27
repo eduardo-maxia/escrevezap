@@ -79,7 +79,9 @@ class PagesController < ApplicationController
   end
 
   def ai_format_demo(transcript)
-    response = Llm::Client.new(model: "gpt-4o-mini")
+    response = Llm::Client.new(model: "gpt-5.4-mini")
+                          # Joga a verbosity e o thinking lá embaixo
+                          .with_params(reasoning: {effort: 'low'}, text: {verbosity: 'low'})
                           .with_instructions(AI_PROMPT_DEMO)
                           .add_message(role: "user", content: transcript)
                           .complete

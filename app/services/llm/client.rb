@@ -2,11 +2,11 @@
 # Always uses responses.create – never chat completions.
 #
 # Usage:
-#   client = Llm::Client.new(model: 'gpt-4o')
+#   client = Llm::Client.new(model: 'gpt-5.4-mini')
 #     .with_instructions("You are …")
 #     .with_tools(*my_tools)
 #     .with_temperature(0.3)
-#     .with_params(reasoning_effort: 'medium')
+#     .with_params(reasoning: {effort: 'low'}, text: {verbosity: 'low'})
 #
 #   client.add_message(role: 'user', content: 'Hello')
 #   response = client.complete

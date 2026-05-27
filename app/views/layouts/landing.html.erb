@@ -45,10 +45,15 @@
 
     <%# ── Mobile sticky CTA ───────────────────────────────────────────── %>
     <div class="fixed bottom-0 inset-x-0 z-50 p-4 bg-white/95 backdrop-blur border-t border-gray-100 shadow-lg md:hidden">
-      <%= link_to new_user_session_path,
-            class: "flex items-center justify-center gap-2 w-full bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold py-3.5 rounded-xl text-sm transition-colors" do %>
-        <i class="ph ph-whatsapp-logo text-lg"></i>
-        Conectar meu WhatsApp
+      <% if user_signed_in? %>
+        <%= link_to "Entrar", authenticated_root_path,
+              class: "flex items-center justify-center gap-2 w-full bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold py-3.5 rounded-xl text-sm transition-colors" %>
+      <% else %>
+        <%= link_to new_user_session_path,
+              class: "flex items-center justify-center gap-2 w-full bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold py-3.5 rounded-xl text-sm transition-colors" do %>
+          <i class="ph ph-whatsapp-logo text-lg"></i>
+          Conectar meu WhatsApp
+        <% end %>
       <% end %>
     </div>
 
@@ -80,10 +85,15 @@
 
           <%# Desktop CTA + hamburger %>
           <div class="flex items-center gap-3">
-            <%= link_to new_user_session_path,
-                  class: "hidden md:inline-flex items-center gap-1.5 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors" do %>
-              <i class="ph ph-whatsapp-logo"></i>
-              Conectar WhatsApp
+            <% if user_signed_in? %>
+              <%= link_to "Entrar", authenticated_root_path,
+                    class: "hidden md:inline-flex items-center gap-1.5 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors" %>
+            <% else %>
+              <%= link_to new_user_session_path,
+                    class: "hidden md:inline-flex items-center gap-1.5 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors" do %>
+                <i class="ph ph-whatsapp-logo"></i>
+                Conectar WhatsApp
+              <% end %>
             <% end %>
 
             <button type="button" id="hamburger-btn"
@@ -102,8 +112,13 @@
           <a href="#precos"        class="block px-3 py-2.5 rounded-lg text-sm text-(--color-text) hover:bg-(--color-surface-soft) transition-colors">Preços</a>
           <a href="#faq"           class="block px-3 py-2.5 rounded-lg text-sm text-(--color-text) hover:bg-(--color-surface-soft) transition-colors">FAQ</a>
           <div class="pt-2 border-t border-gray-100">
-            <%= link_to "Conectar meu WhatsApp", new_user_session_path,
-                  class: "flex items-center justify-center gap-2 w-full bg-(--color-brand) text-white font-semibold py-3 rounded-xl text-sm" %>
+            <% if user_signed_in? %>
+              <%= link_to "Entrar", authenticated_root_path,
+                    class: "flex items-center justify-center gap-2 w-full bg-(--color-brand) text-white font-semibold py-3 rounded-xl text-sm" %>
+            <% else %>
+              <%= link_to "Conectar meu WhatsApp", new_user_session_path,
+                    class: "flex items-center justify-center gap-2 w-full bg-(--color-brand) text-white font-semibold py-3 rounded-xl text-sm" %>
+            <% end %>
           </div>
         </div>
       </div>

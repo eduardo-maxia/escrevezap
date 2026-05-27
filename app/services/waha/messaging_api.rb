@@ -69,6 +69,15 @@ module Waha
       JSON.parse(response)
     end
 
+    # Edit the text of a previously sent message.
+    #
+    # PUT /api/{session}/chats/{chatId}/messages/{messageId}
+    def edit_message(chat_id:, message_id:, text:)
+      encoded_chat_id    = chat_id.gsub("@", "%40")
+      encoded_message_id = message_id.gsub("@", "%40")
+      @api_request.put("/api/#{@session}/chats/#{encoded_chat_id}/messages/#{encoded_message_id}", { text: text })
+    end
+
     def download_media_from_url(media_url:)
       # We have to just fetch whatever is media_url, but using our api_key
       api_request = ApiRequest.new(media_url, {
