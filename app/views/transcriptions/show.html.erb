@@ -77,37 +77,49 @@
 
   <%# Status: completed %>
   <% else %>
-    <%# AI summary (Pro) %>
-    <% if @transcription.summary.present? %>
-      <div class="rounded-2xl bg-(--color-brand-subtle) border border-(--color-brand-light) px-5 py-4 mb-4">
-        <div class="flex items-center gap-1.5 mb-2">
-          <i class="ph ph-sparkle text-sm text-(--color-brand)"></i>
-          <p class="text-xs font-semibold text-(--color-brand) uppercase tracking-wide">Resumo</p>
-        </div>
-        <p class="text-sm text-(--color-text) leading-relaxed"><%= @transcription.summary %></p>
-      </div>
-    <% end %>
-
-    <%# Full transcript %>
-    <div class="rounded-2xl bg-(--color-surface) border border-(--color-border) px-5 py-4">
+    <div class="rounded-2xl bg-(--color-surface) border border-(--color-border) px-5 py-4 mb-4">
       <div class="flex items-center gap-1.5 mb-3">
-        <i class="ph ph-chat-text text-sm text-(--color-text-muted)"></i>
-        <p class="text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide">Transcrição</p>
+        <i class="ph ph-waveform text-sm text-(--color-text-muted)"></i>
+        <p class="text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide">Áudio original</p>
       </div>
-      <p class="text-sm text-(--color-text) leading-relaxed whitespace-pre-wrap"><%= @transcription.transcript %></p>
+      <% if @transcription.audio.attached? && @transcription.audio.blob.present? %>
+        <%= audio_tag url_for(@transcription.audio), controls: true, preload: "metadata", class: "w-full" %>
+      <% else %>
+        <p class="text-sm text-(--color-text-muted)">Áudio não disponível.</p>
+      <% end %>
     </div>
 
-    <%# Full formatted (Pro) %>
-    <% if @transcription.full_formatted.present? %>
-      <div class="rounded-2xl bg-(--color-surface) border border-(--color-border) px-5 py-4 mt-4">
-        <div class="flex items-center gap-1.5 mb-3">
-          <i class="ph ph-file-text text-sm text-(--color-text-muted)"></i>
-          <p class="text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide">Versão formatada</p>
-        </div>
-        <div class="text-sm text-(--color-text) leading-relaxed prose prose-sm max-w-none">
-          <%= simple_format @transcription.full_formatted %>
-        </div>
+    <div class="rounded-2xl bg-(--color-surface) border border-(--color-border) px-5 py-4 mb-4">
+      <div class="flex items-center gap-1.5 mb-3">
+        <i class="ph ph-chat-text text-sm text-(--color-text-muted)"></i>
+        <p class="text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide">Texto transcrito</p>
       </div>
-    <% end %>
+      <p class="text-sm text-(--color-text) leading-relaxed whitespace-pre-wrap"><%= @transcription.transcript.presence || "-" %></p>
+    </div>
+
+    <div class="rounded-2xl bg-(--color-surface) border border-(--color-border) px-5 py-4 mb-4">
+      <div class="flex items-center gap-1.5 mb-3">
+        <i class="ph ph-brain text-sm text-(--color-text-muted)"></i>
+        <p class="text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide">Texto de output da LLM</p>
+      </div>
+      <p class="text-sm text-(--color-text) leading-relaxed whitespace-pre-wrap"><%= @transcription.llm_output_json.presence || "-" %></p>
+    </div>
+
+    <%# AI summary (Pro) %>
+    <div class="rounded-2xl bg-(--color-brand-subtle) border border-(--color-brand-light) px-5 py-4 mb-4">
+      <div class="flex items-center gap-1.5 mb-2">
+        <i class="ph ph-sparkle text-sm text-(--color-brand)"></i>
+        <p class="text-xs font-semibold text-(--color-brand) uppercase tracking-wide">Resumo</p>
+      </div>
+      <p class="text-sm text-(--color-text) leading-relaxed whitespace-pre-wrap"><%= @transcription.summary.presence || "-" %></p>
+    </div>
+
+    <div class="rounded-2xl bg-(--color-surface) border border-(--color-border) px-5 py-4">
+      <div class="flex items-center gap-1.5 mb-3">
+        <i class="ph ph-file-text text-sm text-(--color-text-muted)"></i>
+        <p class="text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide">Texto final</p>
+      </div>
+      <p class="text-sm text-(--color-text) leading-relaxed whitespace-pre-wrap"><%= @transcription.reply_text.presence || "-" %></p>
+    </div>
   <% end %>
 </div>

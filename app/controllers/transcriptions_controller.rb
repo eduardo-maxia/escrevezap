@@ -13,7 +13,7 @@ class TranscriptionsController < ApplicationController
   def show
     @transcription = current_user.waha_session
                        &.transcriptions
-                       &.includes(:monitored_contact, :provider_usages)
+                       &.includes(:monitored_contact, :provider_usages, audio_attachment: :blob)
                        &.find_by(id: params[:id])
     redirect_to transcriptions_path unless @transcription
   end
