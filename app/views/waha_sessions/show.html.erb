@@ -3,16 +3,8 @@
 <div class="py-6">
   <h1 class="text-xl font-bold text-(--color-text) mb-6">WhatsApp</h1>
 
-  <%# ── Status card ─────────────────────────────────────────────────── %>
-  <div class="bg-(--color-surface) border border-(--color-border) rounded-2xl overflow-hidden"
-       data-controller="connect"
-       data-connect-qr-url-value="<%= qr_app_waha_session_path(format: :json) %>"
-       data-connect-pairing-url-value="<%= pairing_code_app_waha_session_path(format: :json) %>"
-       data-connect-dashboard-url-value="<%= authenticated_root_path %>"
-       data-connect-status-value="<%= @waha_session&.waha_status || 'pending' %>">
-
-    <%# Connected state %>
-    <% if @waha_session&.working? %>
+  <% if @waha_session&.working? %>
+    <div class="bg-(--color-surface) border border-(--color-border) rounded-2xl overflow-hidden">
       <div class="flex items-center gap-4 px-5 py-4 border-b border-(--color-border)">
         <% if @waha_session.avatar_url.present? %>
           <img src="<%= @waha_session.avatar_url %>" alt="" class="w-12 h-12 rounded-full object-cover flex-shrink-0">
@@ -44,9 +36,16 @@
           Desconectar WhatsApp
         <% end %>
       </div>
+    </div>
+  <% else %>
+    <div class="bg-(--color-surface) border border-(--color-border) rounded-2xl overflow-hidden"
+         data-controller="connect"
+         data-connect-qr-url-value="<%= qr_app_waha_session_path(format: :json) %>"
+         data-connect-pairing-url-value="<%= pairing_code_app_waha_session_path(format: :json) %>"
+         data-connect-reconnect-url-value="<%= reconnect_app_waha_session_path(format: :json) %>"
+         data-connect-dashboard-url-value="<%= authenticated_root_path %>"
+         data-connect-status-value="<%= @waha_session&.waha_status || 'pending' %>">
 
-    <%# Not connected / reconnecting %>
-    <% else %>
       <div class="px-5 py-4 border-b border-(--color-border) flex items-center gap-2" data-connect-target="statusBadge">
         <span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" data-connect-target="statusDot"></span>
         <span class="text-sm text-(--color-text-muted)" data-connect-target="statusText">
@@ -59,30 +58,31 @@
         </span>
       </div>
 
-      <%# Hidden Stimulus targets to avoid missing-target errors on this page %>
-      <span class="hidden" data-connect-target="tabs"></span>
-      <span class="hidden" data-connect-target="qrTabBtn"></span>
-      <span class="hidden" data-connect-target="pairingTabBtn"></span>
-      <span class="hidden" data-connect-target="pairingPanel"></span>
-      <span class="hidden" data-connect-target="phoneFormWrapper"></span>
-      <span class="hidden" data-connect-target="phoneInput"></span>
-      <span class="hidden" data-connect-target="pairingSubmitBtn"></span>
-      <span class="hidden" data-connect-target="pairingBtnText"></span>
-      <span class="hidden" data-connect-target="pairingError"></span>
-      <span class="hidden" data-connect-target="pairingErrorText"></span>
-      <span class="hidden" data-connect-target="codeWrapper"></span>
-      <span class="hidden" data-connect-target="codeText"></span>
-      <span class="hidden" data-connect-target="successPanel"></span>
-      <span class="hidden" data-connect-target="errorTitle"></span>
-      <span class="hidden" data-connect-target="errorMessage"></span>
+      <div class="p-5 border-b border-(--color-border)" data-connect-target="tabs">
+        <div class="flex rounded-xl border border-(--color-border) bg-(--color-surface-muted) p-1">
+          <button type="button"
+                  data-action="click->connect#showQRTab"
+                  data-connect-target="qrTabBtn"
+                  class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition-all bg-(--color-surface) shadow-sm text-(--color-text)">
+            <i class="ph ph-qr-code text-base"></i>
+            QR Code
+          </button>
+          <button type="button"
+                  data-action="click->connect#showPairingTab"
+                  data-connect-target="pairingTabBtn"
+                  class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition-all text-(--color-text-muted)">
+            <i class="ph ph-hash text-base"></i>
+            Código
+          </button>
+        </div>
+      </div>
 
-      <%# QR panel (only when scan_qr_code) %>
-      <div data-connect-target="qrPanel" class="<%= @waha_session&.waha_status == 'scan_qr_code' ? '' : 'hidden' %> px-5 pt-5">
+      <div data-connect-target="qrPanel" class="px-5 pt-5 pb-4">
         <div data-connect-target="qrLoading" class="flex flex-col items-center gap-3 py-4">
           <div class="w-8 h-8 border-[3px] border-(--color-brand) border-t-transparent rounded-full animate-spin"></div>
           <p class="text-sm text-(--color-text-muted)">Carregando QR Code...</p>
         </div>
-        <div data-connect-target="qrImageWrapper" class="hidden flex flex-col items-center gap-3 pb-4">
+        <div data-connect-target="qrImageWrapper" class="hidden flex-col items-center gap-3 pb-4">
           <div class="rounded-2xl border-2 border-(--color-border) bg-white shadow-sm overflow-hidden">
             <img data-connect-target="qrImage" class="w-48 h-48 rounded-lg" alt="QR Code">
           </div>
@@ -90,30 +90,92 @@
             Abra o WhatsApp → <strong>Dispositivos conectados</strong> → <strong>Conectar dispositivo</strong>
           </p>
           <button type="button" data-action="click->connect#refreshQR"
-                  class="flex items-center gap-1.5 text-xs text-(--color-brand) font-medium">
-            <i class="ph ph-arrows-clockwise"></i> Atualizar QR
+                  class="flex items-center gap-1.5 text-xs text-(--color-brand) font-medium hover:text-(--color-brand-dark) transition-colors">
+            <i class="ph ph-arrows-clockwise"></i>
+            Atualizar QR
           </button>
         </div>
       </div>
 
-      <div class="px-5 py-4">
-        <p class="text-sm text-(--color-text-muted) mb-4">
-          Seu WhatsApp está desconectado. Reconecte para retomar as transcrições.
-        </p>
-        <%= button_to reconnect_app_waha_session_path, method: :post,
-              data: { controller: "loadable", "loadable-loading-text-value": "Reconectando..." },
-              class: "w-full flex items-center justify-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-4 py-3 rounded-xl text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed" do %>
-          <i class="ph ph-arrows-clockwise text-base"></i>
-          Reconectar WhatsApp
-        <% end %>
-      </div>
-    <% end %>
-  </div>
+      <div data-connect-target="pairingPanel" class="hidden px-5 py-5">
+        <div data-connect-target="phoneFormWrapper">
+          <p class="text-sm text-(--color-text-muted) mb-4 leading-relaxed">
+            Digite seu número do WhatsApp para receber um código de emparelhamento de 8 dígitos.
+          </p>
+          <form data-action="submit->connect#requestPairingCode" novalidate>
+            <div class="mb-3">
+              <input type="tel"
+                     name="phone_number"
+                     placeholder="5511999999999"
+                     inputmode="numeric"
+                     autocomplete="tel"
+                     class="w-full bg-(--color-surface) border border-(--color-border) rounded-xl px-4 py-3 text-sm text-(--color-text) placeholder:text-(--color-text-subtle) focus:outline-none focus:ring-2 focus:ring-(--color-brand) focus:border-transparent transition"
+                     data-connect-target="phoneInput">
+              <p class="mt-1.5 text-xs text-(--color-text-muted)">Com código do país, sem sinais. Ex: 5511999999999</p>
+            </div>
 
-  <%# ── Info ────────────────────────────────────────────────────────── %>
-  <div class="mt-6 rounded-2xl bg-(--color-surface-muted) border border-(--color-border) px-5 py-4 text-sm text-(--color-text-muted) space-y-2">
-    <p class="font-medium text-(--color-text)">Como funciona</p>
-    <p>O EscreveZap usa seu número de WhatsApp para transcrever os áudios recebidos e enviados nos contatos que você monitorar.</p>
-    <p>Seu WhatsApp funciona normalmente — em paralelo.</p>
-  </div>
+            <button type="submit"
+                    data-connect-target="pairingSubmitBtn"
+                    class="w-full flex items-center justify-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-4 py-3 rounded-xl text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+              <span data-connect-target="pairingBtnText">Receber código</span>
+            </button>
+
+            <div data-connect-target="pairingError" class="hidden mt-3 items-center gap-2 rounded-lg bg-(--color-danger-light) border border-(--color-danger) px-3 py-2.5 text-xs text-(--color-danger)">
+              <i class="ph ph-warning-circle flex-shrink-0"></i>
+              <span data-connect-target="pairingErrorText"></span>
+            </div>
+          </form>
+        </div>
+
+        <div data-connect-target="codeWrapper" class="hidden flex-col items-center gap-5 py-2">
+          <div class="text-center">
+            <p class="text-sm text-(--color-text-muted) mb-3 leading-relaxed">
+              No WhatsApp, vá em <strong>Dispositivos conectados</strong> → <strong>Vincular com número de telefone</strong> e insira o código:
+            </p>
+            <div class="inline-flex items-center justify-center bg-(--color-brand-subtle) border-2 border-(--color-brand-light) rounded-2xl px-8 py-5">
+              <span class="font-mono text-3xl font-bold tracking-[0.2em] text-(--color-brand)" data-connect-target="codeText">- - - -</span>
+            </div>
+          </div>
+
+          <button type="button"
+                  data-action="click->connect#resetPairing"
+                  class="flex items-center gap-1.5 text-xs text-(--color-text-muted) hover:text-(--color-text) transition-colors">
+            <i class="ph ph-arrow-u-up-left"></i>
+            Usar outro número
+          </button>
+        </div>
+      </div>
+
+      <div data-connect-target="errorPanel" class="hidden px-5 py-8 text-center">
+        <div class="flex flex-col items-center gap-5">
+          <div class="w-16 h-16 rounded-full bg-(--color-danger-light) flex items-center justify-center">
+            <i class="ph ph-wifi-slash text-4xl text-(--color-danger)"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-(--color-text)" data-connect-target="errorTitle">Falha ao conectar</h3>
+            <p class="text-sm text-(--color-text-muted) mt-1 max-w-xs" data-connect-target="errorMessage">Tente iniciar novamente.</p>
+          </div>
+          <button type="button"
+                  data-action="click->connect#reconnect"
+                  data-connect-target="reconnectButton"
+                  class="inline-flex items-center justify-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-6 py-3 rounded-xl text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+            <i class="ph ph-arrows-clockwise text-base"></i>
+            <span data-connect-target="reconnectButtonText">Reiniciar sessão</span>
+          </button>
+        </div>
+      </div>
+
+      <div data-connect-target="successPanel" class="hidden px-5 py-8 text-center">
+        <div class="flex flex-col items-center gap-4">
+          <div class="w-16 h-16 rounded-full bg-(--color-brand-light) flex items-center justify-center">
+            <i class="ph ph-check-circle text-4xl text-(--color-brand)"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-(--color-text)">Conectado com sucesso!</h3>
+            <p class="text-sm text-(--color-text-muted) mt-1">Seu WhatsApp está pronto para transcrever.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
 </div>

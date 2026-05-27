@@ -39,10 +39,16 @@ class WahaSessionsController < ApplicationController
     begin
       @waha_session.waha_client.sessions.restart
       @waha_session.update!(waha_status: :starting)
+      respond_to do |format|
+        format.html { redirect_to app_waha_session_path, notice: "Reconectando WhatsApp..." }
+        format.json { render json: { status: @waha_session.waha_status } }
+      end
     rescue => e
-      flash[:alert] = "Erro ao reconectar: #{e.message}"
+      respond_to do |format|
+        format.html { redirect_to app_waha_session_path, alert: "Erro ao reconectar: #{e.message}" }
+        format.json { render json: { error: "Erro ao reconectar: #{e.message}" }, status: :service_unavailable }
+      end
     end
-    redirect_to app_waha_session_path
   end
 
   # DELETE /app/waha_session

@@ -1,11 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import consumer from "../channels/consumer"
 
-// States:  loading | qr | pairing-form | pairing-code | connected | failed
-//
-// Desktop default: QR tab active, QR auto-loaded when scan_qr_code status arrives
-// Mobile default: Pairing tab auto-selected on small screens
-
 export default class extends Controller {
   static targets = [
     "statusBadge", "statusDot", "statusText", "tabs",
@@ -17,7 +12,7 @@ export default class extends Controller {
     "pairingError", "pairingErrorText",
     "codeWrapper", "codeText",
     // Error / stopped
-    "errorPanel", "errorTitle", "errorMessage",
+    "errorPanel", "errorTitle", "errorMessage", "reconnectButton", "reconnectButtonText",
     // Success
     "successPanel",
   ]
@@ -25,6 +20,7 @@ export default class extends Controller {
   static values = {
     qrUrl:             String,
     pairingUrl:        String,
+    reconnectUrl:      String,
     dashboardUrl:      String,
     status:            String,
     redirectOnSuccess: { type: Boolean, default: false },
@@ -57,6 +53,11 @@ export default class extends Controller {
   _subscribeToStatusChannel() {
     const self = this
     this._subscription = consumer.subscriptions.create("WahaSessionStatusChannel", {
+      connected() {
+        if (["starting", "scan_qr_code"].includes(self.statusValue) && self._activeTab === "qr") {
+          self._loadQR()
+        }
+      },
       received(data) {
         self._handleStatus(data.status)
       }
@@ -89,6 +90,9 @@ export default class extends Controller {
           "Sessão encerrada",
           "A sessão foi encerrada. Reinicie para reconectar seu WhatsApp."
         )
+        break
+      default:
+        this._hideTerminalStates()
         break
     }
   }
@@ -173,13 +177,19 @@ export default class extends Controller {
 
   _showQRLoading() {
     if (this.hasQrLoadingTarget)      this.qrLoadingTarget.classList.remove("hidden")
-    if (this.hasQrImageWrapperTarget) this.qrImageWrapperTarget.classList.add("hidden")
+    if (this.hasQrImageWrapperTarget) {
+      this.qrImageWrapperTarget.classList.add("hidden")
+      this.qrImageWrapperTarget.classList.remove("flex")
+    }
   }
 
   _showQRImage(src) {
     if (this.hasQrImageTarget)       this.qrImageTarget.src = src
     if (this.hasQrLoadingTarget)     this.qrLoadingTarget.classList.add("hidden")
-    if (this.hasQrImageWrapperTarget) this.qrImageWrapperTarget.classList.remove("hidden")
+    if (this.hasQrImageWrapperTarget) {
+      this.qrImageWrapperTarget.classList.remove("hidden")
+      this.qrImageWrapperTarget.classList.add("flex")
+    }
   }
 
   // ── Pairing code ─────────────────────────────────────────────────────────
@@ -235,6 +245,35 @@ export default class extends Controller {
     if (this.hasCodeWrapperTarget)      this.codeWrapperTarget.classList.remove("hidden")
   }
 
+  reconnect(event) {
+    event?.preventDefault()
+
+    if (!this.reconnectUrlValue) return
+
+    this._setReconnectButtonLoading(true)
+
+    fetch(this.reconnectUrlValue, {
+      method: "POST",
+      headers: this._requestHeaders(),
+    })
+      .then(async (response) => {
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.error || "Falha ao reiniciar sessão")
+        }
+
+        this._hideTerminalStates()
+        this._handleStatus(data.status || "starting")
+      })
+      .catch((error) => {
+        this._showErrorPanel("Falha ao reiniciar", error.message)
+      })
+      .finally(() => {
+        this._setReconnectButtonLoading(false)
+      })
+  }
+
   _setPairingBtnLoading(loading) {
     if (!this.hasPairingSubmitBtnTarget) return
     this.pairingSubmitBtnTarget.disabled = loading
@@ -264,6 +303,19 @@ export default class extends Controller {
     if (this.hasErrorPanelTarget)   this.errorPanelTarget.classList.remove("hidden")
   }
 
+  _hideTerminalStates() {
+    if (this.hasErrorPanelTarget) this.errorPanelTarget.classList.add("hidden")
+    if (this.hasTabsTarget) this.tabsTarget.classList.remove("hidden")
+
+    if (this._activeTab === "qr") {
+      if (this.hasQrPanelTarget) this.qrPanelTarget.classList.remove("hidden")
+      if (this.hasPairingPanelTarget) this.pairingPanelTarget.classList.add("hidden")
+    } else {
+      if (this.hasQrPanelTarget) this.qrPanelTarget.classList.add("hidden")
+      if (this.hasPairingPanelTarget) this.pairingPanelTarget.classList.remove("hidden")
+    }
+  }
+
   // ── Success ──────────────────────────────────────────────────────────────
 
   _showSuccess() {
@@ -280,6 +332,16 @@ export default class extends Controller {
         window.location.href = this.dashboardUrlValue
       }
     }, 1_800)
+  }
+
+  _setReconnectButtonLoading(loading) {
+    if (!this.hasReconnectButtonTarget) return
+
+    this.reconnectButtonTarget.disabled = loading
+
+    if (!this.hasReconnectButtonTextTarget) return
+
+    this.reconnectButtonTextTarget.textContent = loading ? "Reiniciando..." : "Reiniciar sessão"
   }
 
   // ── Status badge helpers ─────────────────────────────────────────────────
@@ -302,6 +364,16 @@ export default class extends Controller {
     if (this.hasStatusDotTarget && dotClass) {
       this.statusDotTarget.className = `w-2 h-2 rounded-full ${dotClass}`
     }
+  }
+
+  _requestHeaders(contentType = null) {
+    const headers = { Accept: "application/json" }
+    if (contentType) headers["Content-Type"] = contentType
+
+    const csrf = document.querySelector('meta[name="csrf-token"]')?.content
+    if (csrf) headers["X-CSRF-Token"] = csrf
+
+    return headers
   }
 
   // ── Utilities ────────────────────────────────────────────────────────────
