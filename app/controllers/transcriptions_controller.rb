@@ -5,7 +5,7 @@ class TranscriptionsController < ApplicationController
   def index
     @transcriptions = current_user.waha_session
                         &.transcriptions
-                        &.includes(:monitored_contact)
+                        &.includes(:monitored_contact, :provider_usages)
                         &.recent
                         &.limit(100) || []
   end
@@ -13,7 +13,7 @@ class TranscriptionsController < ApplicationController
   def show
     @transcription = current_user.waha_session
                        &.transcriptions
-                       &.includes(:monitored_contact)
+                       &.includes(:monitored_contact, :provider_usages)
                        &.find_by(id: params[:id])
     redirect_to transcriptions_path unless @transcription
   end

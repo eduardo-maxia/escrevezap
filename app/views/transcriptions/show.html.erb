@@ -19,6 +19,34 @@
     </div>
   </div>
 
+  <div class="rounded-2xl bg-(--color-surface) border border-(--color-border) px-5 py-4 mb-4">
+    <div class="flex items-center gap-1.5 mb-3">
+      <i class="ph ph-list-checks text-sm text-(--color-text-muted)"></i>
+      <p class="text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide">Detalhes da request</p>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+      <p class="text-(--color-text-muted)">ID da request: <span class="font-medium text-(--color-text)">#<%= @transcription.id %></span></p>
+      <p class="text-(--color-text-muted)">Status: <span class="font-medium text-(--color-text)"><%= @transcription.status %></span></p>
+      <p class="text-(--color-text-muted)">Direção: <span class="font-medium text-(--color-text)"><%= @transcription.direction %></span></p>
+      <p class="text-(--color-text-muted)">Message ID: <span class="font-medium text-(--color-text)"><%= @transcription.waha_message_id.presence || "-" %></span></p>
+      <p class="text-(--color-text-muted)">Reply ID: <span class="font-medium text-(--color-text)"><%= @transcription.reply_message_id.presence || "-" %></span></p>
+      <p class="text-(--color-text-muted)">Duração: <span class="font-medium text-(--color-text)"><%= @transcription.audio_duration.present? ? "#{format('%.0f', @transcription.audio_duration)}s" : "-" %></span></p>
+    </div>
+    <% if @transcription.provider_usages.any? %>
+      <div class="mt-3 border-t border-(--color-border) pt-3">
+        <p class="text-[11px] font-semibold text-(--color-text-muted) uppercase tracking-wide mb-2">Custos da transcrição</p>
+        <div class="space-y-1.5">
+          <% @transcription.provider_usages.each do |usage| %>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-(--color-text)"><%= usage.provider %> · <%= usage.unit_type %>: <%= usage.units.to_f %></span>
+              <span class="text-(--color-text-muted)">US$ <%= format("%.6f", usage.cost_usd.to_f) %></span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
   <%# Status: processing %>
   <% if @transcription.processing? %>
     <div class="flex flex-col items-center gap-4 py-12 text-center">
