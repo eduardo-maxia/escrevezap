@@ -1,8 +1,130 @@
-<% content_for :title, t("pages.termos.title") %>
+<% content_for :title, "Termos de Uso" %>
+<% content_for :description, "Condições de uso do EscreveZap, incluindo assinatura, responsabilidades e limitações do serviço." %>
 
-<div class="max-w-3xl mx-auto px-4 sm:px-6 py-16">
-  <h1 class="text-3xl font-bold text-(--color-text) mb-8"><%= t("pages.termos.title") %></h1>
-  <div class="prose prose-sm text-(--color-text-muted) space-y-4">
-    <p><%= t("pages.termos.body") %></p>
+<div class="min-h-screen py-8 sm:py-12">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="rounded-3xl border border-(--color-border) bg-(--color-surface) shadow-sm overflow-hidden">
+      <div class="px-6 sm:px-10 pt-6 sm:pt-8 pb-5 border-b border-(--color-border)">
+        <button type="button"
+                onclick="if (window.history.length > 1) { window.history.back(); } else { window.location.href = '<%= root_path %>'; }"
+                class="inline-flex items-center gap-2 text-sm font-medium text-(--color-text-muted) hover:text-(--color-text) transition-colors">
+          <i class="ph ph-arrow-left"></i>
+          Voltar
+        </button>
+
+        <div class="mt-5 flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wide text-(--color-brand)">EscreveZap</p>
+            <h1 class="mt-1 text-2xl sm:text-3xl font-extrabold text-(--color-text)">Termos de Uso</h1>
+          </div>
+          <span class="inline-flex items-center rounded-full bg-(--color-brand-subtle) px-3 py-1 text-xs font-medium text-(--color-brand)">
+            Atualizados em 27/05/2026
+          </span>
+        </div>
+      </div>
+
+      <div class="px-6 sm:px-10 py-7 sm:py-8 space-y-7 text-sm leading-7 text-(--color-text-muted)">
+        <section class="space-y-3">
+          <h2 class="text-base font-bold text-(--color-text)">1. Aceitação</h2>
+          <p>
+            Estes Termos de Uso regulam o acesso e a utilização do EscreveZap. Ao criar conta, conectar seu WhatsApp
+            ou usar qualquer funcionalidade da plataforma, você declara que leu e concorda com estes termos.
+          </p>
+        </section>
+
+        <section class="space-y-3">
+          <h2 class="text-base font-bold text-(--color-text)">2. Descrição do serviço</h2>
+          <p>
+            O EscreveZap oferece transcrição automática de áudios no WhatsApp para contatos monitorados pelo próprio usuário,
+            com recursos de histórico, organização e, conforme plano contratado, funcionalidades adicionais de IA e formatação.
+          </p>
+        </section>
+
+        <section class="space-y-3">
+          <h2 class="text-base font-bold text-(--color-text)">3. Requisitos de uso</h2>
+          <ul class="list-disc pl-5 space-y-2 marker:text-(--color-brand)">
+            <li>Fornecer informações verdadeiras e atualizadas ao criar a conta.</li>
+            <li>Manter a segurança do acesso e da sessão conectada.</li>
+            <li>Utilizar o serviço em conformidade com a legislação aplicável.</li>
+            <li>Ter autorização para monitorar os contatos e dados inseridos na plataforma.</li>
+          </ul>
+        </section>
+
+        <section class="space-y-3">
+          <h2 class="text-base font-bold text-(--color-text)">4. Uso proibido</h2>
+          <p>É proibido, entre outros:</p>
+          <ul class="list-disc pl-5 space-y-2 marker:text-(--color-brand)">
+            <li>Usar o serviço para atividade ilícita, fraude, spam ou violação de direitos de terceiros.</li>
+            <li>Tentar contornar limitações técnicas, de segurança ou de plano.</li>
+            <li>Realizar engenharia reversa, exploração de falhas ou automação abusiva da plataforma.</li>
+            <li>Utilizar o serviço de forma que comprometa disponibilidade ou desempenho para outros usuários.</li>
+          </ul>
+        </section>
+
+        <section class="space-y-3">
+          <h2 class="text-base font-bold text-(--color-text)">5. Planos, cobrança e cancelamento</h2>
+          <ul class="list-disc pl-5 space-y-2 marker:text-(--color-brand)">
+            <li>O EscreveZap pode oferecer plano gratuito e planos pagos com limites e recursos distintos.</li>
+            <li>Valores, periodicidade e condições comerciais são exibidos no fluxo de assinatura vigente no app.</li>
+            <li>O cancelamento do plano pago interrompe renovação futura e aplica as regras informadas no momento do cancelamento.</li>
+            <li>Inadimplência pode resultar em restrição temporária de recursos até regularização.</li>
+          </ul>
+        </section>
+
+        <section class="space-y-3">
+          <h2 class="text-base font-bold text-(--color-text)">6. Disponibilidade e integrações de terceiros</h2>
+          <p>
+            O funcionamento da plataforma depende de serviços e integrações externas, como infraestrutura de WhatsApp,
+            provedores de transcrição, IA, pagamento e e-mail. Eventuais indisponibilidades desses parceiros podem impactar o serviço.
+          </p>
+          <p>
+            Empregamos esforços razoáveis para manter estabilidade e continuidade, mas não garantimos disponibilidade ininterrupta.
+          </p>
+        </section>
+
+        <section class="space-y-3">
+          <h2 class="text-base font-bold text-(--color-text)">7. Propriedade intelectual</h2>
+          <p>
+            O software, marca, layout, conteúdos e demais elementos do EscreveZap são protegidos por direitos de propriedade intelectual.
+            Estes termos não concedem licença para uso de marca, cópia de código-fonte ou exploração comercial indevida.
+          </p>
+        </section>
+
+        <section class="space-y-3">
+          <h2 class="text-base font-bold text-(--color-text)">8. Limitação de responsabilidade</h2>
+          <p>
+            O EscreveZap é fornecido no estado em que se encontra, com melhorias contínuas. Não nos responsabilizamos por:
+          </p>
+          <ul class="list-disc pl-5 space-y-2 marker:text-(--color-brand)">
+            <li>Danos indiretos, lucros cessantes ou perdas decorrentes de uso inadequado da plataforma.</li>
+            <li>Falhas causadas por terceiros, provedores externos, internet ou indisponibilidade do WhatsApp.</li>
+            <li>Decisões tomadas exclusivamente com base em transcrições, que podem conter limitações inerentes ao reconhecimento de áudio.</li>
+          </ul>
+        </section>
+
+        <section class="space-y-3">
+          <h2 class="text-base font-bold text-(--color-text)">9. Suspensão e encerramento de conta</h2>
+          <p>
+            Podemos suspender ou encerrar contas em caso de violação destes termos, uso abusivo, risco de segurança,
+            suspeita de fraude ou por determinação legal.
+          </p>
+        </section>
+
+        <section class="space-y-3">
+          <h2 class="text-base font-bold text-(--color-text)">10. Alterações nos termos</h2>
+          <p>
+            Estes termos podem ser atualizados a qualquer momento para refletir mudanças legais, técnicas ou de produto.
+            A versão vigente estará sempre disponível nesta página com a respectiva data de atualização.
+          </p>
+        </section>
+
+        <section class="rounded-2xl border border-(--color-border) bg-(--color-surface-muted) px-5 py-4">
+          <h2 class="text-base font-bold text-(--color-text)">11. Contato</h2>
+          <p class="mt-2">
+            Em caso de dúvidas sobre estes termos: <strong class="text-(--color-text)">ola@escrevezap.com.br</strong>.
+          </p>
+        </section>
+      </div>
+    </div>
   </div>
 </div>

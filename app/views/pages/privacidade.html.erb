@@ -1,8 +1,132 @@
-<% content_for :title, t("pages.privacidade.title") %>
+<% content_for :title, "Política de Privacidade" %>
+<% content_for :description, "Entenda quais dados o EscreveZap coleta, como usa e como protege suas informações." %>
 
-<div class="max-w-3xl mx-auto px-4 sm:px-6 py-16">
-  <h1 class="text-3xl font-bold text-(--color-text) mb-8"><%= t("pages.privacidade.title") %></h1>
-  <div class="prose prose-sm text-(--color-text-muted) space-y-4">
-    <p><%= t("pages.privacidade.body") %></p>
+<div class="min-h-screen py-8 sm:py-12">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="rounded-3xl border border-(--color-border) bg-(--color-surface) shadow-sm overflow-hidden">
+      <div class="px-6 sm:px-10 pt-6 sm:pt-8 pb-5 border-b border-(--color-border)">
+        <button type="button"
+                onclick="if (window.history.length > 1) { window.history.back(); } else { window.location.href = '<%= root_path %>'; }"
+                class="inline-flex items-center gap-2 text-sm font-medium text-(--color-text-muted) hover:text-(--color-text) transition-colors">
+          <i class="ph ph-arrow-left"></i>
+          Voltar
+        </button>
+
+        <div class="mt-5 flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wide text-(--color-brand)">EscreveZap</p>
+            <h1 class="mt-1 text-2xl sm:text-3xl font-extrabold text-(--color-text)">Política de Privacidade</h1>
+          </div>
+          <span class="inline-flex items-center rounded-full bg-(--color-brand-subtle) px-3 py-1 text-xs font-medium text-(--color-brand)">
+            Atualizada em 27/05/2026
+          </span>
+        </div>
+      </div>
+
+      <div class="px-6 sm:px-10 py-7 sm:py-8 space-y-7 text-sm leading-7 text-(--color-text-muted)">
+        <section class="space-y-3">
+          <h2 class="text-base font-bold text-(--color-text)">1. Objetivo desta política</h2>
+          <p>
+            Esta Política de Privacidade explica como o EscreveZap coleta, utiliza, armazena e protege dados pessoais
+            ao oferecer o serviço de transcrição automática de áudios no WhatsApp.
+          </p>
+          <p>
+            Ao usar a plataforma, você concorda com as práticas descritas aqui. Se não concordar, recomendamos não utilizar o serviço.
+          </p>
+        </section>
+
+        <section class="space-y-3">
+          <h2 class="text-base font-bold text-(--color-text)">2. Quais dados coletamos</h2>
+          <p>Podemos tratar os seguintes tipos de dados:</p>
+          <ul class="list-disc pl-5 space-y-2 marker:text-(--color-brand)">
+            <li>Dados de cadastro e conta: e-mail, identificação do usuário e plano contratado.</li>
+            <li>Dados de conexão do WhatsApp: status da sessão, número conectado, nome exibido e foto de perfil quando disponível.</li>
+            <li>Dados dos contatos monitorados: nome e telefone dos contatos que você adicionar para transcrição.</li>
+            <li>Dados de uso do serviço: transcrições geradas, horários, métricas de consumo e eventos técnicos necessários para operação.</li>
+            <li>Dados de cobrança: informações de assinatura e histórico de pagamentos processados por parceiro de pagamento.</li>
+          </ul>
+        </section>
+
+        <section class="space-y-3">
+          <h2 class="text-base font-bold text-(--color-text)">3. Como usamos seus dados</h2>
+          <ul class="list-disc pl-5 space-y-2 marker:text-(--color-brand)">
+            <li>Fornecer a funcionalidade principal de transcrição de áudios no WhatsApp.</li>
+            <li>Permitir configuração de contatos monitorados e preferências de formatação.</li>
+            <li>Executar autenticação, segurança da conta e prevenção de abuso.</li>
+            <li>Gerenciar assinaturas, cobranças, limites de uso e suporte ao cliente.</li>
+            <li>Melhorar qualidade, estabilidade e desempenho da plataforma.</li>
+          </ul>
+        </section>
+
+        <section class="space-y-3">
+          <h2 class="text-base font-bold text-(--color-text)">4. Bases legais (LGPD)</h2>
+          <p>O tratamento de dados pessoais pode ocorrer com base em:</p>
+          <ul class="list-disc pl-5 space-y-2 marker:text-(--color-brand)">
+            <li>Execução de contrato e procedimentos preliminares solicitados por você.</li>
+            <li>Cumprimento de obrigação legal ou regulatória.</li>
+            <li>Legítimo interesse para segurança, prevenção de fraude e melhoria do serviço.</li>
+            <li>Consentimento, quando necessário para funcionalidades específicas.</li>
+          </ul>
+        </section>
+
+        <section class="space-y-3">
+          <h2 class="text-base font-bold text-(--color-text)">5. Compartilhamento com terceiros</h2>
+          <p>
+            Para operar o serviço, podemos compartilhar dados com operadores e provedores de infraestrutura,
+            como provedores de API de WhatsApp, transcrição de áudio, processamento de IA, envio de e-mails e pagamento.
+          </p>
+          <p>
+            Esses parceiros recebem apenas os dados necessários para executar cada função e atuam sob obrigações contratuais
+            de confidencialidade e proteção de dados.
+          </p>
+        </section>
+
+        <section class="space-y-3">
+          <h2 class="text-base font-bold text-(--color-text)">6. Retenção e exclusão</h2>
+          <p>
+            Mantemos dados pessoais pelo período necessário para cumprir as finalidades desta política,
+            atender obrigações legais e resolver disputas.
+          </p>
+          <p>
+            Quando aplicável e tecnicamente possível, você pode solicitar exclusão de dados da conta pelo canal de contato informado abaixo.
+          </p>
+        </section>
+
+        <section class="space-y-3">
+          <h2 class="text-base font-bold text-(--color-text)">7. Segurança da informação</h2>
+          <p>
+            Adotamos medidas técnicas e organizacionais para proteger seus dados contra acesso não autorizado,
+            alteração indevida, vazamento e perda. Nenhum sistema, porém, é totalmente imune a riscos.
+          </p>
+        </section>
+
+        <section class="space-y-3">
+          <h2 class="text-base font-bold text-(--color-text)">8. Seus direitos</h2>
+          <p>Nos termos da LGPD, você pode solicitar:</p>
+          <ul class="list-disc pl-5 space-y-2 marker:text-(--color-brand)">
+            <li>Confirmação da existência de tratamento e acesso aos dados.</li>
+            <li>Correção de dados incompletos, inexatos ou desatualizados.</li>
+            <li>Anonimização, bloqueio ou eliminação, quando aplicável.</li>
+            <li>Informação sobre compartilhamento com terceiros.</li>
+            <li>Revogação de consentimento, quando o tratamento depender dele.</li>
+          </ul>
+        </section>
+
+        <section class="space-y-3">
+          <h2 class="text-base font-bold text-(--color-text)">9. Alterações nesta política</h2>
+          <p>
+            Esta política pode ser atualizada periodicamente. A versão mais recente ficará sempre disponível nesta página,
+            com a data de atualização no topo.
+          </p>
+        </section>
+
+        <section class="rounded-2xl border border-(--color-border) bg-(--color-surface-muted) px-5 py-4">
+          <h2 class="text-base font-bold text-(--color-text)">10. Contato</h2>
+          <p class="mt-2">
+            Para dúvidas, solicitações relacionadas a privacidade ou exercício de direitos: <strong class="text-(--color-text)">ola@escrevezap.com.br</strong>.
+          </p>
+        </section>
+      </div>
+    </div>
   </div>
 </div>

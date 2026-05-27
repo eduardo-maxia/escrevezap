@@ -1,5 +1,5 @@
 class PagesController < ApplicationController
-  layout "landing"
+  layout :page_layout
 
   # Anti-spam:
   #   - hard limit on file size (defense in depth — Rack rejects larger uploads anyway)
@@ -97,5 +97,11 @@ class PagesController < ApplicationController
 
   def render_rate_limited
     render json: { error: "Muitas tentativas. Aguarde um momento e tente novamente." }, status: :too_many_requests
+  end
+
+  def page_layout
+    return "legal" if action_name.in?(["privacidade", "termos"])
+
+    "landing"
   end
 end

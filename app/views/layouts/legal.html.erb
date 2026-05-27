@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="turbo-cache-control" content="no-preview">
+    <title><%= content_for?(:title) ? yield(:title) + " — EscreveZap" : "EscreveZap" %></title>
+    <meta name="description" content="<%= content_for?(:description) ? yield(:description) : "Políticas e termos do EscreveZap." %>">
+    <meta name="robots" content="index, follow">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+    <link rel="icon" href="/logo.png">
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1" defer></script>
+  </head>
+  <body class="min-h-screen bg-(--color-surface-muted) text-(--color-text) antialiased">
+    <% if notice.present? %>
+      <span data-controller="toast" data-toast-type-value="notice" data-toast-message-value="<%= notice %>"></span>
+    <% end %>
+    <% if alert.present? %>
+      <span data-controller="toast" data-toast-type-value="alert" data-toast-message-value="<%= alert %>"></span>
+    <% end %>
+
+    <%= yield %>
+
+    <%= render "shared/notyf" %>
+  </body>
+</html>
