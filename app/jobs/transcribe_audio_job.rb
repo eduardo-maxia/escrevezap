@@ -6,8 +6,8 @@ class TranscribeAudioJob < ApplicationJob
   AI_MIN_CHARS = 350
 
   # Selects which STT engine to use. Defaults to deepgram.
-  # Set TRANSCRIPTION_ENGINE=gpt-4o-transcribe to switch to OpenAI.
-  TRANSCRIPTION_ENGINE = ENV.fetch("TRANSCRIPTION_ENGINE", "deepgram").freeze
+  # Set credentials[:transcription_engine] = "gpt-4o-transcribe" to switch to OpenAI.
+  TRANSCRIPTION_ENGINE = (Rails.application.credentials[:transcription_engine] || "deepgram").freeze
 
   # ── Prompts ────────────────────────────────────────────────────────────
 

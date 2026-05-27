@@ -21,26 +21,25 @@ class GptTranscribe
     @total_tokens    = nil
   end
 
-  def speech_to_text
+  # content_type is accepted for interface compatibility with Deepgram but unused —
+  # the OpenAI API detects the audio format from the file itself.
+  def speech_to_text(content_type: nil)
     log_info "Convertendo áudio para texto com #{MODEL}"
 
     client = OpenAI::Client.new(
       api_key: Rails.application.credentials.dig(:openai, :api_key)
     )
 
-    File.open(@audio_file_path, "rb") do |audio_file|
-      response = client.audio.transcriptions.create(
-        file:            audio_file,
-        model:           MODEL,
-        language:        "pt",
-        response_format: "json",
-        prompt:          PROMPT,
-        include:         ["usage"]
-      )
+    response = client.audio.transcriptions.create(
+      file:            Pathname.new(@audio_file_path),
+      model:           MODEL,
+      language:        "pt",
+      response_format: "json",
+      include:         ["usage"]
+    )
 
-      extract_usage(response.usage)
-      response.text
-    end
+    extract_usage(response.usage)
+    response.text
   end
 
   private

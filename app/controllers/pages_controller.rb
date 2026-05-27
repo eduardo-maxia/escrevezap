@@ -5,9 +5,10 @@ class PagesController < ApplicationController
   #   - hard limit on file size (defense in depth — Rack rejects larger uploads anyway)
   #   - rate limit per IP (Rails 8 RateLimiting backed by SolidCache)
   #   - server-side rejection if Deepgram reports > MAX_DURATION
-  MAX_UPLOAD_BYTES = 1.megabyte
-  MAX_DURATION     = 12.0   # client caps at 10s; allow a small slack
-  AI_MIN_CHARS     = 80     # lower than the job's threshold so demos still get a summary
+  MAX_UPLOAD_BYTES     = 1.megabyte
+  MAX_DURATION         = 12.0   # client caps at 10s; allow a small slack
+  AI_MIN_CHARS         = 80     # lower than the job's threshold so demos still get a summary
+  TRANSCRIPTION_ENGINE = (Rails.application.credentials[:transcription_engine] || "deepgram").freeze
 
   AI_PROMPT_DEMO = <<~PROMPT.freeze
     Você é um assistente que processa transcrições de áudios do WhatsApp.
@@ -71,11 +72,20 @@ class PagesController < ApplicationController
     Tempfile.create(["wt_demo", ext], binmode: true) do |file|
       file.write(audio.read)
       file.flush
-      dg   = Deepgram.new(file.path)
-      text = dg.speech_to_text(content_type: content_type)
-      result = [text, dg.duration]
+      transcriber = build_demo_transcriber(file.path)
+      text        = transcriber.speech_to_text(content_type: content_type)
+      result      = [text, transcriber.duration]
     end
     result
+  end
+
+  def build_demo_transcriber(file_path)
+    case TRANSCRIPTION_ENGINE
+    when "gpt-4o-transcribe"
+      GptTranscribe.new(file_path)
+    else
+      Deepgram.new(file_path)
+    end
   end
 
   def ai_format_demo(transcript)
