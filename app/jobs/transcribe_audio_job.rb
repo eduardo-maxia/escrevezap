@@ -9,7 +9,46 @@ class TranscribeAudioJob < ApplicationJob
 
   # "Polished" — texto refinado com resumo e formatação completa.
   AI_PROMPT_POLISHED = <<~PROMPT.freeze
-    Você é um assistente que processa transcrições de áudios do WhatsApp.
+    Você é um assistente especializado em MELHORAR transcrições de áudio do WhatsApp.
+
+    Sua tarefa é pegar uma transcrição falada e transformá-la em uma mensagem de WhatsApp clara, organizada e agradável de ler.
+
+    OBJETIVO:
+    Manter exatamente o mesmo significado do áudio, mas melhorar bastante a apresentação do texto.
+
+    REGRAS IMPORTANTES:
+
+    - NÃO mude o significado
+    - NÃO invente informações
+    - NÃO resuma
+    - NÃO transforme em algo corporativo
+    - Preserve a intenção original
+    - Preserve o tom informal quando fizer sentido
+
+    VOCÊ DEVE:
+    - melhorar clareza
+    - organizar frases
+    - corrigir gramática
+    - adicionar pontuação
+    - quebrar em parágrafos
+    - remover vícios de fala excessivos
+    - deixar o texto mais agradável de ler
+    - reorganizar frases quando necessário
+
+    O resultado deve parecer:
+
+    "essa pessoa falou isso de forma clara no WhatsApp"
+
+    EXEMPLO:
+
+    ENTRADA:
+    "aí a gente ainda pode botar uma opção extra que é passar em uma ia depois de transcrever pra melhorar o texto voce manda o audio falando assim de qualquer jeito"
+
+    SAÍDA ESPERADA:
+    "Aí a gente ainda pode colocar uma opção extra, que seria passar o texto por uma IA depois da transcrição, pra dar uma melhorada, né?
+
+    Você manda o áudio do seu jeito, normalmente, e depois a IA organiza tudo, deixando o texto mais claro e bonitinho."
+
     Dado o texto transcrito abaixo, retorne um JSON com duas chaves:
     - "summary": Um resumo em UMA frase curta (máximo 120 caracteres) do ponto central
       da mensagem. O resumo DEVE ser substancialmente mais curto que o texto original.
@@ -22,7 +61,48 @@ class TranscribeAudioJob < ApplicationJob
 
   # "Faithful" — o mais próximo do que foi dito, mínima intervenção AI.
   AI_PROMPT_FAITHFUL = <<~PROMPT.freeze
-    Você é um assistente que processa transcrições de áudios do WhatsApp.
+    Você é um assistente especializado em LIMPAR transcrições de áudio do WhatsApp.
+
+    Sua tarefa é transformar uma transcrição falada em um texto mais legível, MAS preservando ao máximo o jeito original da pessoa falar.
+
+    OBJETIVO:
+    O texto deve parecer a mesma pessoa falando, só que um pouco mais organizado.
+
+    REGRAS IMPORTANTES:
+
+    - NÃO reescreva o conteúdo de forma profissional
+    - NÃO mude o tom da pessoa
+    - NÃO resuma
+    - NÃO adicione informações
+    - NÃO invente contexto
+    - NÃO transforme em texto corporativo
+    - NÃO deixe “bonito demais”
+    - Preserve informalidade e espontaneidade
+    - Preserve gírias e jeito de falar
+    - Preserve hesitações quando fizer sentido
+    - Corrija apenas o necessário para leitura ficar fluida
+
+    VOCÊ PODE:
+    - corrigir pontuação
+    - separar parágrafos
+    - remover repetições excessivas
+    - melhorar levemente gramática
+    - corrigir palavras claramente erradas da transcrição
+    - deixar a leitura mais natural
+
+    IMPORTANTE:
+    Se a pessoa falou de forma bagunçada, mantenha um pouco dessa naturalidade.
+
+    EXEMPLO:
+
+    ENTRADA:
+    "aí a gente ainda pode botar uma opção extra que é passar numa ia depois de transcrever pra melhorar o texto né voce manda o audio de qualquer jeito"
+
+    SAÍDA ESPERADA:
+    "Aí a gente ainda pode botar uma opção extra, que é passar numa IA depois de transcrever, pra dar uma melhorada no texto, né?
+
+    Você manda o áudio de qualquer jeito mesmo, normal..."
+
     Dado o texto transcrito abaixo, retorne um JSON com duas chaves:
     - "summary": null
     - "full_formatted": O texto com erros óbvios de reconhecimento de voz corrigidos
