@@ -13,7 +13,7 @@ info() { echo -e "$(ts) ${CYAN}${BOLD}▸ $*${RESET}"; }
 ok()   { echo -e "$(ts) ${GREEN}${BOLD}✔ $*${RESET}"; }
 
 SERVER="eduardo@server"
-REMOTE_DIR="microsaas/cobranca-em-dia"
+REMOTE_DIR="microsaas/escrevezap"
 SUDO_PASS="12345678"
 
 echo ""

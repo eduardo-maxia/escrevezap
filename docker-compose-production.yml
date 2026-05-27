@@ -81,12 +81,11 @@ services:
     volumes:
       - db-waha-volume:/var/lib/postgresql/data
     restart: unless-stopped
-
   cloudflared:
     image: cloudflare/cloudflared:latest
     command: tunnel --no-autoupdate run
     environment:
-      - TUNNEL_TOKEN=eyJhIjoiNGJiN2RkY2JhMTMyMjg1NmVlNWMzNzViMzBmZWMzOTIiLCJ0IjoiNmQ0NDg4NTItYjIxNC00MWViLWE3MzktMjdiYzdlZWM2NjRjIiwicyI6Ik5EVmpZV1l6WWpRdE5UZ3hZeTAwTnpBNUxUaGxNVFF0TVdReVpEQTJZMlkwTXpFMSJ9
+      - TUNNEL_TOKEN=eyJhIjoiNGJiN2RkY2JhMTMyMjg1NmVlNWMzNzViMzBmZWMzOTIiLCJ0IjoiODA5ZDVkYTgtM2E3Mi00MjFjLWI0MWItNGVjZjAwYWUyNjQyIiwicyI6Ik9UaGlNRFExWXpFdE5XWTFaUzAwTW1SbExXSmxOV0V0Wm1NNE4yRmhabVZrT0RrNCJ9
     restart: unless-stopped
 
   # loki:
