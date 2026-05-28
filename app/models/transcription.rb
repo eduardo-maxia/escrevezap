@@ -35,24 +35,22 @@ class Transcription < ApplicationRecord
     JSON.pretty_generate(payload)
   end
 
+  BRANDING_FOOTER = "\n\n---\n_via EscreveZap_".freeze
+
   def reply_text(user_override = user)
     body = full_formatted.presence || transcript
     return if body.blank?
 
-    if user_override&.pro?
-      if user_override.polished? && summary.present? && summary.length < body.length
-        [
-          "📝 *Resumo rápido*\n\n#{summary}",
-          "───────────────",
-          "📄 *Transcrição completa*\n\n_#{body}_"
-        ].join("\n\n")
-      else
-        "📄 *Transcrição*\n\n#{body}"
-      end
-    elsif user_override&.free?
-      "📄 *Transcrição*\n\n#{transcript}\n\n---\n_via EscreveZap_"
+    text = if user_override&.pro? && user_override.polished? && summary.present? && summary.length < body.length
+      [
+        "📝 *Resumo rápido*\n\n#{summary}",
+        "───────────────",
+        "📄 *Transcrição completa*\n\n_#{body}_"
+      ].join("\n\n")
     else
-      "📄 *Transcrição*\n\n#{transcript}"
+      "📄 *Transcrição*\n\n#{body}"
     end
+
+    text + BRANDING_FOOTER
   end
 end
