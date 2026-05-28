@@ -305,7 +305,7 @@ class TranscribeAudioJob < ApplicationJob
                           .add_message(role: "user", content: transcript)
                           .complete
 
-    result       = JSON.parse(response.content, symbolize_names: true)
+    result       = parse_llm_json(response.content)
     token_count  = (response.input_tokens.to_i + response.output_tokens.to_i).then { |n| n > 0 ? n : nil }
     summary      = with_summary ? result[:summary] : nil
     [summary, result[:full_formatted], token_count]
@@ -317,6 +317,48 @@ class TranscribeAudioJob < ApplicationJob
     Rails.logger.warn "[TranscribeAudioJob] AI format failed: #{e.message}"
     record_error!(transcription, stage: "ai_format", error: e)
     [nil, nil, nil]
+  end
+
+  # Parses a JSON string returned by the LLM, handling two common failure modes:
+  #   1. Markdown code fences wrapping the JSON (```json ... ```)
+  #   2. Literal control characters (\n, \r, \t) inside string values — the JSON
+  #      spec forbids them unescaped, but some model responses include them.
+  def parse_llm_json(raw)
+    cleaned = raw.to_s.strip
+                 .delete_prefix("```json").delete_prefix("```")
+                 .delete_suffix("```").strip
+
+    JSON.parse(cleaned, symbolize_names: true)
+  rescue JSON::ParserError
+    JSON.parse(escape_control_chars_in_json_strings(cleaned), symbolize_names: true)
+  end
+
+  # Walks the JSON byte-by-byte and escapes control characters that appear
+  # *inside* string values only, leaving structural whitespace untouched.
+  def escape_control_chars_in_json_strings(json_str)
+    result      = +""
+    in_string   = false
+    escape_next = false
+
+    json_str.each_char do |c|
+      if escape_next
+        result << c
+        escape_next = false
+      elsif c == "\\"
+        result << c
+        escape_next = true
+      elsif c == '"'
+        result << c
+        in_string = !in_string
+      elsif in_string && c.match?(/[\x00-\x1f]/)
+        # Encode the raw control char as its JSON escape sequence.
+        result << c.ord.then { |o| "\\u%04x" % o }
+      else
+        result << c
+      end
+    end
+
+    result
   end
 
   # ── Engine factory ────────────────────────────────────────────────────
