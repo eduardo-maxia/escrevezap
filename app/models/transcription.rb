@@ -41,11 +41,13 @@ class Transcription < ApplicationRecord
     body = full_formatted.presence || transcript
     return if body.blank?
 
-    text = if user_override&.pro? && user_override.polished? && summary.present? && summary.length < body.length
+    text = if user_override&.pro? && summary.present? && summary.length < body.length &&
+              (user_override.polished? || user_override.whatsapp?)
+      body_line = user_override.polished? ? "_#{body}_" : body
       [
         "📝 *Resumo rápido*\n\n#{summary}",
         "───────────────",
-        "📄 *Transcrição completa*\n\n_#{body}_"
+        "📄 *Transcrição completa*\n\n#{body_line}"
       ].join("\n\n")
     else
       "📄 *Transcrição*\n\n#{body}"
