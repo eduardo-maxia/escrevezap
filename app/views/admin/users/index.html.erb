@@ -124,11 +124,29 @@
               <td class="px-4 py-3 hidden lg:table-cell">
                 <% if ws %>
                   <% ws_connected = ws.waha_status == "working" %>
-                  <div class="flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full flex-shrink-0 <%= ws_connected ? 'bg-emerald-500' : 'bg-(--color-text-subtle)' %>"></span>
-                    <span class="text-xs text-(--color-text-muted) truncate max-w-28">
-                      <%= ws.display_name.presence || ws.waha_chat_id.presence || ws.waha_status %>
-                    </span>
+                  <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1.5 min-w-0">
+                      <span class="w-2 h-2 rounded-full flex-shrink-0 <%= ws_connected ? 'bg-emerald-500' : 'bg-(--color-text-subtle)' %>"></span>
+                      <span class="text-xs text-(--color-text-muted) truncate max-w-24">
+                        <%= ws.display_name.presence || ws.waha_chat_id.presence || ws.waha_status %>
+                      </span>
+                    </div>
+                    <% auto_badge = case ws.auto_transcribe
+                       when "both"     then ["bg-(--color-brand) text-white", "auto ↕"]
+                       when "incoming" then ["bg-emerald-100 text-emerald-700", "auto ↓"]
+                       when "outgoing" then ["bg-(--color-warning-light) text-(--color-warning)", "auto ↑"]
+                       end %>
+                    <% if auto_badge %>
+                      <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold flex-shrink-0 <%= auto_badge[0] %>">
+                        <%= auto_badge[1] %>
+                      </span>
+                    <% end %>
+                    <%= link_to edit_admin_waha_session_path(ws),
+                          data: { turbo_frame: "modal" },
+                          class: "flex-shrink-0 p-1 rounded text-(--color-text-subtle) hover:text-(--color-text) hover:bg-(--color-surface-raised) transition-colors",
+                          title: "Configurar auto-transcrição" do %>
+                      <i class="ph ph-gear text-sm"></i>
+                    <% end %>
                   </div>
                 <% else %>
                   <span class="text-xs text-(--color-text-subtle)">Não conectado</span>

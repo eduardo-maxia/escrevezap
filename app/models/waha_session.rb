@@ -13,6 +13,16 @@ class WahaSession < ApplicationRecord
     failed:       "failed"
   }, default: :pending
 
+  # When set to anything other than :never, audios from unknown contacts are
+  # transcribed automatically (no MonitoredContact needed). Direction mirrors
+  # the same semantics as MonitoredContact#direction.
+  enum :auto_transcribe, {
+    never:    "never",
+    incoming: "incoming",
+    outgoing: "outgoing",
+    both:     "both"
+  }, default: :never, prefix: :auto_transcribe
+
   validates :session_name, presence: true, uniqueness: true
   before_validation :set_session_name, on: :create
 

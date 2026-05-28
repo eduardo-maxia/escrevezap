@@ -1,0 +1,56 @@
+<turbo-frame id="modal">
+  <dialog data-controller="modal" class="app-modal md:max-w-sm">
+    <div class="app-modal-handle"></div>
+
+    <div class="flex items-start justify-between gap-4 px-6 py-5 border-b border-(--color-border) flex-shrink-0">
+      <div>
+        <h2 class="text-base font-bold text-(--color-text)">Auto-transcrição</h2>
+        <p class="text-xs text-(--color-text-muted) mt-0.5">
+          <%= @waha_session.user.email %>
+          <% if @waha_session.waha_chat_id.present? %>
+            · <span class="font-mono"><%= @waha_session.waha_chat_id.gsub("@c.us", "") %></span>
+          <% end %>
+        </p>
+      </div>
+      <button type="button" data-action="click->modal#close"
+              class="p-1.5 rounded-lg text-(--color-text-muted) hover:bg-(--color-surface-raised)">
+        <i class="ph ph-x text-sm"></i>
+      </button>
+    </div>
+
+    <div class="px-6 py-5">
+      <%= form_with model: [:admin, @waha_session], data: { turbo_frame: "_top" } do |f| %>
+        <div class="space-y-3">
+          <label class="block text-sm font-medium text-(--color-text)">Modo</label>
+
+          <% WahaSession.auto_transcribes.each_key do |value| %>
+            <label class="flex items-start gap-3 p-3 rounded-xl border border-(--color-border) hover:bg-(--color-surface-muted) cursor-pointer has-[:checked]:border-(--color-brand) has-[:checked]:bg-(--color-brand-light) transition-colors">
+              <%= f.radio_button :auto_transcribe, value, class: "mt-0.5 accent-(--color-brand)" %>
+              <div>
+                <span class="block text-sm font-medium text-(--color-text)">
+                  <%= t("waha_session.auto_transcribe.#{value}") %>
+                </span>
+                <span class="block text-xs text-(--color-text-muted)">
+                  <%= t("waha_session.auto_transcribe.#{value}_hint") %>
+                </span>
+              </div>
+            </label>
+          <% end %>
+        </div>
+
+        <div class="mt-6 flex justify-end gap-3">
+          <button type="button" data-action="click->modal#close"
+                  class="px-4 py-2 text-sm text-(--color-text-muted) hover:text-(--color-text) border border-(--color-border) rounded-xl transition-colors">
+            Cancelar
+          </button>
+          <button type="submit"
+                  data-controller="loadable"
+                  data-loadable-loading-text-value="Salvando..."
+                  class="px-4 py-2 text-sm font-medium bg-(--color-brand) hover:bg-(--color-brand-dark) text-white rounded-xl transition-colors inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+            Salvar
+          </button>
+        </div>
+      <% end %>
+    </div>
+  </dialog>
+</turbo-frame>

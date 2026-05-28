@@ -71,11 +71,8 @@ class ExternalEvents::WhatsappProcessor < ExternalEvents::Base
     chat_id = payload[:from].to_s
     phone   = chat_id.split("@").first
 
-    contact = resolve_monitored_contact(phone, chat_id)
-    if contact.nil?
-      log_info "Contato #{chat_id} não monitorado — descartando"
-      return
-    end
+    contact = resolve_or_auto_create_contact(phone, chat_id, from_me: from_me)
+    return if contact.nil?
 
     # Respect per-contact direction preference
     if from_me && contact.incoming?
@@ -127,6 +124,43 @@ class ExternalEvents::WhatsappProcessor < ExternalEvents::Base
       contact.update_columns(waha_chat_id: chat_id)
     end
 
+    contact
+  end
+
+  # Resolve an existing monitored contact or, when auto_transcribe is active,
+  # create one on the fly so the standard pipeline can proceed unchanged.
+  # Returns nil when the audio should be discarded.
+  def resolve_or_auto_create_contact(phone, chat_id, from_me:)
+    contact = resolve_monitored_contact(phone, chat_id)
+    return contact if contact.present?
+
+    # No existing contact — check whether the session has auto-transcribe enabled
+    auto = @waha_session.auto_transcribe
+    if auto == "never"
+      log_info "Contato #{chat_id} não monitorado — descartando"
+      return nil
+    end
+
+    # Early-exit for direction mismatches before touching the DB
+    if auto == "incoming" && from_me
+      log_info "Auto-transcribe (incoming): áudio próprio ignorado para #{chat_id}"
+      return nil
+    end
+    if auto == "outgoing" && !from_me
+      log_info "Auto-transcribe (outgoing): áudio de contato ignorado para #{chat_id}"
+      return nil
+    end
+
+    log_info "Auto-transcribe (#{auto}): criando contato automático para #{chat_id}"
+
+    contact = @waha_session.monitored_contacts.create!(
+      phone_number:  phone,
+      waha_chat_id:  chat_id,
+      direction:     auto,
+      enabled:       true
+    )
+
+    FetchMonitoredContactProfilePictureJob.perform_later(contact.id)
     contact
   end
 

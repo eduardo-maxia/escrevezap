@@ -348,3 +348,14 @@ pt-BR:
         expiry:    "Este link expira em 15 minutos e pode ser usado apenas uma vez."
         ignore:    "Se você não solicitou este link, pode ignorar este email com segurança."
         link_text: "Se o botão não funcionar, copie e cole este link no navegador:"
+
+  waha_session:
+    auto_transcribe:
+      never: "Desativado"
+      never_hint: "Apenas contatos monitorados manualmente são transcritos."
+      incoming: "Só recebidos"
+      incoming_hint: "Transcreve áudios recebidos de qualquer contato automaticamente."
+      outgoing: "Só enviados"
+      outgoing_hint: "Transcreve áudios que você enviar para qualquer contato automaticamente."
+      both: "Enviados e recebidos"
+      both_hint: "Transcreve todos os áudios de todas as conversas automaticamente."

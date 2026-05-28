@@ -85,6 +85,7 @@ Rails.application.routes.draw do
     resources :users,                only: [:index]
     resources :transcriptions,       only: [:index, :show]
     resources :transcription_errors, only: [:index]
+    resources :waha_sessions,        only: [:edit, :update]
   end
 
   namespace :webhook do
