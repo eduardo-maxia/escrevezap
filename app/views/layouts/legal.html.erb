@@ -4,9 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="turbo-cache-control" content="no-preview">
-    <title><%= content_for?(:title) ? yield(:title) + " — EscreveZap" : "EscreveZap" %></title>
-    <meta name="description" content="<%= content_for?(:description) ? yield(:description) : "Políticas e termos do EscreveZap." %>">
-    <meta name="robots" content="index, follow">
+    <title><%= page_title %></title>
+    <meta name="description" content="<%= page_description %>">
+    <meta name="robots"      content="<%= meta_robots %>">
+    <link rel="canonical"    href="<%= canonical_url %>">
+
+    <meta property="og:type"        content="article">
+    <meta property="og:site_name"   content="EscreveZap">
+    <meta property="og:title"       content="<%= og_title %>">
+    <meta property="og:description" content="<%= page_description %>">
+    <meta property="og:url"         content="<%= canonical_url %>">
+    <meta property="og:image"       content="<%= og_image_url %>">
+    <meta property="og:locale"      content="pt_BR">
+
+    <%= organization_jsonld %>
+    <%= website_jsonld %>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>

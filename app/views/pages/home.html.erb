@@ -1,7 +1,16 @@
 <%# ============================================================== %>
+<%# SEO metadata + structured data %>
+<%# ============================================================== %>
+<% content_for :title_full, "Transcrever Áudio do WhatsApp em Texto | EscreveZap" %>
+<% content_for :description, "Transcreva áudios do WhatsApp automaticamente em texto. EscreveZap conecta no seu WhatsApp, transcreve as mensagens de voz com IA e responde direto na conversa — sem trocar de app." %>
+<% content_for :jsonld do %>
+  <%= faq_jsonld(HomeContent::FAQS) %>
+<% end %>
+
+<%# ============================================================== %>
 <%# HERO %>
 <%# ============================================================== %>
-<section class="relative overflow-hidden bg-(--color-bg)">
+<section class="relative overflow-hidden bg-(--color-bg)" aria-labelledby="hero-title">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 md:pt-24 md:pb-28">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
@@ -14,15 +23,15 @@
         </div>
 
         <%# Headline %>
-        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-(--color-text) leading-tight tracking-tight">
-          Não consegue<br class="hidden sm:block">
-          ouvir o áudio<br class="hidden sm:block">
-          <span class="text-(--color-brand)">agora? Leia.</span>
+        <h1 id="hero-title" class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-(--color-text) leading-tight tracking-tight">
+          Transcreva áudios<br class="hidden sm:block">
+          do WhatsApp<br class="hidden sm:block">
+          <span class="text-(--color-brand)">em texto, na hora.</span>
         </h1>
 
         <%# Subheadline %>
         <p class="mt-5 text-lg md:text-xl text-(--color-text-muted) leading-relaxed max-w-lg mx-auto lg:mx-0">
-          EscreveZap transcreve automaticamente os áudios do WhatsApp e responde direto na conversa. Sem trocar de app. Sem copiar e colar.
+          EscreveZap conecta no seu WhatsApp, converte automaticamente cada áudio em texto com IA e responde direto na conversa. Sem trocar de app, sem copiar e colar.
         </p>
 
         <%# CTAs %>
@@ -227,36 +236,29 @@
 
 
 <%# ============================================================== %>
-<%# PAIN SECTION — "Quando ouvir não é uma opção" %>
+<%# USE CASES — "Quando usar o EscreveZap" %>
 <%# ============================================================== %>
-<section class="bg-(--color-brand-subtle) py-20 md:py-28">
+<section id="quando-usar" class="bg-(--color-brand-subtle) py-20 md:py-28" aria-labelledby="use-cases-title">
   <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
     <div class="text-center mb-12">
-      <h2 class="text-3xl md:text-4xl font-extrabold text-(--color-text) tracking-tight">
-        Quando ouvir<br class="sm:hidden"> não é uma opção.
+      <h2 id="use-cases-title" class="text-3xl md:text-4xl font-extrabold text-(--color-text) tracking-tight">
+        Quando usar o EscreveZap?
       </h2>
       <p class="mt-3 text-(--color-text-muted) text-lg max-w-xl mx-auto">
-        Você não precisa mais esperar o momento certo para ouvir.
+        Sempre que ouvir um áudio do WhatsApp não for uma opção — ou quando ler é simplesmente mais rápido.
       </p>
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-      <% [
-        { emoji: "💼", title: "Em reunião",           body: "Áudio chega na hora errada. Não dá pra ouvir." },
-        { emoji: "🏢", title: "No trabalho",          body: "Sem fone, sem som, sem privacidade." },
-        { emoji: "🎧", title: "Sem fone",             body: "Não tem como ouvir sem incomodar alguém." },
-        { emoji: "📍", title: "Lugar barulhento",     body: "Não consegue entender nada de qualquer jeito." },
-        { emoji: "🤫", title: "Dormindo alguém perto", body: "Volume zero. Mas a mensagem não pode esperar." },
-        { emoji: "⚡", title: "Com pressa",           body: "3 minutos de áudio. Você tem 20 segundos." }
-      ].each do |s| %>
-        <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-          <div class="text-2xl mb-2"><%= s[:emoji] %></div>
+    <ul class="grid grid-cols-2 md:grid-cols-4 gap-4 list-none">
+      <% HomeContent::USE_CASES.each do |s| %>
+        <li class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+          <div class="text-2xl mb-2" aria-hidden="true"><%= s[:emoji] %></div>
           <h3 class="font-semibold text-(--color-text) text-sm mb-1"><%= s[:title] %></h3>
           <p class="text-xs text-(--color-text-muted) leading-relaxed"><%= s[:body] %></p>
-        </div>
+        </li>
       <% end %>
-    </div>
+    </ul>
 
   </div>
 </section>
@@ -721,48 +723,136 @@
 
 
 <%# ============================================================== %>
-<%# FAQ %>
+<%# AI SEO / GEO — Plain-language Q&A for LLM discoverability %>
 <%# ============================================================== %>
-<section id="faq" class="py-20 md:py-28 bg-(--color-bg)">
+<section id="explicacao" class="py-20 md:py-28 bg-(--color-surface)" aria-labelledby="explicacao-title">
   <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
 
     <div class="text-center mb-12">
-      <h2 class="text-3xl md:text-4xl font-extrabold text-(--color-text) tracking-tight">Perguntas frequentes</h2>
+      <h2 id="explicacao-title" class="text-3xl md:text-4xl font-extrabold text-(--color-text) tracking-tight">
+        Tudo sobre transcrever áudios do WhatsApp
+      </h2>
+      <p class="mt-3 text-(--color-text-muted) text-lg">Respostas diretas para as dúvidas mais comuns.</p>
+    </div>
+
+    <div class="space-y-10">
+
+      <article>
+        <h3 class="text-xl font-bold text-(--color-text) mb-2">Como transcrever áudio do WhatsApp em texto?</h3>
+        <p class="text-(--color-text-muted) leading-relaxed">
+          Para transcrever um áudio do WhatsApp em texto basta conectar sua conta ao
+          <strong class="text-(--color-text)">EscreveZap</strong> via QR Code, escolher os contatos
+          que você quer monitorar e enviar — ou receber — uma mensagem de voz. A transcrição
+          aparece automaticamente como resposta na própria conversa, em segundos.
+        </p>
+      </article>
+
+      <article>
+        <h3 class="text-xl font-bold text-(--color-text) mb-2">Como funciona a transcrição automática de áudios?</h3>
+        <p class="text-(--color-text-muted) leading-relaxed">
+          O EscreveZap escuta apenas os áudios dos contatos que você autorizou, envia o áudio para um
+          motor de reconhecimento de voz com IA e devolve o texto formatado na conversa. No
+          plano Pro, uma segunda camada de IA gera um resumo curto e organiza a transcrição em
+          parágrafos legíveis.
+        </p>
+      </article>
+
+      <article>
+        <h3 class="text-xl font-bold text-(--color-text) mb-2">Posso responder um áudio do WhatsApp sem precisar ouvir?</h3>
+        <p class="text-(--color-text-muted) leading-relaxed">
+          Sim. Com a transcrição automática, você lê o que a pessoa disse e responde por texto ou
+          áudio sem nunca precisar dar play na mensagem de voz. Ideal para reuniões, lugares
+          barulhentos ou quando não dá para colocar fone.
+        </p>
+      </article>
+
+      <article>
+        <h3 class="text-xl font-bold text-(--color-text) mb-2">Qual a melhor IA para converter áudio em texto em português?</h3>
+        <p class="text-(--color-text-muted) leading-relaxed">
+          O EscreveZap usa motores de transcrição de última geração otimizados para
+          <strong class="text-(--color-text)">português brasileiro</strong>, com pontuação automática,
+          reconhecimento de gírias e formatação inteligente. O resultado costuma ser significativamente
+          mais preciso que a transcrição nativa do WhatsApp.
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
+
+<%# ============================================================== %>
+<%# COMPARISON — EscreveZap vs WhatsApp tradicional %>
+<%# ============================================================== %>
+<section id="comparacao" class="py-20 md:py-28 bg-(--color-bg)" aria-labelledby="comparacao-title">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <div class="text-center mb-12">
+      <h2 id="comparacao-title" class="text-3xl md:text-4xl font-extrabold text-(--color-text) tracking-tight">
+        EscreveZap vs WhatsApp tradicional
+      </h2>
+      <p class="mt-3 text-(--color-text-muted) text-lg">A diferença na prática.</p>
+    </div>
+
+    <div class="rounded-2xl border border-gray-200 overflow-hidden bg-(--color-surface) shadow-sm">
+      <table class="w-full text-sm">
+        <caption class="sr-only">Comparativo entre o WhatsApp tradicional e o EscreveZap</caption>
+        <thead>
+          <tr class="border-b border-gray-200 bg-(--color-surface-soft)">
+            <th scope="col" class="text-left font-semibold text-(--color-text) px-5 py-4">Recurso</th>
+            <th scope="col" class="text-center font-semibold text-(--color-text-muted) px-5 py-4 w-32">WhatsApp</th>
+            <th scope="col" class="text-center font-semibold text-(--color-brand) px-5 py-4 w-32 bg-(--color-brand-light)/40">EscreveZap</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% HomeContent::COMPARISON_ROWS.each_with_index do |row, idx| %>
+            <tr class="<%= 'border-t border-gray-100' if idx > 0 %>">
+              <th scope="row" class="text-left font-medium text-(--color-text) px-5 py-3.5"><%= row[:feature] %></th>
+              <td class="text-center px-5 py-3.5">
+                <% if row[:whatsapp] %>
+                  <i class="ph-fill ph-check-circle text-(--color-text-muted) text-lg" aria-label="Sim"></i>
+                <% else %>
+                  <i class="ph ph-x-circle text-gray-300 text-lg" aria-label="Não"></i>
+                <% end %>
+              </td>
+              <td class="text-center px-5 py-3.5 bg-(--color-brand-light)/20">
+                <% if row[:escrevezap] %>
+                  <i class="ph-fill ph-check-circle text-(--color-brand) text-lg" aria-label="Sim"></i>
+                <% else %>
+                  <i class="ph ph-x-circle text-gray-300 text-lg" aria-label="Não"></i>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-center text-xs text-(--color-text-muted) mt-4">
+      O EscreveZap não substitui o WhatsApp — ele transcreve seus áudios direto dentro dele.
+    </p>
+  </div>
+</section>
+
+
+<%# ============================================================== %>
+<%# FAQ %>
+<%# ============================================================== %>
+<section id="faq" class="py-20 md:py-28 bg-(--color-bg)" aria-labelledby="faq-title">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <div class="text-center mb-12">
+      <h2 id="faq-title" class="text-3xl md:text-4xl font-extrabold text-(--color-text) tracking-tight">Perguntas frequentes</h2>
+      <p class="mt-3 text-(--color-text-muted) text-lg">Tudo o que você precisa saber sobre transcrever áudios do WhatsApp.</p>
     </div>
 
     <div class="divide-y divide-gray-200">
-      <% [
-        {
-          q: "Isso usa meu próprio WhatsApp?",
-          a: "Sim. Você conecta sua conta pessoal via QR Code. O EscreveZap funciona como um app conectado ao seu WhatsApp, sem criar um número novo."
-        },
-        {
-          q: "Preciso trocar de número?",
-          a: "Não. Você usa exatamente o mesmo número que já tem. Nenhuma mudança visível para seus contatos."
-        },
-        {
-          q: "Posso escolher quais contatos serão transcritos?",
-          a: "Sim. Você escolhe cada contato individualmente. E por contato, você define: só seus áudios, só os deles, ou ambos."
-        },
-        {
-          q: "Como funciona o resumo inteligente?",
-          a: "No plano Pro, uma IA lê a transcrição e produz um resumo curto com os pontos principais. Perfeito para áudios longos ou mensagens com muita informação."
-        },
-        {
-          q: "Meus áudios são privados?",
-          a: "Sim. Os áudios são processados de forma segura e não são armazenados após a transcrição. Sua conversa continua sendo sua."
-        },
-        {
-          q: "Posso cancelar quando quiser?",
-          a: "Sim. Sem fidelidade, sem burocracia. Cancele a qualquer momento e continue usando até o fim do período pago."
-        }
-      ].each do |faq| %>
+      <% HomeContent::FAQS.each do |faq| %>
         <details class="group py-4">
           <summary class="flex items-center justify-between gap-4 cursor-pointer list-none">
-            <span class="font-semibold text-(--color-text) text-sm md:text-base"><%= faq[:q] %></span>
+            <span class="font-semibold text-(--color-text) text-sm md:text-base"><%= faq[:question] %></span>
             <i class="ph ph-caret-down text-(--color-text-muted) shrink-0 transition-transform duration-200 group-open:rotate-180"></i>
           </summary>
-          <p class="mt-3 text-sm text-(--color-text-muted) leading-relaxed pr-8"><%= faq[:a] %></p>
+          <p class="mt-3 text-sm text-(--color-text-muted) leading-relaxed pr-8"><%= faq[:answer] %></p>
         </details>
       <% end %>
     </div>

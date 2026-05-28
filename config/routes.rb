@@ -5,6 +5,16 @@ Rails.application.routes.draw do
   get  "termos",             to: "pages#termos",         as: :termos
   post "testar-transcricao", to: "pages#try_transcribe", as: :try_transcribe
 
+  # ── SEO ────────────────────────────────────────────────────────────
+  # Dynamic robots.txt + sitemap.xml + programmatic SEO landings.
+  get "robots.txt",  to: "seo#robots",  defaults: { format: "text" }
+  get "sitemap.xml", to: "seo#sitemap", defaults: { format: "xml" }
+
+  # Programmatic SEO landings — slug must exist in SeoPagesController::PAGES.
+  # Regex kept inline to avoid autoload coupling at route-load time.
+  get "/:slug", to: "seo_pages#show", as: :seo_page,
+                constraints: { slug: /transcrever-audio-whatsapp|converter-audio-em-texto|responder-audio-whatsapp|audio-whatsapp-texto/ }
+
   get  "up"             => "rails/health#show",        as: :rails_health_check
   get  "manifest"       => "rails/pwa#manifest",       as: :pwa_manifest
   get  "service-worker" => "pwa#service_worker", as: :pwa_service_worker

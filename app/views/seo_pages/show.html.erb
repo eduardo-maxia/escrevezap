@@ -1,0 +1,161 @@
+<%# Shared template for all programmatic SEO landing pages.
+   Driven entirely by the @page hash from SeoPagesController.
+   Mirrors the homepage design (brand, hero, steps, FAQ, CTA). %>
+
+<%# ────────────────────────────────────────────────────────── HERO %>
+<section class="relative overflow-hidden bg-(--color-bg)" aria-labelledby="seo-hero-title">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-16 md:pt-24 md:pb-20 text-center">
+
+    <nav aria-label="Trilha de navegação" class="text-xs text-(--color-text-muted) mb-6">
+      <ol class="inline-flex items-center gap-1.5">
+        <li><%= link_to "Início", root_path, class: "hover:text-(--color-text)" %></li>
+        <li aria-hidden="true">/</li>
+        <li class="text-(--color-text)" aria-current="page"><%= @page[:keyword].capitalize %></li>
+      </ol>
+    </nav>
+
+    <div class="inline-flex items-center gap-1.5 bg-(--color-brand-light) text-(--color-brand) text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
+      <i class="ph ph-sparkle"></i>
+      EscreveZap — Transcrição automática
+    </div>
+
+    <h1 id="seo-hero-title" class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-(--color-text) leading-tight tracking-tight">
+      <%= @page[:h1] %>
+    </h1>
+
+    <p class="mt-5 text-lg md:text-xl text-(--color-text-muted) leading-relaxed max-w-2xl mx-auto">
+      <%= @page[:intro] %>
+    </p>
+
+    <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+      <%= link_to new_user_session_path,
+            class: "inline-flex items-center justify-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-6 py-3.5 rounded-xl transition-colors text-sm shadow-sm" do %>
+        <i class="ph ph-whatsapp-logo text-lg"></i>
+        Conectar meu WhatsApp
+      <% end %>
+      <a href="#como-funciona"
+         class="inline-flex items-center justify-center gap-1.5 text-(--color-text-muted) hover:text-(--color-text) font-medium px-6 py-3.5 text-sm transition-colors">
+        <i class="ph ph-play-circle text-lg"></i>
+        Ver como funciona
+      </a>
+    </div>
+
+    <p class="mt-4 text-xs text-(--color-text-muted)">
+      Grátis para começar · Cancele quando quiser
+    </p>
+  </div>
+</section>
+
+
+<%# ────────────────────────────────────────────────────────── BENEFITS %>
+<section class="bg-(--color-surface) py-16 md:py-20" aria-labelledby="seo-benefits-title">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <h2 id="seo-benefits-title" class="text-2xl md:text-3xl font-extrabold text-(--color-text) tracking-tight">
+        Por que usar o EscreveZap para <%= @page[:keyword] %>?
+      </h2>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <% @page[:benefits].each do |b| %>
+        <article class="flex items-start gap-4 bg-(--color-surface) rounded-xl border border-gray-100 p-5">
+          <div class="w-10 h-10 rounded-lg bg-(--color-brand-light) text-(--color-brand) flex items-center justify-center shrink-0">
+            <i class="ph <%= b[:icon] %> text-lg"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-(--color-text) text-base mb-1"><%= b[:title] %></h3>
+            <p class="text-sm text-(--color-text-muted) leading-relaxed"><%= b[:body] %></p>
+          </div>
+        </article>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+
+<%# ────────────────────────────────────────────────────────── HOW IT WORKS %>
+<section id="como-funciona" class="py-20 md:py-24" aria-labelledby="seo-steps-title">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <h2 id="seo-steps-title" class="text-2xl md:text-3xl font-extrabold text-(--color-text) tracking-tight">
+        Como funciona, passo a passo
+      </h2>
+    </div>
+
+    <ol class="space-y-5 list-none">
+      <% @page[:steps].each_with_index do |step, idx| %>
+        <li class="flex items-start gap-4 bg-(--color-surface) rounded-xl border border-gray-100 p-5">
+          <div class="w-9 h-9 rounded-full bg-(--color-brand) text-white font-bold flex items-center justify-center shrink-0"><%= idx + 1 %></div>
+          <p class="text-(--color-text) leading-relaxed pt-1.5"><%= step %></p>
+        </li>
+      <% end %>
+    </ol>
+
+    <div class="text-center mt-10">
+      <%= link_to new_user_session_path,
+            class: "inline-flex items-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-6 py-3.5 rounded-xl transition-colors text-sm" do %>
+        <i class="ph ph-whatsapp-logo text-lg"></i>
+        Começar agora
+      <% end %>
+    </div>
+  </div>
+</section>
+
+
+<%# ────────────────────────────────────────────────────────── FAQ %>
+<section class="bg-(--color-surface) py-20 md:py-24" aria-labelledby="seo-faq-title">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-10">
+      <h2 id="seo-faq-title" class="text-2xl md:text-3xl font-extrabold text-(--color-text) tracking-tight">
+        Perguntas frequentes
+      </h2>
+    </div>
+
+    <div class="divide-y divide-gray-200">
+      <% @page[:faqs].each do |faq| %>
+        <details class="group py-4">
+          <summary class="flex items-center justify-between gap-4 cursor-pointer list-none">
+            <span class="font-semibold text-(--color-text) text-sm md:text-base"><%= faq[:question] %></span>
+            <i class="ph ph-caret-down text-(--color-text-muted) shrink-0 transition-transform duration-200 group-open:rotate-180"></i>
+          </summary>
+          <p class="mt-3 text-sm text-(--color-text-muted) leading-relaxed pr-8"><%= faq[:answer] %></p>
+        </details>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+
+<%# ────────────────────────────────────────────────────────── INTERNAL LINKS %>
+<section class="py-16 bg-(--color-bg)" aria-labelledby="seo-related-title">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 id="seo-related-title" class="text-lg font-bold text-(--color-text) mb-5 text-center">Veja também</h2>
+    <div class="flex flex-wrap items-center justify-center gap-3">
+      <% SeoPagesController::PAGES.each do |slug, data| %>
+        <% next if slug == @slug %>
+        <%= link_to data[:keyword].capitalize, seo_page_path(slug),
+              class: "inline-flex items-center gap-1.5 bg-(--color-surface) hover:bg-(--color-brand-light) border border-gray-200 text-(--color-text) text-sm px-4 py-2 rounded-full transition-colors" %>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+
+<%# ────────────────────────────────────────────────────────── FINAL CTA %>
+<section class="bg-(--color-brand) py-20 md:py-24">
+  <div class="max-w-2xl mx-auto px-4 sm:px-6 text-center">
+    <h2 class="text-3xl md:text-4xl font-extrabold text-white leading-tight tracking-tight">
+      Comece agora a transcrever<br>seus áudios do WhatsApp.
+    </h2>
+    <p class="mt-4 text-white/75 text-lg max-w-md mx-auto leading-relaxed">
+      Grátis para começar. Configure em menos de 2 minutos.
+    </p>
+    <div class="mt-8">
+      <%= link_to new_user_session_path,
+            class: "inline-flex items-center gap-2 bg-white hover:bg-(--color-brand-light) text-(--color-brand) font-bold px-8 py-4 rounded-xl transition-colors text-base shadow-lg" do %>
+        <i class="ph ph-whatsapp-logo text-xl"></i>
+        Conectar meu WhatsApp
+      <% end %>
+    </div>
+  </div>
+</section>
