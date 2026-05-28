@@ -2,9 +2,12 @@ class TranscribeAudioJob < ApplicationJob
   queue_as :default
   DEFAULT_AUDIO_EXTENSION = ".ogg".freeze
 
-  # Transcrições com menos caracteres que este limiar não recebem resumo/formatação AI.
+  # Threshold mínimo para rodar a formatação AI.
+  AI_FORMAT_MIN_CHARS = 20
+
+  # Transcrições com menos caracteres que este limiar não recebem resumo AI.
   # Precisa de pelo menos ~3-4 frases para um resumo agregar valor.
-  AI_MIN_CHARS = 350
+  AI_SUMMARY_MIN_CHARS = 350
 
   # Selects which STT engine to use. Defaults to deepgram.
   # Set credentials[:transcription_engine] = "gpt-4o-transcribe" to switch to OpenAI.
@@ -61,6 +64,50 @@ class TranscribeAudioJob < ApplicationJob
       sem perder o essencial, retorne null.
     - "full_formatted": A transcrição formatada de forma legível, corrigindo pontuação,
       paragrafando naturalmente e destacando termos importantes com *negrito*.
+    Responda SOMENTE com o JSON válido, sem markdown, sem comentários.
+  PROMPT
+
+  # "WhatsApp" — imita como uma pessoa real escreveria o áudio no WhatsApp. Padrão.
+  AI_PROMPT_WHATSAPP = <<~PROMPT.freeze
+    Você é um assistente especializado em converter transcrições de áudio do WhatsApp em mensagens de texto do WhatsApp.
+
+    Sua tarefa é reescrever o áudio transcrito exatamente como a própria pessoa escreveria essa mensagem no WhatsApp.
+
+    OBJETIVO:
+    O resultado deve parecer uma mensagem real de WhatsApp — natural, fluida, no estilo da pessoa.
+
+    REGRAS:
+
+    - Preserve o significado e o conteúdo completo
+    - Preserve o tom, a informalidade e o jeito da pessoa
+    - Use linguagem de WhatsApp: frases curtas, parágrafos pequenos (1-2 frases)
+    - Corrija palavras claramente erradas pelo reconhecimento de voz
+    - Adicione pontuação natural (vírgulas, reticências quando apropriado...)
+    - Pode usar abreviações comuns do WhatsApp (tô, pra, né, vc, etc.)
+    - Não use formatação markdown como **negrito** ou listas
+    - Não transforme em texto profissional ou corporativo
+    - Não resuma — mantenha todo o conteúdo
+    - Não adicione informações que não estavam no áudio
+
+    EXEMPLO:
+
+    ENTRADA:
+    "ei cara então sobre aquela ideia que a gente discutiu ontem eu tava pensando que talvez a gente pudesse tentar fazer diferente sabe tipo em vez de fazer tudo de uma vez podia ir por partes assim fica mais fácil de controlar e se der algum problema a gente consegue ajustar antes de ficar grande demais o que você acha"
+
+    SAÍDA ESPERADA:
+    "ei cara, sobre aquela ideia que a gente discutiu ontem...
+
+    tava pensando que talvez desse pra fazer diferente, sabe? em vez de fazer tudo de uma vez, ir por partes.
+
+    fica mais fácil de controlar, e se der algum problema a gente ajusta antes de virar bagunça grande.
+
+    o que você acha?"
+
+    Dado o texto transcrito abaixo, retorne um JSON com duas chaves:
+    - "summary": Um resumo em UMA frase curta (máximo 120 caracteres) do ponto central
+      da mensagem, escrito de forma direta e informal. Se o texto for curto (menos de
+      3 frases distintas) ou se o conteúdo não comportar resumo sem perda, retorne null.
+    - "full_formatted": O texto reescrito no estilo WhatsApp conforme as regras acima.
     Responda SOMENTE com o JSON válido, sem markdown, sem comentários.
   PROMPT
 
@@ -188,11 +235,12 @@ class TranscribeAudioJob < ApplicationJob
     # Track STT provider cost
     track_transcription_usage(transcription, transcriber)
 
-    # 3. AI formatting (Pro plan only, minimum transcript length required)
+    # 3. AI formatting (Pro plan only)
     stage = "ai_format"
     ai_token_count = nil
-    if user.pro? && transcript.length >= AI_MIN_CHARS
-      summary, full_formatted, ai_token_count = ai_format(transcript, user, transcription)
+    if user.pro? && transcript.length >= AI_FORMAT_MIN_CHARS
+      with_summary = transcript.length >= AI_SUMMARY_MIN_CHARS
+      summary, full_formatted, ai_token_count = ai_format(transcript, user, transcription, with_summary: with_summary)
     end
     track_openai_usage(transcription, ai_token_count) if ai_token_count
 
@@ -242,8 +290,14 @@ class TranscribeAudioJob < ApplicationJob
   # ── AI Formatting ──────────────────────────────────────────────────────
 
   # Returns [summary, full_formatted, total_tokens]
-  def ai_format(transcript, user, transcription)
-    prompt = user.faithful? ? AI_PROMPT_FAITHFUL : AI_PROMPT_POLISHED
+  def ai_format(transcript, user, transcription, with_summary: true)
+    prompt = if user.faithful?
+               AI_PROMPT_FAITHFUL
+             elsif user.polished?
+               AI_PROMPT_POLISHED
+             else
+               AI_PROMPT_WHATSAPP
+             end
     response = Llm::Client.new(model: "gpt-5.4-mini")
                           # Joga a verbosity e o thinking lá embaixo
                           .with_params(reasoning: {effort: 'low'}, text: {verbosity: 'low'})
@@ -251,9 +305,10 @@ class TranscribeAudioJob < ApplicationJob
                           .add_message(role: "user", content: transcript)
                           .complete
 
-    result      = JSON.parse(response.content, symbolize_names: true)
-    token_count = response.respond_to?(:usage) ? response.usage&.total_tokens : nil
-    [result[:summary], result[:full_formatted], token_count]
+    result       = JSON.parse(response.content, symbolize_names: true)
+    token_count  = (response.input_tokens.to_i + response.output_tokens.to_i).then { |n| n > 0 ? n : nil }
+    summary      = with_summary ? result[:summary] : nil
+    [summary, result[:full_formatted], token_count]
   rescue JSON::ParserError, KeyError => e
     Rails.logger.warn "[TranscribeAudioJob] AI format parse error: #{e.message}"
     record_error!(transcription, stage: "ai_format", error: e)

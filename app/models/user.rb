@@ -6,7 +6,7 @@ class User < ApplicationRecord
   has_one_attached :avatar
 
   enum :plan,             { free: "free", basic: "basic", pro: "pro" }, default: :free
-  enum :formatting_style, { faithful: "faithful", polished: "polished" }, default: :polished
+  enum :formatting_style, { faithful: "faithful", polished: "polished", whatsapp: "whatsapp" }, default: :whatsapp
 
   validates :email, presence: true,
                     format: { with: URI::MailTo::EMAIL_REGEXP },
