@@ -1,4 +1,4 @@
-<% content_for :title, "Transcrições" %>
+<% content_for :title, "Logs de transcrição" %>
 
 <div class="py-6">
   <div class="flex items-center gap-3 mb-6">
@@ -6,8 +6,8 @@
       <i class="ph ph-arrow-left text-lg"></i>
     <% end %>
     <div>
-      <h1 class="text-xl font-bold text-(--color-text)">Transcrições</h1>
-      <p class="text-sm text-(--color-text-muted)">Histórico de áudios transcritos</p>
+      <h1 class="text-xl font-bold text-(--color-text)">Logs de transcrição</h1>
+      <p class="text-sm text-(--color-text-muted)">Detalhamento das requests e resultado das transcrições</p>
     </div>
   </div>
 
@@ -42,20 +42,31 @@
             <% end %>
 
             <div class="flex-1 min-w-0">
-              <%# Row 1: name + time %>
-              <div class="flex items-center justify-between gap-2 mb-1">
-                <p class="text-sm font-semibold text-(--color-text) truncate">
-                  <%= contact.display_name.presence || contact.phone_number %>
-                </p>
-                <span class="text-[10px] text-(--color-text-subtle) flex-shrink-0"><%= t.created_at.strftime("%d/%m %H:%M") %></span>
-              </div>
+               <%# Row 1: name + time %>
+               <div class="flex items-center justify-between gap-2 mb-1">
+                 <p class="text-sm font-semibold text-(--color-text) truncate">
+                   <%= contact.display_name.presence || contact.phone_number %>
+                 </p>
+                 <span class="text-[10px] text-(--color-text-subtle) flex-shrink-0"><%= t.created_at.strftime("%d/%m %H:%M") %></span>
+               </div>
 
-              <%# Row 2: status / preview %>
-              <% if t.completed? %>
-                <p class="text-sm text-(--color-text-muted) line-clamp-2 leading-snug">
-                  <%= t.transcript&.truncate(120) %>
-                </p>
-              <% elsif t.processing? %>
+               <%# Row 2: status / preview %>
+               <div class="flex items-center gap-2 mb-1.5">
+                 <% if t.completed? %>
+                   <span class="inline-flex items-center rounded-full bg-green-50 border border-green-200 text-green-700 px-2 py-0.5 text-[10px] font-semibold">Concluída</span>
+                 <% elsif t.processing? %>
+                   <span class="inline-flex items-center rounded-full bg-blue-50 border border-blue-200 text-blue-700 px-2 py-0.5 text-[10px] font-semibold">Processando</span>
+                 <% else %>
+                   <span class="inline-flex items-center rounded-full bg-(--color-danger-light) border border-(--color-danger) text-(--color-danger) px-2 py-0.5 text-[10px] font-semibold">Falha</span>
+                 <% end %>
+                 <span class="text-[10px] text-(--color-text-subtle)">Transcrição #<%= t.id %></span>
+               </div>
+
+               <% if t.completed? %>
+                 <p class="text-sm text-(--color-text-muted) line-clamp-2 leading-snug">
+                   <%= t.transcript&.truncate(120) %>
+                 </p>
+               <% elsif t.processing? %>
                 <div class="flex items-center gap-1.5">
                   <div class="w-3 h-3 border-2 border-(--color-brand) border-t-transparent rounded-full animate-spin"></div>
                   <span class="text-xs text-(--color-text-muted)">Transcrevendo...</span>
@@ -65,22 +76,28 @@
               <% end %>
 
               <%# Row 3: meta tags %>
-              <div class="flex items-center gap-2 mt-1.5">
-                <% if t.audio_duration.present? %>
-                  <span class="flex items-center gap-0.5 text-[10px] text-(--color-text-subtle)">
-                    <i class="ph ph-microphone text-xs"></i>
-                    <%= "%.0fs" % t.audio_duration %>
-                  </span>
-                <% end %>
-                <span class="flex items-center gap-0.5 text-[10px] text-(--color-text-subtle)">
-                  <i class="ph <%= t.direction == 'incoming' ? 'ph-arrow-down-left' : 'ph-arrow-up-right' %> text-xs"></i>
-                  <%= t.direction == 'incoming' ? 'Recebido' : 'Enviado' %>
-                </span>
-                <% if t.formatted? %>
-                  <span class="flex items-center gap-0.5 text-[10px] text-(--color-brand) font-medium">
-                    <i class="ph ph-sparkle text-xs"></i>
-                    Resumo
-                  </span>
+               <div class="flex items-center gap-2 mt-1.5">
+                 <% if t.audio_duration.present? %>
+                   <span class="flex items-center gap-0.5 text-[10px] text-(--color-text-subtle)">
+                     <i class="ph ph-microphone text-xs"></i>
+                     <%= "%.0fs" % t.audio_duration %>
+                   </span>
+                 <% end %>
+                 <span class="flex items-center gap-0.5 text-[10px] text-(--color-text-subtle)">
+                   <i class="ph <%= t.direction == 'incoming' ? 'ph-arrow-down-left' : 'ph-arrow-up-right' %> text-xs"></i>
+                   <%= t.direction == 'incoming' ? 'Recebido' : 'Enviado' %>
+                 </span>
+                 <% if (usage = t.provider_usages.first) %>
+                   <span class="flex items-center gap-0.5 text-[10px] text-(--color-text-subtle)">
+                     <i class="ph ph-cpu text-xs"></i>
+                     <%= usage.provider %>
+                   </span>
+                 <% end %>
+                 <% if t.formatted? %>
+                   <span class="flex items-center gap-0.5 text-[10px] text-(--color-brand) font-medium">
+                     <i class="ph ph-sparkle text-xs"></i>
+                     Resumo
+                   </span>
                 <% end %>
               </div>
             </div>

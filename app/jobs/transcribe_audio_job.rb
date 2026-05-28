@@ -1,5 +1,6 @@
 class TranscribeAudioJob < ApplicationJob
   queue_as :default
+  DEFAULT_AUDIO_EXTENSION = ".ogg".freeze
 
   # Transcrições com menos caracteres que este limiar não recebem resumo/formatação AI.
   # Precisa de pelo menos ~3-4 frases para um resumo agregar valor.
@@ -163,6 +164,7 @@ class TranscribeAudioJob < ApplicationJob
 
     # 1. Download the audio binary from Waha
     audio_data = waha_session.waha_client.messaging.download_media_from_url(media_url: media_url)
+    attach_audio(transcription, audio_data, media_url)
 
     # 2. Write to a temp file and transcribe
     transcriber = nil
@@ -199,7 +201,7 @@ class TranscribeAudioJob < ApplicationJob
     )
 
     # 5. Edit the placeholder with the final transcription
-    reply_text = build_reply_text(transcript, summary, full_formatted, user)
+    reply_text = transcription.reply_text(user)
     waha_session.waha_client.messaging.edit_message(
       chat_id:    chat_id,
       message_id: placeholder_message_id,
@@ -325,34 +327,17 @@ class TranscribeAudioJob < ApplicationJob
     Rails.logger.warn "[TranscribeAudioJob] Failed to track gpt-4o-transcribe usage: #{e.message}"
   end
 
-  # ── Reply text builders ────────────────────────────────────────────────
-
-  def build_reply_text(transcript, summary, full_formatted, user)
-    body = full_formatted.presence || transcript
-
-    if user.pro?
-      if user.polished? && summary.present?
-        # Hard-limit: não exibe o resumo se ele for maior/igual ao próprio corpo
-        effective_summary = summary.length < body.length ? summary : nil
-
-        if effective_summary
-          parts = []
-          parts << "� *Resumo rápido*\n\n#{effective_summary}"
-          parts << "───────────────"
-          parts << "📄 *Transcrição completa*\n\n_#{body}_"
-          parts.join("\n\n")
-        else
-          "📄 *Transcrição*\n\n#{body}"
-        end
-      else
-        # faithful style or polished but below AI_MIN_CHARS
-        "📄 *Transcrição*\n\n#{body}"
-      end
-    elsif user.free?
-      "📄 *Transcrição*\n\n#{transcript}\n\n---\n_via EscreveZap_"
-    else
-      "📄 *Transcrição*\n\n#{transcript}"
+  def attach_audio(transcription, audio_data, media_url)
+    extension = begin
+      File.extname(URI.parse(media_url).path).presence || DEFAULT_AUDIO_EXTENSION
+    rescue URI::InvalidURIError
+      DEFAULT_AUDIO_EXTENSION
     end
+
+    filename = "transcription-#{transcription.id}#{extension}"
+    transcription.audio.attach(io: StringIO.new(audio_data), filename: filename)
+  rescue StandardError => e
+    Rails.logger.warn "[TranscribeAudioJob] Failed to attach audio for transcription #{transcription.id}: #{e.class}: #{e.message}"
   end
 
   def fail_transcription!(transcription, message)
