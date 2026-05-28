@@ -1,0 +1,129 @@
+<% content_for :page_title, "Erros de transcrição" %>
+
+<div class="space-y-5">
+
+  <%# ── Resumo por stage este mês ── %>
+  <% if @stage_counts.any? %>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <% TranscriptionError::STAGES.each do |stage| %>
+        <% count = @stage_counts[stage].to_i %>
+        <% next if count == 0 && params[:stage].blank? %>
+        <%= link_to admin_transcription_errors_path(stage: params[:stage] == stage ? nil : stage),
+              class: "bg-(--color-surface) border rounded-xl px-4 py-3 text-center transition-colors #{params[:stage] == stage ? 'border-(--color-brand) bg-(--color-brand-subtle)' : 'border-(--color-border) hover:border-(--color-brand-light)'}" do %>
+          <p class="text-xl font-bold <%= count > 0 ? 'text-(--color-danger)' : 'text-(--color-text-muted)' %>"><%= count %></p>
+          <p class="text-[11px] text-(--color-text-muted) mt-0.5 font-mono"><%= stage %></p>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%# ── Filtros ── %>
+  <div class="bg-(--color-surface) border border-(--color-border) rounded-xl p-4">
+    <%= form_with url: admin_transcription_errors_path, method: :get, local: true, class: "flex flex-wrap gap-3 items-end" do |f| %>
+      <div class="flex-1 min-w-48">
+        <label class="block text-xs font-medium text-(--color-text-muted) mb-1">Buscar</label>
+        <%= f.text_field :q, value: params[:q], placeholder: "Mensagem de erro, classe...",
+              class: "w-full px-3 py-2 text-sm border border-(--color-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-(--color-brand)/30" %>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-(--color-text-muted) mb-1">Stage</label>
+        <%= f.select :stage,
+              [["Todos", ""]] + TranscriptionError::STAGES.map { |s| [s, s] },
+              { selected: params[:stage] },
+              class: "px-3 py-2 text-sm border border-(--color-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-(--color-brand)/30 font-mono" %>
+      </div>
+      <button type="submit" class="px-4 py-2 text-sm bg-(--color-brand) text-white rounded-lg hover:bg-(--color-brand-dark) transition-colors">
+        Filtrar
+      </button>
+      <% if params[:q].present? || params[:stage].present? %>
+        <%= link_to "Limpar", admin_transcription_errors_path,
+              class: "px-4 py-2 text-sm border border-(--color-border) rounded-lg text-(--color-text-muted) hover:bg-(--color-surface-muted) transition-colors" %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <%# ── Tabela ── %>
+  <div class="bg-(--color-surface) border border-(--color-border) rounded-xl overflow-hidden">
+    <div class="px-5 py-4 border-b border-(--color-border) flex items-center justify-between">
+      <h2 class="text-sm font-semibold text-(--color-text)">
+        Erros
+        <span class="ml-1.5 text-xs font-normal text-(--color-text-muted)">(<%= @pagy.count %> total)</span>
+      </h2>
+    </div>
+
+    <% if @errors.any? %>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-(--color-surface-muted) border-b border-(--color-border)">
+            <tr>
+              <th class="px-5 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">Quando</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">Stage</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">Classe do erro</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">Mensagem</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">Usuário</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">Transcrição</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-(--color-border)">
+            <% @errors.each do |err| %>
+              <% t = err.transcription %>
+              <% user = t&.monitored_contact&.waha_session&.user %>
+              <tr class="hover:bg-(--color-surface-muted) transition-colors align-top">
+                <td class="px-5 py-3 text-xs text-(--color-text-muted) whitespace-nowrap">
+                  <%= err.created_at.strftime("%d/%m %H:%M") %>
+                </td>
+                <td class="px-5 py-3">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-mono font-medium bg-(--color-danger-light) text-(--color-danger)">
+                    <%= err.stage %>
+                  </span>
+                </td>
+                <td class="px-5 py-3 text-xs font-mono text-(--color-text-muted) whitespace-nowrap">
+                  <%= err.error_class %>
+                </td>
+                <td class="px-5 py-3 max-w-sm">
+                  <p class="text-xs text-(--color-text) break-words line-clamp-3"><%= err.message %></p>
+                  <% if err.backtrace.present? %>
+                    <details class="mt-1">
+                      <summary class="text-[11px] text-(--color-text-subtle) cursor-pointer hover:text-(--color-text-muted)">Backtrace</summary>
+                      <pre class="mt-1 text-[10px] text-(--color-text-muted) whitespace-pre-wrap break-all leading-relaxed"><%= err.backtrace %></pre>
+                    </details>
+                  <% end %>
+                </td>
+                <td class="px-5 py-3 text-xs text-(--color-text-muted)">
+                  <% if user %>
+                    <div class="font-medium text-(--color-text)"><%= user.name.presence || user.email %></div>
+                    <div class="text-[11px]"><%= user.email %></div>
+                  <% else %>
+                    —
+                  <% end %>
+                </td>
+                <td class="px-5 py-3 text-xs">
+                  <% if t %>
+                    <%= link_to "##{t.id}", admin_transcription_path(t),
+                          class: "font-mono text-(--color-brand) hover:underline" %>
+                  <% else %>
+                    —
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <% if @pagy.pages > 1 %>
+        <div class="px-5 py-4 border-t border-(--color-border) flex items-center justify-between">
+          <p class="text-xs text-(--color-text-muted)">
+            <%= @pagy.from %>–<%= @pagy.to %> de <%= @pagy.count %>
+          </p>
+          <%== pagy_nav(@pagy) %>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="px-5 py-16 text-center">
+        <i class="ph ph-check-circle text-3xl text-emerald-500"></i>
+        <p class="mt-2 text-sm text-(--color-text-muted)">Nenhum erro encontrado.</p>
+      </div>
+    <% end %>
+  </div>
+</div>

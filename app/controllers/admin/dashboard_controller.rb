@@ -37,6 +37,11 @@ module Admin
       @transcriptions_this_month = Transcription.where("created_at >= ?", month_start).count
       @failed_transcriptions     = Transcription.failed.where("created_at >= ?", month_start).count
 
+      # ── Job errors ──────────────────────────────────────────────────────
+      @job_errors_today      = TranscriptionError.where("created_at >= ?", today).count
+      @job_errors_this_month = TranscriptionError.this_month.count
+      @job_errors_by_stage   = TranscriptionError.this_month.group(:stage).count
+
       # ── Daily transcriptions (line chart — last 30 days) ────────────────
       raw = UsageEvent
         .where(event_type: UsageEvent::TRANSCRIPTION_COMPLETED)

@@ -62,7 +62,6 @@
       <div class="max-w-lg mx-auto flex items-center">
         <% nav_items = [
           { path: authenticated_root_path, icon: "ph-house",        label: "Início",   active: controller_name == "dashboard" },
-          { path: transcriptions_path,     icon: "ph-list-dashes",  label: "Logs",     active: controller_name == "transcriptions" },
           { path: monitored_contacts_path, icon: "ph-address-book", label: "Contatos", active: controller_name == "monitored_contacts" },
           { path: app_waha_session_path,   icon: "ph-whatsapp-logo",label: "WhatsApp", active: controller_name == "waha_sessions" },
         ] %>

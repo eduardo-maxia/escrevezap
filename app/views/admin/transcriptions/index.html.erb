@@ -1,0 +1,122 @@
+<% content_for :page_title, "Transcrições" %>
+
+<div class="space-y-5">
+  <%# ── Filtros ── %>
+  <div class="bg-(--color-surface) border border-(--color-border) rounded-xl p-4">
+    <%= form_with url: admin_transcriptions_path, method: :get, local: true, class: "flex flex-wrap gap-3 items-end" do |f| %>
+      <div class="flex-1 min-w-48">
+        <label class="block text-xs font-medium text-(--color-text-muted) mb-1">Buscar</label>
+        <%= f.text_field :q, value: params[:q], placeholder: "Texto da transcrição...",
+              class: "w-full px-3 py-2 text-sm border border-(--color-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-(--color-brand)/30" %>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-(--color-text-muted) mb-1">Status</label>
+        <%= f.select :status,
+              [["Todos", ""], ["Concluído", "completed"], ["Processando", "processing"], ["Falhou", "failed"]],
+              { selected: params[:status] },
+              class: "px-3 py-2 text-sm border border-(--color-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-(--color-brand)/30" %>
+      </div>
+      <button type="submit" class="px-4 py-2 text-sm bg-(--color-brand) text-white rounded-lg hover:bg-(--color-brand-dark) transition-colors">
+        Filtrar
+      </button>
+      <% if params[:q].present? || params[:status].present? %>
+        <%= link_to "Limpar", admin_transcriptions_path,
+              class: "px-4 py-2 text-sm border border-(--color-border) rounded-lg text-(--color-text-muted) hover:bg-(--color-surface-muted) transition-colors" %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <%# ── Tabela ── %>
+  <div class="bg-(--color-surface) border border-(--color-border) rounded-xl overflow-hidden">
+    <div class="px-5 py-4 border-b border-(--color-border) flex items-center justify-between">
+      <h2 class="text-sm font-semibold text-(--color-text)">
+        Transcrições
+        <span class="ml-1.5 text-xs font-normal text-(--color-text-muted)">(<%= @pagy.count %> total)</span>
+      </h2>
+    </div>
+
+    <% if @transcriptions.any? %>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-(--color-surface-muted) border-b border-(--color-border)">
+            <tr>
+              <th class="px-5 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">ID</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">Usuário</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">Contato</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">Status</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">Direção</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">Duração</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">Transcrição</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase tracking-wide">Data</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-(--color-border)">
+            <% @transcriptions.each do |t| %>
+              <tr class="hover:bg-(--color-surface-muted) transition-colors cursor-pointer" onclick="location.href='<%= admin_transcription_path(t) %>'">
+                <td class="px-5 py-3 text-xs text-(--color-text-subtle) font-mono"><%= t.id %></td>
+                <td class="px-5 py-3">
+                  <% user = t.monitored_contact&.waha_session&.user %>
+                  <% if user %>
+                    <div class="text-xs font-medium text-(--color-text)"><%= user.name.presence || user.email %></div>
+                    <div class="text-xs text-(--color-text-muted)"><%= user.email %></div>
+                  <% else %>
+                    <span class="text-xs text-(--color-text-subtle)">—</span>
+                  <% end %>
+                </td>
+                <td class="px-5 py-3 text-xs text-(--color-text-muted)">
+                  <%= t.monitored_contact&.display_name.presence || t.monitored_contact&.formatted_phone || "—" %>
+                </td>
+                <td class="px-5 py-3">
+                  <% badge_class = case t.status
+                     when "completed"  then "bg-green-100 text-green-700"
+                     when "processing" then "bg-yellow-100 text-yellow-700"
+                     when "failed"     then "bg-red-100 text-red-700"
+                     else "bg-gray-100 text-gray-600"
+                     end %>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium <%= badge_class %>">
+                    <%= t.status %>
+                  </span>
+                </td>
+                <td class="px-5 py-3 text-xs text-(--color-text-muted)"><%= t.direction %></td>
+                <td class="px-5 py-3 text-xs text-(--color-text-muted)">
+                  <% if t.audio_duration %>
+                    <%= "%.1fs" % t.audio_duration %>
+                  <% else %>
+                    —
+                  <% end %>
+                </td>
+                <td class="px-5 py-3 max-w-xs">
+                  <% if t.transcript.present? %>
+                    <p class="text-xs text-(--color-text) line-clamp-2 break-words"><%= t.transcript %></p>
+                  <% elsif t.error_message.present? %>
+                    <p class="text-xs text-(--color-danger) line-clamp-2"><%= t.error_message %></p>
+                  <% else %>
+                    <span class="text-xs text-(--color-text-subtle)">—</span>
+                  <% end %>
+                </td>
+                <td class="px-5 py-3 text-xs text-(--color-text-muted) whitespace-nowrap">
+                  <%= l(t.created_at, format: :short) %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <%# Paginação %>
+      <% if @pagy.pages > 1 %>
+        <div class="px-5 py-4 border-t border-(--color-border) flex items-center justify-between">
+          <p class="text-xs text-(--color-text-muted)">
+            <%= @pagy.from %>–<%= @pagy.to %> de <%= @pagy.count %>
+          </p>
+          <%== pagy_nav(@pagy) %>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="px-5 py-16 text-center">
+        <i class="ph ph-microphone-slash text-3xl text-(--color-text-subtle)"></i>
+        <p class="mt-2 text-sm text-(--color-text-muted)">Nenhuma transcrição encontrada.</p>
+      </div>
+    <% end %>
+  </div>
+</div>

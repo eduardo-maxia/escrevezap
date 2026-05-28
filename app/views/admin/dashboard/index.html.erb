@@ -176,6 +176,29 @@
             </div>
           </div>
         <% end %>
+
+        <%# Job errors ── %>
+        <% if @job_errors_this_month > 0 %>
+          <div class="pt-3 border-t border-(--color-border)">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold text-(--color-danger) flex items-center gap-1.5">
+                <i class="ph ph-bug text-sm"></i>Erros do job
+              </span>
+              <%= link_to admin_transcription_errors_path, class: "text-xs text-(--color-brand) hover:underline" do %>
+                Ver todos
+              <% end %>
+            </div>
+            <div class="space-y-1.5">
+              <% @job_errors_by_stage.sort_by { |_, v| -v }.each do |stage, count| %>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-mono text-(--color-text-muted)"><%= stage %></span>
+                  <span class="text-xs font-bold text-(--color-danger)"><%= count %></span>
+                </div>
+              <% end %>
+            </div>
+            <p class="mt-2 text-[11px] text-(--color-text-subtle)"><%= @job_errors_today %> hoje · <%= @job_errors_this_month %> este mês</p>
+          </div>
+        <% end %>
       </div>
     </div>
 

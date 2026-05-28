@@ -152,6 +152,7 @@ class TranscribeAudioJob < ApplicationJob
     chat_id     = contact.resolve_waha_chat_id
     reply_to_id = transcription.waha_message_id
     placeholder_message_id = nil
+    stage = "send_whatsapp"
 
     # 0. Mark chat as read + send immediate progress feedback
     waha_session.waha_client.chats.read_messages(chat_id: chat_id)
@@ -163,10 +164,12 @@ class TranscribeAudioJob < ApplicationJob
     placeholder_message_id = placeholder_response["id"]
 
     # 1. Download the audio binary from Waha
+    stage = "download_audio"
     audio_data = waha_session.waha_client.messaging.download_media_from_url(media_url: media_url)
     attach_audio(transcription, audio_data, media_url)
 
     # 2. Write to a temp file and transcribe
+    stage = "stt"
     transcriber = nil
     transcript = Tempfile.create(["wt_audio_#{transcription.id}", ".ogg"], binmode: true) do |file|
       file.write(audio_data)
@@ -186,13 +189,15 @@ class TranscribeAudioJob < ApplicationJob
     track_transcription_usage(transcription, transcriber)
 
     # 3. AI formatting (Pro plan only, minimum transcript length required)
+    stage = "ai_format"
     ai_token_count = nil
     if user.pro? && transcript.length >= AI_MIN_CHARS
-      summary, full_formatted, ai_token_count = ai_format(transcript, user)
+      summary, full_formatted, ai_token_count = ai_format(transcript, user, transcription)
     end
     track_openai_usage(transcription, ai_token_count) if ai_token_count
 
     # 4. Update the transcription record
+    stage = "process"
     transcription.update!(
       transcript:     transcript,
       summary:        summary,
@@ -201,6 +206,7 @@ class TranscribeAudioJob < ApplicationJob
     )
 
     # 5. Edit the placeholder with the final transcription
+    stage = "send_whatsapp"
     reply_text = transcription.reply_text(user)
     waha_session.waha_client.messaging.edit_message(
       chat_id:    chat_id,
@@ -216,7 +222,8 @@ class TranscribeAudioJob < ApplicationJob
       TrackUsageJob.perform_later(user_id: user.id, event_type: UsageEvent::AI_FORMAT_COMPLETED, metadata: { transcription_id: transcription.id, tokens: ai_token_count })
     end
   rescue => e
-    Rails.logger.error "[TranscribeAudioJob] Erro ao processar transcription #{transcription.id}: #{e.message}"
+    Rails.logger.error "[TranscribeAudioJob] Erro ao processar transcription #{transcription.id} (stage=#{stage}): #{e.message}"
+    record_error!(transcription, stage: stage, error: e)
     if placeholder_message_id
       begin
         waha_session.waha_client.messaging.edit_message(
@@ -235,7 +242,7 @@ class TranscribeAudioJob < ApplicationJob
   # ── AI Formatting ──────────────────────────────────────────────────────
 
   # Returns [summary, full_formatted, total_tokens]
-  def ai_format(transcript, user)
+  def ai_format(transcript, user, transcription)
     prompt = user.faithful? ? AI_PROMPT_FAITHFUL : AI_PROMPT_POLISHED
     response = Llm::Client.new(model: "gpt-5.4-mini")
                           # Joga a verbosity e o thinking lá embaixo
@@ -249,9 +256,11 @@ class TranscribeAudioJob < ApplicationJob
     [result[:summary], result[:full_formatted], token_count]
   rescue JSON::ParserError, KeyError => e
     Rails.logger.warn "[TranscribeAudioJob] AI format parse error: #{e.message}"
+    record_error!(transcription, stage: "ai_format", error: e)
     [nil, nil, nil]
   rescue => e
     Rails.logger.warn "[TranscribeAudioJob] AI format failed: #{e.message}"
+    record_error!(transcription, stage: "ai_format", error: e)
     [nil, nil, nil]
   end
 
@@ -289,6 +298,7 @@ class TranscribeAudioJob < ApplicationJob
     )
   rescue => e
     Rails.logger.warn "[TranscribeAudioJob] Failed to track Deepgram usage: #{e.message}"
+    record_error!(transcription, stage: "track_usage", error: e)
   end
 
   def track_openai_usage(transcription, token_count)
@@ -303,6 +313,7 @@ class TranscribeAudioJob < ApplicationJob
     )
   rescue => e
     Rails.logger.warn "[TranscribeAudioJob] Failed to track OpenAI usage: #{e.message}"
+    record_error!(transcription, stage: "track_usage", error: e)
   end
 
   def track_gpt_transcribe_usage(transcription, token_count, duration_seconds)
@@ -325,6 +336,7 @@ class TranscribeAudioJob < ApplicationJob
     end
   rescue => e
     Rails.logger.warn "[TranscribeAudioJob] Failed to track gpt-4o-transcribe usage: #{e.message}"
+    record_error!(transcription, stage: "track_usage", error: e)
   end
 
   def attach_audio(transcription, audio_data, media_url)
@@ -338,6 +350,19 @@ class TranscribeAudioJob < ApplicationJob
     transcription.audio.attach(io: StringIO.new(audio_data), filename: filename)
   rescue StandardError => e
     Rails.logger.warn "[TranscribeAudioJob] Failed to attach audio for transcription #{transcription.id}: #{e.class}: #{e.message}"
+    record_error!(transcription, stage: "attach_audio", error: e)
+  end
+
+  def record_error!(transcription, stage:, error:)
+    TranscriptionError.create!(
+      transcription: transcription,
+      stage:         stage,
+      error_class:   error.class.name,
+      message:       error.message.to_s.truncate(2000),
+      backtrace:     error.backtrace&.first(10)&.join("\n")
+    )
+  rescue => record_err
+    Rails.logger.error "[TranscribeAudioJob] Failed to record TranscriptionError: #{record_err.message}"
   end
 
   def fail_transcription!(transcription, message)

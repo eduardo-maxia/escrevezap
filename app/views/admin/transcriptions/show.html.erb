@@ -1,0 +1,187 @@
+<% content_for :page_title, "Transcrição ##{@transcription.id}" %>
+
+<div class="max-w-3xl space-y-5">
+  <%# Back %>
+  <%= link_to admin_transcriptions_path, class: "inline-flex items-center gap-1.5 text-sm text-(--color-text-muted) hover:text-(--color-text) transition-colors mb-1" do %>
+    <i class="ph ph-arrow-left text-base"></i>
+    Voltar para transcrições
+  <% end %>
+
+  <%# ── Header ── %>
+  <div class="bg-(--color-surface) border border-(--color-border) rounded-xl px-5 py-4">
+    <div class="flex items-start justify-between gap-4 flex-wrap">
+      <div>
+        <% contact = @transcription.monitored_contact %>
+        <% user = contact&.waha_session&.user %>
+        <p class="text-xs text-(--color-text-muted) mb-0.5">Transcrição <span class="font-mono">#<%= @transcription.id %></span></p>
+        <h1 class="text-base font-bold text-(--color-text)">
+          <%= contact&.display_name.presence || contact&.formatted_phone || "Contato desconhecido" %>
+        </h1>
+        <% if user %>
+          <p class="text-sm text-(--color-text-muted) mt-0.5">
+            <i class="ph ph-user text-xs"></i>
+            <%= user.name.presence || user.email %> · <span class="text-xs"><%= user.email %></span>
+          </p>
+        <% end %>
+      </div>
+
+      <div class="flex flex-col items-end gap-1.5 text-xs text-(--color-text-muted)">
+        <% badge_class = case @transcription.status
+           when "completed"  then "bg-green-100 text-green-700"
+           when "processing" then "bg-yellow-100 text-yellow-700"
+           when "failed"     then "bg-red-100 text-red-700"
+           else "bg-gray-100 text-gray-600"
+           end %>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= badge_class %>">
+          <%= @transcription.status %>
+        </span>
+        <span><%= l(@transcription.created_at, format: :long) rescue @transcription.created_at.strftime("%d/%m/%Y %H:%M") %></span>
+      </div>
+    </div>
+
+    <%# Meta grid %>
+    <div class="mt-4 pt-4 border-t border-(--color-border) grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+      <div>
+        <p class="text-(--color-text-muted) mb-0.5">Direção</p>
+        <p class="font-medium text-(--color-text)"><%= @transcription.incoming? ? "Recebido" : "Enviado" %></p>
+      </div>
+      <div>
+        <p class="text-(--color-text-muted) mb-0.5">Duração</p>
+        <p class="font-medium text-(--color-text)"><%= @transcription.audio_duration.present? ? "#{"%.1f" % @transcription.audio_duration}s" : "—" %></p>
+      </div>
+      <div>
+        <p class="text-(--color-text-muted) mb-0.5">Message ID</p>
+        <p class="font-medium text-(--color-text) font-mono truncate"><%= @transcription.waha_message_id.presence || "—" %></p>
+      </div>
+      <div>
+        <p class="text-(--color-text-muted) mb-0.5">Reply ID</p>
+        <p class="font-medium text-(--color-text) font-mono truncate"><%= @transcription.reply_message_id.presence || "—" %></p>
+      </div>
+    </div>
+  </div>
+
+  <%# ── Erro ── %>
+  <% if @transcription.failed? && @transcription.error_message.present? %>
+    <div class="bg-(--color-danger-light) border border-(--color-danger) rounded-xl px-5 py-4">
+      <div class="flex items-center gap-2 mb-1">
+        <i class="ph ph-warning-circle text-base text-(--color-danger)"></i>
+        <p class="text-sm font-semibold text-(--color-danger)">Erro na transcrição</p>
+      </div>
+      <pre class="text-xs text-(--color-danger) opacity-80 whitespace-pre-wrap break-words"><%= @transcription.error_message %></pre>
+    </div>
+  <% end %>
+
+  <%# ── Áudio ── %>
+  <div class="bg-(--color-surface) border border-(--color-border) rounded-xl px-5 py-4">
+    <div class="flex items-center gap-2 mb-3">
+      <i class="ph ph-waveform text-sm text-(--color-text-muted)"></i>
+      <p class="text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide">Áudio original</p>
+    </div>
+    <% if @transcription.audio.attached? %>
+      <%= audio_tag url_for(@transcription.audio), controls: true, preload: "metadata", class: "w-full" %>
+    <% elsif @transcription.media_url.present? %>
+      <audio controls preload="metadata" class="w-full">
+        <source src="<%= @transcription.media_url %>">
+      </audio>
+    <% else %>
+      <p class="text-sm text-(--color-text-muted)">Áudio não disponível.</p>
+    <% end %>
+  </div>
+
+  <%# ── Transcrição bruta ── %>
+  <div class="bg-(--color-surface) border border-(--color-border) rounded-xl px-5 py-4">
+    <div class="flex items-center gap-2 mb-3">
+      <i class="ph ph-chat-text text-sm text-(--color-text-muted)"></i>
+      <p class="text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide">Texto transcrito</p>
+    </div>
+    <% if @transcription.transcript.present? %>
+      <p class="text-sm text-(--color-text) leading-relaxed whitespace-pre-wrap"><%= @transcription.transcript %></p>
+    <% else %>
+      <p class="text-sm text-(--color-text-muted)">—</p>
+    <% end %>
+  </div>
+
+  <%# ── Outputs da LLM ── %>
+  <% if @transcription.summary.present? || @transcription.full_formatted.present? %>
+    <% if @transcription.summary.present? %>
+      <div class="bg-(--color-brand-subtle) border border-(--color-brand-light) rounded-xl px-5 py-4">
+        <div class="flex items-center gap-2 mb-3">
+          <i class="ph ph-sparkle text-sm text-(--color-brand)"></i>
+          <p class="text-xs font-semibold text-(--color-brand) uppercase tracking-wide">Resumo (LLM)</p>
+        </div>
+        <p class="text-sm text-(--color-text) leading-relaxed whitespace-pre-wrap"><%= @transcription.summary %></p>
+      </div>
+    <% end %>
+
+    <% if @transcription.full_formatted.present? %>
+      <div class="bg-(--color-surface) border border-(--color-border) rounded-xl px-5 py-4">
+        <div class="flex items-center gap-2 mb-3">
+          <i class="ph ph-brain text-sm text-(--color-text-muted)"></i>
+          <p class="text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide">Texto formatado (LLM)</p>
+        </div>
+        <p class="text-sm text-(--color-text) leading-relaxed whitespace-pre-wrap"><%= @transcription.full_formatted %></p>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%# ── Erros do job ── %>
+  <% if @transcription.transcription_errors.any? %>
+    <div class="bg-(--color-danger-light) border border-(--color-danger) rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-(--color-danger)/30 flex items-center gap-2">
+        <i class="ph ph-warning-circle text-base text-(--color-danger)"></i>
+        <p class="text-xs font-semibold text-(--color-danger) uppercase tracking-wide">
+          Erros do job (<%= @transcription.transcription_errors.size %>)
+        </p>
+      </div>
+      <div class="divide-y divide-(--color-danger)/20">
+        <% @transcription.transcription_errors.each do |err| %>
+          <div class="px-5 py-4">
+            <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-mono font-medium bg-white/60 text-(--color-danger)">
+                <%= err.stage %>
+              </span>
+              <span class="text-xs font-mono text-(--color-danger) font-semibold"><%= err.error_class %></span>
+              <span class="text-[11px] text-(--color-danger) opacity-70 ml-auto"><%= err.created_at.strftime("%d/%m/%Y %H:%M:%S") %></span>
+            </div>
+            <p class="text-sm text-(--color-danger) font-medium break-words"><%= err.message %></p>
+            <% if err.backtrace.present? %>
+              <details class="mt-2">
+                <summary class="text-xs text-(--color-danger) opacity-70 cursor-pointer hover:opacity-100">Ver backtrace</summary>
+                <pre class="mt-1.5 text-[11px] text-(--color-danger) opacity-70 whitespace-pre-wrap break-all leading-relaxed bg-white/40 rounded-lg p-3"><%= err.backtrace %></pre>
+              </details>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%# ── Custos / Provider usages ── %>
+  <div class="bg-(--color-surface) border border-(--color-border) rounded-xl px-5 py-4">
+    <div class="flex items-center gap-2 mb-3">
+      <i class="ph ph-currency-dollar text-sm text-(--color-text-muted)"></i>
+      <p class="text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide">Custos por provedor</p>
+    </div>
+    <% if @transcription.provider_usages.any? %>
+      <div class="space-y-2">
+        <% @transcription.provider_usages.each do |usage| %>
+          <div class="flex items-center justify-between text-sm">
+            <div>
+              <span class="font-medium text-(--color-text) capitalize"><%= usage.provider %></span>
+              <% if usage.unit_type.present? %>
+                <span class="text-(--color-text-muted) text-xs ml-1">· <%= usage.unit_type %>: <%= usage.units.to_f %></span>
+              <% end %>
+            </div>
+            <span class="font-mono text-xs text-(--color-text)">US$ <%= format("%.6f", usage.cost_usd.to_f) %></span>
+          </div>
+        <% end %>
+        <div class="flex items-center justify-between text-sm font-semibold border-t border-(--color-border) pt-2 mt-2">
+          <span class="text-(--color-text)">Total</span>
+          <span class="font-mono text-xs text-(--color-text)">US$ <%= format("%.6f", @transcription.provider_usages.sum(&:cost_usd).to_f) %></span>
+        </div>
+      </div>
+    <% else %>
+      <p class="text-sm text-(--color-text-muted)">Nenhum custo registrado.</p>
+    <% end %>
+  </div>
+</div>

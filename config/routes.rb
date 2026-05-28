@@ -59,9 +59,6 @@ Rails.application.routes.draw do
         end
       end
 
-      # Transcription history
-      resources :transcriptions,      only: [:index, :show]
-
       # User profile
       resource  :profile, controller: "profile", only: [:show, :update] do
         patch :update_email, on: :member
@@ -85,7 +82,9 @@ Rails.application.routes.draw do
 
   namespace :admin do
     root "dashboard#index"
-    resources :users, only: [:index]
+    resources :users,                only: [:index]
+    resources :transcriptions,       only: [:index, :show]
+    resources :transcription_errors, only: [:index]
   end
 
   namespace :webhook do

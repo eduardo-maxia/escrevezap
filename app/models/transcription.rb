@@ -3,7 +3,8 @@ class Transcription < ApplicationRecord
   has_one    :waha_session, through: :monitored_contact
   has_one    :user,         through: :waha_session
   has_one_attached :audio
-  has_many   :provider_usages, -> { order(created_at: :desc) }
+  has_many   :provider_usages,    -> { order(created_at: :desc) }
+  has_many   :transcription_errors, -> { order(created_at: :desc) }
 
   enum :status, {
     processing: "processing",

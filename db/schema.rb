@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_27_151954) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_27_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -126,6 +126,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_27_151954) do
     t.index ["user_id"], name: "index_subscriptions_on_user_id"
   end
 
+  create_table "transcription_errors", force: :cascade do |t|
+    t.text "backtrace"
+    t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.string "error_class", null: false
+    t.text "message", null: false
+    t.string "stage", null: false
+    t.bigint "transcription_id", null: false
+    t.index ["stage"], name: "index_transcription_errors_on_stage"
+    t.index ["transcription_id", "created_at"], name: "index_transcription_errors_on_transcription_id_and_created_at"
+    t.index ["transcription_id"], name: "index_transcription_errors_on_transcription_id"
+  end
+
   create_table "transcriptions", force: :cascade do |t|
     t.float "audio_duration"
     t.datetime "created_at", null: false
@@ -211,6 +223,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_27_151954) do
   add_foreign_key "provider_usages", "transcriptions"
   add_foreign_key "sign_in_tokens", "users"
   add_foreign_key "subscriptions", "users"
+  add_foreign_key "transcription_errors", "transcriptions"
   add_foreign_key "transcriptions", "monitored_contacts"
   add_foreign_key "usage_events", "users"
   add_foreign_key "waha_session_events", "waha_sessions"
