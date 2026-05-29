@@ -37,7 +37,9 @@ class SendMessageJob < ApplicationJob
     end
 
     # Human-like send: read → typing → sleep → send
-    response = waha.messaging.send_message(chat_id: client.waha_chat_id, text: text)
+    # Não podemos marcar como lida porque se não o usuário final não recebe notificação!
+    response = waha.messaging.send_text(chat_id: client.waha_chat_id, text: text)
+    # response = waha.messaging.send_message(chat_id: client.waha_chat_id, text: text)
 
     notification.update!(notification_status: :sent, sent_at: Time.current, external_id: response["id"])
 
