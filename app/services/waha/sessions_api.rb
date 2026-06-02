@@ -20,7 +20,7 @@ module Waha
           webhooks: [
             {
               url: webhook_url || default_webhook_url,
-              events: ["message.any", "session.status"],
+              events: ["message.any", "session.status", "message.reaction"],
               retries: {
                 policy: "exponential",
                 delaySeconds: 2,
