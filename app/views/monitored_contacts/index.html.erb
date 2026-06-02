@@ -1,72 +1,10 @@
 <% content_for :title, "Contatos monitorados" %>
 
 <div class="py-6">
-  <%# Header %>
-  <div class="flex items-center justify-between mb-6">
-    <div>
-      <h1 class="text-xl font-bold text-(--color-text)">Contatos</h1>
-      <p class="text-sm text-(--color-text-muted) mt-0.5">Áudios desses contatos serão transcritos</p>
-    </div>
-    <%= link_to new_monitored_contact_path,
-          class: "flex items-center gap-1.5 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors" do %>
-      <i class="ph ph-plus text-base"></i>
-      Adicionar
-    <% end %>
-  </div>
-
-  <% if @contacts.empty? %>
-    <%# Empty state %>
-    <div class="flex flex-col items-center justify-center gap-4 py-16 text-center">
-      <div class="w-16 h-16 rounded-2xl bg-(--color-brand-subtle) flex items-center justify-center">
-        <i class="ph ph-address-book text-3xl text-(--color-brand)"></i>
-      </div>
-      <div>
-        <p class="font-semibold text-(--color-text)">Nenhum contato ainda</p>
-        <p class="text-sm text-(--color-text-muted) mt-1 max-w-xs">Adicione contatos para começar a receber as transcrições de áudio.</p>
-      </div>
-      <%= link_to "Adicionar primeiro contato", new_monitored_contact_path,
-            class: "inline-flex items-center gap-1.5 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors" %>
-    </div>
+  <% if @transcription_mode == "reaction" %>
+    <%= render "reaction_mode" %>
   <% else %>
-    <%# Contact list %>
-    <div class="space-y-2">
-      <% @contacts.each do |contact| %>
-        <div class="flex items-center gap-3 bg-(--color-surface) border border-(--color-border) rounded-2xl px-4 py-3">
-          <%# Avatar %>
-          <% if contact.avatar_url.present? %>
-            <img src="<%= contact.avatar_url %>" alt="<%= contact.display_name %>"
-                 class="w-11 h-11 rounded-full object-cover flex-shrink-0">
-          <% else %>
-            <div class="w-11 h-11 rounded-full bg-(--color-brand-subtle) flex items-center justify-center flex-shrink-0">
-              <i class="ph ph-user text-lg text-(--color-brand)"></i>
-            </div>
-          <% end %>
-
-          <%# Info %>
-          <div class="flex-1 min-w-0">
-            <p class="font-semibold text-(--color-text) text-sm truncate">
-              <%= contact.display_name.presence || contact.formatted_phone %>
-            </p>
-            <p class="text-xs text-(--color-text-muted) truncate">
-              <% if contact.display_name.present? %><%= contact.formatted_phone %> · <% end %>
-              <%= t("monitored_contact.direction.#{contact.direction}") %>
-            </p>
-          </div>
-
-          <%# Status pill %>
-          <% if contact.enabled? %>
-            <span class="flex-shrink-0 px-2 py-0.5 rounded-full bg-green-50 text-green-700 text-[10px] font-semibold">Ativo</span>
-          <% else %>
-            <span class="flex-shrink-0 px-2 py-0.5 rounded-full bg-(--color-surface-raised) text-(--color-text-subtle) text-[10px] font-semibold">Pausado</span>
-          <% end %>
-
-          <%# Edit link %>
-          <%= link_to edit_monitored_contact_path(contact),
-                class: "flex-shrink-0 p-2 rounded-lg text-(--color-text-muted) hover:bg-(--color-surface-raised) transition-colors" do %>
-            <i class="ph ph-pencil-simple text-base"></i>
-          <% end %>
-        </div>
-      <% end %>
-    </div>
+    <%= render "monitored_mode" %>
   <% end %>
 </div>
+

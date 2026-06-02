@@ -1,0 +1,56 @@
+<%# Reaction mode — no contact list, just explainer + discreet switch button %>
+<div class="max-w-xl mx-auto">
+  <div class="flex flex-col items-center text-center pt-8 pb-6">
+    <div class="w-20 h-20 rounded-2xl bg-(--color-brand-subtle) flex items-center justify-center mb-5">
+      <span class="text-4xl leading-none">👀</span>
+    </div>
+    <h1 class="text-xl font-bold text-(--color-text)">Modo reação ativado</h1>
+    <p class="mt-2 text-sm text-(--color-text-muted) max-w-md leading-relaxed">
+      Reaja com 👀 em qualquer áudio do WhatsApp e o EscreveZap responde com a transcrição na própria conversa.
+    </p>
+  </div>
+
+  <%# How it works %>
+  <div class="bg-(--color-surface) border border-(--color-border) rounded-2xl p-5 space-y-4">
+    <p class="text-xs font-semibold uppercase tracking-wide text-(--color-text-subtle)">Como funciona</p>
+
+    <div class="flex items-start gap-3">
+      <div class="flex-shrink-0 w-7 h-7 rounded-full bg-(--color-brand-subtle) flex items-center justify-center text-(--color-brand) text-xs font-bold">1</div>
+      <p class="text-sm text-(--color-text) leading-relaxed">
+        Você recebe (ou envia) um áudio em qualquer conversa.
+      </p>
+    </div>
+
+    <div class="flex items-start gap-3">
+      <div class="flex-shrink-0 w-7 h-7 rounded-full bg-(--color-brand-subtle) flex items-center justify-center text-(--color-brand) text-xs font-bold">2</div>
+      <p class="text-sm text-(--color-text) leading-relaxed">
+        Pressione o áudio e reaja com <span class="font-semibold">👀</span>.
+      </p>
+    </div>
+
+    <div class="flex items-start gap-3">
+      <div class="flex-shrink-0 w-7 h-7 rounded-full bg-(--color-brand-subtle) flex items-center justify-center text-(--color-brand) text-xs font-bold">3</div>
+      <p class="text-sm text-(--color-text) leading-relaxed">
+        Em segundos, a transcrição aparece como resposta na conversa.
+      </p>
+    </div>
+  </div>
+
+  <%# Discreet switch %>
+  <div class="text-center mt-8">
+    <%= button_to switch_mode_monitored_contacts_path,
+          method: :post,
+          params: { transcription_mode: "monitored_contacts" },
+          form: { data: { turbo_confirm: "Trocar para o modo de contatos monitorados?" } },
+          data: {
+            controller: "loadable",
+            "loadable-loading-text-value": "Trocando..."
+          },
+          class: "inline-flex items-center justify-center gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text) underline underline-offset-2 transition-colors bg-transparent border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed" do %>
+      Prefiro selecionar contatos manualmente
+    <% end %>
+    <p class="text-xs text-(--color-text-subtle) mt-1.5">
+      Você pode voltar pro modo reação a qualquer momento.
+    </p>
+  </div>
+</div>

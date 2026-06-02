@@ -15,6 +15,7 @@ class MonitoredContact < ApplicationRecord
   validates :phone_number, uniqueness: { scope: :waha_session_id, conditions: -> { where(deleted_at: nil) } }
 
   scope :enabled, -> { where(enabled: true) }
+  scope :user_visible, -> { where(auto_created: false) }
 
   def soft_delete!
     update_column(:deleted_at, Time.current)

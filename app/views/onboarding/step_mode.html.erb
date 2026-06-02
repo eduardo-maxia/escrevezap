@@ -1,0 +1,108 @@
+<% content_for :title, "Como transcrever — EscreveZap" %>
+
+<%# ── Custom left panel ──────────────────────────────────────────────── %>
+<% content_for :auth_left do %>
+  <div class="flex-1 flex flex-col justify-center relative z-10">
+    <div class="flex items-center gap-3 mb-12">
+      <%= image_tag "/logo.png", alt: "EscreveZap", class: "w-10 h-10" %>
+      <span class="text-xl font-bold tracking-tight">EscreveZap</span>
+    </div>
+
+    <h2 class="text-3xl font-bold leading-snug mb-3">
+      Como você quer<br>transcrever áudios?
+    </h2>
+    <p class="text-white/70 text-sm leading-relaxed mb-10">
+      Escolha o modo que faz mais sentido pra você. Dá pra trocar depois nas configurações.
+    </p>
+
+    <%# Steps %>
+    <ul class="space-y-5">
+      <li class="flex items-start gap-4">
+        <span class="flex-shrink-0 w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">✓</span>
+        <div>
+          <p class="text-sm font-medium text-white/60">Faça login</p>
+        </div>
+      </li>
+      <li class="flex items-start gap-4">
+        <span class="flex-shrink-0 w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">✓</span>
+        <div>
+          <p class="text-sm font-medium text-white/60">Conecte seu WhatsApp</p>
+        </div>
+      </li>
+      <li class="flex items-start gap-4">
+        <span class="flex-shrink-0 w-7 h-7 rounded-full bg-white flex items-center justify-center text-(--color-brand) text-xs font-bold">3</span>
+        <div>
+          <p class="text-sm font-semibold">Escolha como transcrever</p>
+          <p class="text-xs text-white/60 mt-0.5">Reagindo com 👀 ou monitorando contatos</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <p class="relative z-10 text-white/40 text-xs mt-auto">© <%= Time.current.year %> EscreveZap</p>
+<% end %>
+
+<%# ── Right panel content ─────────────────────────────────────────────── %>
+<div class="space-y-6">
+
+  <%# Mobile steps indicator — fixed bottom %>
+  <div class="lg:hidden fixed bottom-6 inset-x-0 z-10 flex items-center justify-center gap-1.5 pointer-events-none">
+    <span class="w-2 h-2 rounded-full" style="background:#CBD5E1"></span>
+    <span class="w-2 h-2 rounded-full" style="background:#CBD5E1"></span>
+    <span class="w-6 h-2 rounded-full bg-(--color-brand)"></span>
+  </div>
+
+  <div>
+    <h1 class="text-2xl font-bold text-(--color-text)">Como transcrever?</h1>
+    <p class="mt-1 text-sm text-(--color-text-muted)">Passo 3 de 3 — Escolha o modo de transcrição</p>
+  </div>
+
+  <%= form_with url: onboarding_set_mode_path, method: :post, class: "space-y-3", data: { controller: "mode-picker" } do |f| %>
+
+    <%# Option: reaction (recommended / default) %>
+    <label class="block cursor-pointer rounded-2xl border-2 border-(--color-brand) bg-(--color-brand-subtle) p-5 transition-colors has-[:checked]:ring-2 has-[:checked]:ring-(--color-brand)">
+      <div class="flex items-start gap-4">
+        <input type="radio" name="transcription_mode" value="reaction" class="mt-1 accent-(--color-brand)" checked>
+        <div class="flex-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-2xl leading-none">👀</span>
+            <span class="font-semibold text-(--color-text)">Reagir com 👀 no áudio</span>
+            <span class="px-1.5 py-0.5 rounded-full bg-(--color-brand) text-white text-[10px] font-bold uppercase tracking-wide">Recomendado</span>
+          </div>
+          <p class="mt-2 text-sm text-(--color-text-muted) leading-relaxed">
+            Quando quiser transcrever um áudio, é só reagir com 👀 nele. O EscreveZap responde com a transcrição na própria conversa.
+          </p>
+          <p class="mt-2 text-xs text-(--color-text-subtle)">
+            Sem cadastro de contatos, sem configuração. Funciona em qualquer conversa.
+          </p>
+        </div>
+      </div>
+    </label>
+
+    <%# Option: monitored_contacts %>
+    <label class="block cursor-pointer rounded-2xl border-2 border-(--color-border) bg-(--color-surface) p-5 transition-colors hover:border-(--color-border-strong) has-[:checked]:border-(--color-brand) has-[:checked]:bg-(--color-brand-subtle) has-[:checked]:ring-2 has-[:checked]:ring-(--color-brand)">
+      <div class="flex items-start gap-4">
+        <input type="radio" name="transcription_mode" value="monitored_contacts" class="mt-1 accent-(--color-brand)">
+        <div class="flex-1">
+          <div class="flex items-center gap-2">
+            <i class="ph ph-address-book text-xl text-(--color-brand)"></i>
+            <span class="font-semibold text-(--color-text)">Monitorar contatos específicos</span>
+          </div>
+          <p class="mt-2 text-sm text-(--color-text-muted) leading-relaxed">
+            Cadastre os contatos cujos áudios você quer transcrever automaticamente. Todos os áudios desses contatos viram texto.
+          </p>
+          <p class="mt-2 text-xs text-(--color-text-subtle)">
+            Bom pra clientes ou pessoas específicas que mandam muito áudio.
+          </p>
+        </div>
+      </div>
+    </label>
+
+    <button type="submit"
+            data-controller="loadable"
+            data-loadable-loading-text-value="Salvando..."
+            class="w-full mt-4 inline-flex items-center justify-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-5 py-3 rounded-xl text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+      Continuar
+    </button>
+  <% end %>
+
+</div>

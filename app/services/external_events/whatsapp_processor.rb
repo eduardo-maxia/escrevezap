@@ -4,6 +4,9 @@ class ExternalEvents::WhatsappProcessor < ExternalEvents::Base
     audio/ogg audio/mpeg audio/mp4 audio/wav audio/webm audio/aac audio/opus
   ].freeze
 
+  # Emoji that triggers transcription when the user reacts to a message.
+  REACTION_TRIGGER_EMOJI = "\u{1F440}".freeze # 👀
+
   def process(worker_type: :waha)
     @data = parse_payload(worker_type)
     @external_event.update!(parsed_event: @data)
@@ -15,7 +18,9 @@ class ExternalEvents::WhatsappProcessor < ExternalEvents::Base
       process_session_status
     when "message", "message.any"
       process_incoming_message
-    when "message.ack", "message.reaction"
+    when "message.reaction"
+      process_reaction
+    when "message.ack"
       log_info "Evento #{@data[:event]} recebido — ignorado nesta versão"
     else
       log_warning "Evento desconhecido: #{@data[:event]}"
@@ -67,6 +72,78 @@ class ExternalEvents::WhatsappProcessor < ExternalEvents::Base
       return
     end
 
+    # In reaction mode we ignore audios at intake — the user must explicitly
+    # react with 👀 on the message to trigger transcription.
+    if @waha_session.mode_reaction?
+      log_info "Áudio ignorado (modo reação): aguardando reação 👀"
+      return
+    end
+
+    enqueue_transcription(payload)
+  end
+
+  # ── message.reaction ──────────────────────────────────────────────────
+
+  def process_reaction
+    payload = @data[:payload]
+
+    unless @waha_session.mode_reaction?
+      log_info "Reação ignorada: sessão não está em modo reação"
+      return
+    end
+
+    unless payload[:fromMe]
+      log_info "Reação ignorada: não é do dono do número"
+      return
+    end
+
+    unless payload[:body].to_s == REACTION_TRIGGER_EMOJI
+      log_info "Reação ignorada: emoji #{payload[:body].inspect} não dispara transcrição"
+      return
+    end
+
+    chat_id    = payload[:from].to_s
+    message_id = payload[:reply_to_id]
+
+    if chat_id.blank? || message_id.blank?
+      log_warning "Reação inválida: chat_id ou message_id ausente"
+      return
+    end
+
+    # Avoid re-transcribing the same audio if it was already requested.
+    if Transcription.exists?(waha_message_id: message_id,
+                             monitored_contact: @waha_session.monitored_contacts)
+      log_info "Reação ignorada: já existe transcription para message=#{message_id}"
+      return
+    end
+
+    message = fetch_message(chat_id, message_id)
+    if message.blank?
+      log_warning "Não foi possível buscar mensagem #{message_id} no chat #{chat_id}"
+      return
+    end
+
+    raw_for_parser = {
+      event:   "message",
+      session: @waha_session.session_name,
+      payload: message
+    }.deep_symbolize_keys
+
+    message_payload = ExternalEvents::WhatsappParsers::GowsParser
+                        .new(raw_for_parser)
+                        .parse[:payload]
+
+    unless audio_message?(message_payload)
+      log_info "Reação ignorada: mensagem alvo não é áudio"
+      return
+    end
+
+    enqueue_transcription(message_payload)
+  end
+
+  # Shared pipeline: given a parsed message payload (with audio), resolve the
+  # contact (auto-creating one when needed) and queue the transcription job.
+  def enqueue_transcription(payload)
     from_me = payload[:fromMe]
     chat_id = payload[:from].to_s
     phone   = chat_id.split("@").first
@@ -74,7 +151,9 @@ class ExternalEvents::WhatsappProcessor < ExternalEvents::Base
     contact = resolve_or_auto_create_contact(phone, chat_id, from_me: from_me)
     return if contact.nil?
 
-    # Respect per-contact direction preference
+    # Respect per-contact direction preference (only meaningful in
+    # monitored_contacts mode — auto-created contacts in reaction mode are
+    # always :both, so these guards are inert there).
     if from_me && contact.incoming?
       log_info "Áudio próprio ignorado (contato configurado como incoming)"
       return
@@ -102,6 +181,13 @@ class ExternalEvents::WhatsappProcessor < ExternalEvents::Base
     end
   end
 
+  def fetch_message(chat_id, message_id)
+    @waha_session.waha_client.messaging.get_message(chat_id: chat_id, message_id: message_id)
+  rescue => e
+    log_warning "Falha ao buscar mensagem #{message_id}: #{e.class} #{e.message}"
+    nil
+  end
+
   # ── Helpers ───────────────────────────────────────────────────────────
 
   def audio_message?(payload)
@@ -127,14 +213,30 @@ class ExternalEvents::WhatsappProcessor < ExternalEvents::Base
     contact
   end
 
-  # Resolve an existing monitored contact or, when auto_transcribe is active,
-  # create one on the fly so the standard pipeline can proceed unchanged.
-  # Returns nil when the audio should be discarded.
+  # Resolve an existing monitored contact or, when allowed, create one on the
+  # fly so the standard pipeline can proceed unchanged. Returns nil when the
+  # audio should be discarded.
   def resolve_or_auto_create_contact(phone, chat_id, from_me:)
     contact = resolve_monitored_contact(phone, chat_id)
     return contact if contact.present?
 
-    # No existing contact — check whether the session has auto-transcribe enabled
+    # Reaction mode always auto-creates a contact (the user explicitly asked
+    # for the transcription by reacting). The contact is flagged auto_created
+    # so it stays out of the user-facing contact list.
+    if @waha_session.mode_reaction?
+      log_info "Modo reação: criando contato automático para #{chat_id}"
+      contact = @waha_session.monitored_contacts.create!(
+        phone_number: phone,
+        waha_chat_id: chat_id,
+        direction:    :both,
+        enabled:      true,
+        auto_created: true
+      )
+      FetchMonitoredContactProfilePictureJob.perform_later(contact.id)
+      return contact
+    end
+
+    # monitored_contacts mode — fall back to the legacy auto_transcribe setting
     auto = @waha_session.auto_transcribe
     if auto == "never"
       log_info "Contato #{chat_id} não monitorado — descartando"

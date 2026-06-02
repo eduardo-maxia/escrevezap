@@ -1,10 +1,12 @@
 class MonitoredContactsController < ApplicationController
   layout "authenticated"
   before_action :authenticate_user!
+  before_action :ensure_monitored_contacts_mode!, only: [:new, :create, :edit, :update, :destroy]
   before_action :set_contact, only: [:edit, :update, :destroy]
 
   def index
-    @contacts = waha_session.monitored_contacts.order(:display_name, :phone_number)
+    @transcription_mode = waha_session&.transcription_mode || "reaction"
+    @contacts = waha_session.monitored_contacts.user_visible.order(:display_name, :phone_number)
   end
 
   def new
@@ -55,6 +57,25 @@ class MonitoredContactsController < ApplicationController
     redirect_to monitored_contacts_path, notice: "Contato removido."
   end
 
+  # POST /app/monitored_contacts/switch_mode
+  # Toggle (or set) the transcription mode of the session.
+  def switch_mode
+    mode = params[:transcription_mode].to_s
+    unless WahaSession.transcription_modes.key?(mode)
+      redirect_to monitored_contacts_path, alert: "Modo inválido." and return
+    end
+
+    waha_session.update!(transcription_mode: mode)
+
+    notice = if waha_session.mode_reaction?
+               "Pronto! Reaja com 👀 em qualquer áudio para transcrever."
+             else
+               "Modo alterado. Adicione contatos para monitorar."
+             end
+
+    redirect_to monitored_contacts_path, notice: notice
+  end
+
   private
 
   def set_contact
@@ -67,5 +88,12 @@ class MonitoredContactsController < ApplicationController
 
   def waha_session
     @waha_session ||= current_user.waha_session
+  end
+
+  def ensure_monitored_contacts_mode!
+    return if waha_session&.mode_monitored_contacts?
+
+    redirect_to monitored_contacts_path,
+                alert: "Ative o modo de contatos monitorados para gerenciar contatos."
   end
 end

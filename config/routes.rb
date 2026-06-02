@@ -47,6 +47,8 @@ Rails.application.routes.draw do
       get  "conectar",          to: "onboarding#show",             as: :onboarding
       post "conectar/reconectar", to: "onboarding#reconnect",      as: :onboarding_reconnect
       post "conectar/pular",    to: "onboarding#skip_connection",  as: :onboarding_skip_connection
+      get  "como-transcrever",  to: "onboarding#step_mode",        as: :onboarding_step_mode
+      post "como-transcrever",  to: "onboarding#set_mode",         as: :onboarding_set_mode
       get  "primeiros-passos",  to: "onboarding#step3",            as: :onboarding_step3
       get  "primeiros-passos/contatos-whatsapp", to: "onboarding#step3_whatsapp_contacts", as: :onboarding_step3_whatsapp_contacts
       post "primeiros-passos/contato", to: "onboarding#create_contact", as: :onboarding_create_contact
@@ -65,7 +67,8 @@ Rails.application.routes.draw do
       # Contacts to monitor for transcription
       resources :monitored_contacts, only: [:index, :new, :create, :edit, :update, :destroy] do
         collection do
-          get :whatsapp_contacts
+          get  :whatsapp_contacts
+          post :switch_mode
         end
       end
 

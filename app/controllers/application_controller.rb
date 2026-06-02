@@ -24,9 +24,9 @@ class ApplicationController < ActionController::Base
       return
     end
 
-    # Step 3: No contacts added yet and user hasn't dismissed the intro
+    # Step 3: User hasn't picked a transcription mode yet
     if !current_user.contacts_intro_dismissed? && on_step3_eligible_page?
-      redirect_to onboarding_step3_path
+      redirect_to onboarding_step_mode_path
     end
   end
 
