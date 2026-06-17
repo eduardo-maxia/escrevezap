@@ -62,8 +62,8 @@
       <div class="max-w-lg mx-auto flex items-center">
         <% nav_items = [
           { path: authenticated_root_path, icon: "ph-house",        label: "Início",   active: controller_name == "dashboard" },
-          { path: monitored_contacts_path, icon: "ph-address-book", label: "Contatos", active: controller_name == "monitored_contacts" },
           { path: app_waha_session_path,   icon: "ph-whatsapp-logo",label: "WhatsApp", active: controller_name == "waha_sessions" },
+          { path: billing_path,            icon: "ph-credit-card",  label: "Plano",    active: controller_name == "billing" },
         ] %>
         <% nav_items.each do |item| %>
           <%= link_to item[:path],

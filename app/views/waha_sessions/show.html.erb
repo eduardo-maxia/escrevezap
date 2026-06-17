@@ -40,10 +40,10 @@
   <% else %>
     <div class="bg-(--color-surface) border border-(--color-border) rounded-2xl overflow-hidden"
          data-controller="connect"
-         data-connect-qr-url-value="<%= qr_app_waha_session_path(format: :json) %>"
          data-connect-pairing-url-value="<%= pairing_code_app_waha_session_path(format: :json) %>"
          data-connect-reconnect-url-value="<%= reconnect_app_waha_session_path(format: :json) %>"
          data-connect-dashboard-url-value="<%= authenticated_root_path %>"
+         data-connect-status-url-value="<%= status_app_waha_session_path(format: :json) %>"
          data-connect-status-value="<%= @waha_session&.waha_status || 'pending' %>">
 
       <div class="px-5 py-4 border-b border-(--color-border) flex items-center gap-2" data-connect-target="statusBadge">
@@ -58,46 +58,9 @@
         </span>
       </div>
 
-      <div class="p-5 border-b border-(--color-border)" data-connect-target="tabs">
-        <div class="flex rounded-xl border border-(--color-border) bg-(--color-surface-muted) p-1">
-          <button type="button"
-                  data-action="click->connect#showQRTab"
-                  data-connect-target="qrTabBtn"
-                  class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition-all bg-(--color-surface) shadow-sm text-(--color-text)">
-            <i class="ph ph-qr-code text-base"></i>
-            QR Code
-          </button>
-          <button type="button"
-                  data-action="click->connect#showPairingTab"
-                  data-connect-target="pairingTabBtn"
-                  class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition-all text-(--color-text-muted)">
-            <i class="ph ph-hash text-base"></i>
-            Código
-          </button>
-        </div>
-      </div>
 
-      <div data-connect-target="qrPanel" class="px-5 pt-5 pb-4">
-        <div data-connect-target="qrLoading" class="flex flex-col items-center gap-3 py-4">
-          <div class="w-8 h-8 border-[3px] border-(--color-brand) border-t-transparent rounded-full animate-spin"></div>
-          <p class="text-sm text-(--color-text-muted)">Carregando QR Code...</p>
-        </div>
-        <div data-connect-target="qrImageWrapper" class="hidden flex-col items-center gap-3 pb-4">
-          <div class="rounded-2xl border-2 border-(--color-border) bg-white shadow-sm overflow-hidden">
-            <img data-connect-target="qrImage" class="w-48 h-48 rounded-lg" alt="QR Code">
-          </div>
-          <p class="text-xs text-(--color-text-muted) text-center">
-            Abra o WhatsApp → <strong>Dispositivos conectados</strong> → <strong>Conectar dispositivo</strong>
-          </p>
-          <button type="button" data-action="click->connect#refreshQR"
-                  class="flex items-center gap-1.5 text-xs text-(--color-brand) font-medium hover:text-(--color-brand-dark) transition-colors">
-            <i class="ph ph-arrows-clockwise"></i>
-            Atualizar QR
-          </button>
-        </div>
-      </div>
 
-      <div data-connect-target="pairingPanel" class="hidden px-5 py-5">
+      <div data-connect-target="pairingPanel" class="px-5 py-5">
         <div data-connect-target="phoneFormWrapper">
           <p class="text-sm text-(--color-text-muted) mb-4 leading-relaxed">
             Digite seu número do WhatsApp para receber um código de emparelhamento de 8 dígitos.

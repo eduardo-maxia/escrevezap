@@ -465,4 +465,35 @@ class TranscribeAudioJob < ApplicationJob
   def fail_transcription!(transcription, message)
     transcription.update!(status: :failed, error_message: message)
   end
+
+  def send_limit_reached_notice(waha_session, contact)
+    chat_id = contact.resolve_waha_chat_id
+    user = waha_session.user
+
+    # Mensagem no WhatsApp (sem link)
+    text = "⚠️ *Seu limite de transcrições do EscreveZap foi atingido este mês.*\n\n" \
+           "Você usou todas as #{user.transcription_limit} transcrições do plano #{user.plan.capitalize}.\n\n" \
+           "Para continuar recebendo transcrições, acesse o aplicativo e atualize seu plano.\n\n" \
+           "_via EscreveZap_"
+
+    begin
+      waha_session.waha_client.messaging.send_text(chat_id: chat_id, text: text)
+    rescue => e
+      Rails.logger.warn "[TranscribeAudioJob] Failed to send limit notice via WA: #{e.message}"
+    end
+
+    # Push Notification (com link pro billing)
+    app_host = Rails.application.credentials.dig(:waha, :webhook_host) || Rails.application.config.action_mailer.default_url_options&.dig(:host) || 'localhost:3000'
+    billing_url = Rails.application.routes.url_helpers.billing_url(host: app_host)
+    
+    PushNotificationService.notify(
+      user,
+      title: "Limite de transcrições atingido",
+      body: "Você usou todas as transcrições do plano #{user.plan.capitalize}. Renove para continuar.",
+      url: billing_url
+    )
+
+    # Email (com link pro billing)
+    UsageMailer.limit_reached(user).deliver_later
+  end
 end

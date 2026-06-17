@@ -3,9 +3,7 @@ import consumer from "../channels/consumer"
 
 export default class extends Controller {
   static targets = [
-    "tabs", "qrTabBtn", "pairingTabBtn",
     "statusBadge", "statusDot", "statusText",
-    "qrPanel", "qrLoading", "qrImageWrapper", "qrImage",
     "pairingPanel", "phoneFormWrapper", "phoneInput", "pairingSubmitBtn", "pairingBtnText",
     "pairingError", "pairingErrorText", "codeWrapper", "codeText",
     "errorPanel", "errorTitle", "errorMessage", "reconnectButton", "reconnectButtonText",
@@ -13,48 +11,27 @@ export default class extends Controller {
   ]
 
   static values = {
-    qrUrl: String,
     pairingUrl: String,
     reconnectUrl: String,
     dashboardUrl: String,
+    statusUrl: String,
     status: String
   }
 
   connect() {
-    this.activeTab = window.innerWidth < 768 ? "pairing" : "qr"
-    this.qrTimer = null
     this.redirectTimer = null
     this.subscription = null
+    this.pollTimer = null
 
-    this.applyTabState()
     this.subscribeToStatusChannel()
+    this.startPolling()
     this.handleStatus(this.statusValue)
   }
 
   disconnect() {
     this.subscription?.unsubscribe()
-    clearTimeout(this.qrTimer)
     clearTimeout(this.redirectTimer)
-  }
-
-  showQRTab(event) {
-    event.preventDefault()
-    this.activeTab = "qr"
-    this.applyTabState()
-    if (["starting", "scan_qr_code"].includes(this.statusValue)) {
-      this.loadQr()
-    }
-  }
-
-  showPairingTab(event) {
-    event.preventDefault()
-    this.activeTab = "pairing"
-    this.applyTabState()
-  }
-
-  refreshQR(event) {
-    event?.preventDefault()
-    this.loadQr(true)
+    clearTimeout(this.pollTimer)
   }
 
   requestPairingCode(event) {
@@ -130,15 +107,32 @@ export default class extends Controller {
 
   subscribeToStatusChannel() {
     this.subscription = consumer.subscriptions.create("WahaSessionStatusChannel", {
-      connected: () => {
-        if (["starting", "scan_qr_code"].includes(this.statusValue) && this.activeTab === "qr") {
-          this.loadQr()
-        }
-      },
       received: (data) => {
         this.handleStatus(data.status)
       }
     })
+  }
+
+  startPolling() {
+    if (!this.statusUrlValue) return
+
+    const poll = () => {
+      fetch(this.statusUrlValue, { headers: this.requestHeaders() })
+        .then(r => r.json())
+        .then(data => {
+          if (data.status && data.status !== this.statusValue) {
+            this.handleStatus(data.status)
+          }
+        })
+        .finally(() => {
+          // Poll every 3 seconds
+          if (this.statusValue !== "working" && this.statusValue !== "failed" && this.statusValue !== "stopped") {
+            this.pollTimer = setTimeout(poll, 3000)
+          }
+        })
+    }
+
+    this.pollTimer = setTimeout(poll, 3000)
   }
 
   handleStatus(status) {
@@ -163,67 +157,6 @@ export default class extends Controller {
     }
 
     this.hideTerminalStates()
-
-    if (status === "starting" || status === "scan_qr_code") {
-      if (this.activeTab === "qr") {
-        this.loadQr()
-      }
-    }
-  }
-
-  applyTabState() {
-    const qrActive = this.activeTab === "qr"
-
-    this.qrPanelTarget.classList.toggle("hidden", !qrActive)
-    this.pairingPanelTarget.classList.toggle("hidden", qrActive)
-
-    this.qrTabBtnTarget.classList.toggle("bg-(--color-surface)", qrActive)
-    this.qrTabBtnTarget.classList.toggle("shadow-sm", qrActive)
-    this.qrTabBtnTarget.classList.toggle("text-(--color-text)", qrActive)
-    this.qrTabBtnTarget.classList.toggle("text-(--color-text-muted)", !qrActive)
-
-    this.pairingTabBtnTarget.classList.toggle("bg-(--color-surface)", !qrActive)
-    this.pairingTabBtnTarget.classList.toggle("shadow-sm", !qrActive)
-    this.pairingTabBtnTarget.classList.toggle("text-(--color-text)", !qrActive)
-    this.pairingTabBtnTarget.classList.toggle("text-(--color-text-muted)", qrActive)
-  }
-
-  loadQr(force = false) {
-    clearTimeout(this.qrTimer)
-    this.showQrLoading()
-
-    fetch(this.qrUrlValue, { headers: this.requestHeaders() })
-      .then(async (response) => {
-        const data = await response.json()
-
-        if (!response.ok) {
-          throw new Error(data.error || "QR indisponível")
-        }
-
-        if (data.qr) {
-          this.showQrImage(data.qr)
-          this.qrTimer = setTimeout(() => this.loadQr(), 25_000)
-          return
-        }
-
-        this.qrTimer = setTimeout(() => this.loadQr(), force ? 2_000 : 3_000)
-      })
-      .catch(() => {
-        this.qrTimer = setTimeout(() => this.loadQr(), 3_000)
-      })
-  }
-
-  showQrLoading() {
-    this.qrLoadingTarget.classList.remove("hidden")
-    this.qrImageWrapperTarget.classList.add("hidden")
-    this.qrImageWrapperTarget.classList.remove("flex")
-  }
-
-  showQrImage(src) {
-    this.qrImageTarget.src = src
-    this.qrLoadingTarget.classList.add("hidden")
-    this.qrImageWrapperTarget.classList.remove("hidden")
-    this.qrImageWrapperTarget.classList.add("flex")
   }
 
   showPairingCode(code) {
@@ -261,13 +194,11 @@ export default class extends Controller {
   }
 
   showError(title, message) {
-    clearTimeout(this.qrTimer)
+    clearTimeout(this.pollTimer)
 
     this.errorTitleTarget.textContent = title
     this.errorMessageTarget.textContent = message
 
-    this.tabsTarget.classList.add("hidden")
-    this.qrPanelTarget.classList.add("hidden")
     this.pairingPanelTarget.classList.add("hidden")
     this.successPanelTarget.classList.add("hidden")
     this.successPanelTarget.classList.remove("flex")
@@ -276,10 +207,8 @@ export default class extends Controller {
   }
 
   showSuccess() {
-    clearTimeout(this.qrTimer)
+    clearTimeout(this.pollTimer)
 
-    this.tabsTarget.classList.add("hidden")
-    this.qrPanelTarget.classList.add("hidden")
     this.pairingPanelTarget.classList.add("hidden")
     this.errorPanelTarget.classList.add("hidden")
     this.errorPanelTarget.classList.remove("flex")
@@ -300,22 +229,14 @@ export default class extends Controller {
     this.errorPanelTarget.classList.remove("flex")
     this.successPanelTarget.classList.add("hidden")
     this.successPanelTarget.classList.remove("flex")
-    this.tabsTarget.classList.remove("hidden")
-
-    if (this.activeTab === "qr") {
-      this.qrPanelTarget.classList.remove("hidden")
-      this.pairingPanelTarget.classList.add("hidden")
-    } else {
-      this.qrPanelTarget.classList.add("hidden")
-      this.pairingPanelTarget.classList.remove("hidden")
-    }
+    this.pairingPanelTarget.classList.remove("hidden")
   }
 
   updateStatusBadge(status) {
     const map = {
       pending: ["bg-gray-400", "Aguardando inicialização..."],
       starting: ["bg-yellow-400 animate-pulse", "Iniciando sessão..."],
-      scan_qr_code: ["bg-blue-500 animate-pulse", "Escaneie o QR Code para conectar"],
+      scan_qr_code: ["bg-blue-500 animate-pulse", "Aguardando conexão..."],
       working: ["bg-(--color-success)", "Conectado com sucesso"],
       failed: ["bg-(--color-danger)", "Falha na conexão"],
       stopped: ["bg-gray-400", "Sessão desconectada"]

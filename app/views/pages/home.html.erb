@@ -158,7 +158,7 @@
         { icon: "ph-check-circle",   text: "Funciona no seu próprio WhatsApp" },
         { icon: "ph-sim-card",       text: "Sem trocar de número" },
         { icon: "ph-timer",          text: "Configure em menos de 2 minutos" },
-        { icon: "ph-users-three",    text: "Escolha exatamente quais contatos" }
+        { icon: "ph-eyes",           text: "Reaja com 👀 para transcrever" }
       ].each do |t| %>
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 rounded-full bg-(--color-brand-subtle) flex items-center justify-center shrink-0">
@@ -189,21 +189,21 @@
       <% [
         {
           num: "1",
-          icon: "ph-qr-code",
+          icon: "ph-hash",
           title: "Conecte seu WhatsApp",
-          body:  "Escaneie o QR Code ou use o código de vinculação. Sua conta conecta em segundos, sem trocar de número."
+          body:  "Digite seu número para gerar um código de 8 dígitos. Sua conta conecta em segundos."
         },
         {
           num: "2",
-          icon: "ph-users-three",
-          title: "Escolha os contatos",
-          body:  "Selecione quem terá os áudios transcritos. Configure só os seus, só os deles, ou ambos — por contato."
+          icon: "ph-eyes",
+          title: "Reaja com 👀 no áudio",
+          body:  "Recebeu um áudio e não pode ouvir? Basta reagir com o emoji de olho (👀) na mensagem."
         },
         {
           num: "3",
           icon: "ph-chat-text",
           title: "Receba no WhatsApp",
-          body:  "As transcrições aparecem automaticamente respondendo cada áudio original. Sem abrir outro app."
+          body:  "A transcrição aparece automaticamente respondendo o áudio original. Sem abrir outro app."
         }
       ].each do |step| %>
         <div class="text-center">
@@ -502,8 +502,8 @@
       <% [
         { icon: "ph-whatsapp-logo",  label: "Seu próprio WhatsApp",                  pro: false },
         { icon: "ph-chat-text",      label: "Resposta automática na conversa",        pro: false },
-        { icon: "ph-users-three",    label: "Escolha contatos específicos",           pro: false },
-        { icon: "ph-arrows-split",   label: "Só seus, deles ou ambos — por contato", pro: false },
+        { icon: "ph-eyes",           label: "Controle manual reagindo com 👀",        pro: false },
+        { icon: "ph-arrows-split",   label: "Funciona em qualquer conversa",          pro: false },
         { icon: "ph-timer",          label: "Configuração em menos de 2 minutos",     pro: false },
         { icon: "ph-sparkle",        label: "IA que organiza e formata (Pro)",         pro: true  },
         { icon: "ph-article",        label: "Resumo inteligente dos áudios (Pro)",     pro: true  },
@@ -524,90 +524,6 @@
   </div>
 </section>
 
-
-<%# ============================================================== %>
-<%# FORMATTING STYLES (Pro) %>
-<%# ============================================================== %>
-<section class="py-20 md:py-28 bg-(--color-surface)">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-
-    <div class="text-center mb-12 max-w-2xl mx-auto">
-      <div class="inline-flex items-center gap-1.5 bg-(--color-brand-light) text-(--color-brand) text-xs font-semibold px-3 py-1.5 rounded-full mb-5">
-        <i class="ph ph-sparkle"></i>
-        Exclusivo Pro
-      </div>
-      <h2 class="text-3xl md:text-4xl font-extrabold text-(--color-text) tracking-tight">
-        Três jeitos de receber<br>seus áudios em texto
-      </h2>
-      <p class="mt-4 text-(--color-text-muted) text-base md:text-lg">
-        Escolha o estilo que combina com você. A IA reescreve cada áudio do seu jeito — sem mudar o significado.
-      </p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-
-      <%# WhatsApp — padrão %>
-      <div class="rounded-2xl border-2 border-(--color-brand) bg-(--color-surface) p-6 flex flex-col relative">
-        <div class="absolute -top-3 left-6">
-          <span class="inline-flex items-center gap-1 bg-(--color-brand) text-white text-xs font-bold px-2.5 py-1 rounded-full">
-            <i class="ph-fill ph-star text-xs"></i> Padrão
-          </span>
-        </div>
-        <div class="mb-4">
-          <div class="w-10 h-10 rounded-lg bg-(--color-brand-subtle) text-(--color-brand) flex items-center justify-center mb-3">
-            <i class="ph ph-chat-circle-dots text-lg"></i>
-          </div>
-          <h3 class="text-lg font-bold text-(--color-text) mb-1">WhatsApp</h3>
-          <p class="text-sm text-(--color-text-muted)">Como se a pessoa tivesse digitado. Natural, informal, do jeito que a gente fala.</p>
-        </div>
-        <div class="bg-stone-50 rounded-xl p-4 text-sm text-(--color-text) leading-relaxed border border-gray-100 mt-auto">
-          <p>ei cara, sobre aquela ideia de ontem...</p>
-          <p class="mt-2">tava pensando que talvez desse pra fazer diferente. em vez de tudo de uma vez, ir por partes.</p>
-          <p class="mt-2">o que você acha?</p>
-        </div>
-      </div>
-
-      <%# Polished %>
-      <div class="rounded-2xl border border-gray-200 bg-(--color-surface) p-6 flex flex-col">
-        <div class="mb-4">
-          <div class="w-10 h-10 rounded-lg bg-(--color-brand-subtle) text-(--color-brand) flex items-center justify-center mb-3">
-            <i class="ph ph-pen-nib text-lg"></i>
-          </div>
-          <h3 class="text-lg font-bold text-(--color-text) mb-1">Refinado</h3>
-          <p class="text-sm text-(--color-text-muted)">Texto organizado, pontuado e bem dividido. Inclui resumo rápido no topo.</p>
-        </div>
-        <div class="bg-stone-50 rounded-xl p-4 text-sm text-(--color-text) leading-relaxed border border-gray-100 mt-auto space-y-2">
-          <p class="text-xs font-semibold text-(--color-brand)">📝 Resumo</p>
-          <p class="text-xs">Sugestão de fazer o projeto em etapas.</p>
-          <hr class="border-gray-200">
-          <p>Sobre aquela ideia que discutimos ontem: estava pensando que talvez pudéssemos fazer diferente.</p>
-          <p>Em vez de tudo de uma vez, podíamos ir por partes — fica mais fácil de controlar.</p>
-        </div>
-      </div>
-
-      <%# Faithful %>
-      <div class="rounded-2xl border border-gray-200 bg-(--color-surface) p-6 flex flex-col">
-        <div class="mb-4">
-          <div class="w-10 h-10 rounded-lg bg-(--color-brand-subtle) text-(--color-brand) flex items-center justify-center mb-3">
-            <i class="ph ph-quotes text-lg"></i>
-          </div>
-          <h3 class="text-lg font-bold text-(--color-text) mb-1">Fiel</h3>
-          <p class="text-sm text-(--color-text-muted)">O mais próximo do áudio original. Só ajustes mínimos de pontuação e clareza.</p>
-        </div>
-        <div class="bg-stone-50 rounded-xl p-4 text-sm text-(--color-text) leading-relaxed border border-gray-100 mt-auto">
-          <p>ei cara então sobre aquela ideia que a gente discutiu ontem, eu tava pensando que talvez a gente pudesse tentar fazer diferente, sabe?</p>
-          <p class="mt-2">tipo, em vez de fazer tudo de uma vez, podia ir por partes. o que você acha?</p>
-        </div>
-      </div>
-
-    </div>
-
-    <p class="text-center text-xs text-(--color-text-muted) mt-8">
-      Troque de estilo a qualquer momento nas configurações.
-    </p>
-
-  </div>
-</section>
 
 
 <%# ============================================================== %>
@@ -637,7 +553,7 @@
           <% [
             "Transcrição automática",
             "Resposta direto no WhatsApp",
-            "1 contato monitorado"
+            "Transcreva com 👀"
           ].each do |item| %>
             <li class="flex items-center gap-2.5 text-sm text-(--color-text)">
               <i class="ph ph-check text-(--color-brand) shrink-0"></i>
@@ -667,7 +583,7 @@
           <% [
             "Transcrição automática",
             "Resposta direto no WhatsApp",
-            "Contatos ilimitados",
+            "Uso em qualquer conversa",
             "Prioridade na fila"
           ].each do |item| %>
             <li class="flex items-center gap-2.5 text-sm text-(--color-text)">
@@ -741,8 +657,8 @@
         <h3 class="text-xl font-bold text-(--color-text) mb-2">Como transcrever áudio do WhatsApp em texto?</h3>
         <p class="text-(--color-text-muted) leading-relaxed">
           Para transcrever um áudio do WhatsApp em texto basta conectar sua conta ao
-          <strong class="text-(--color-text)">EscreveZap</strong> via QR Code, escolher os contatos
-          que você quer monitorar e enviar — ou receber — uma mensagem de voz. A transcrição
+          <strong class="text-(--color-text)">EscreveZap</strong> via código de vinculação,
+          e reagir com um emoji de olho (👀) a qualquer mensagem de voz. A transcrição
           aparece automaticamente como resposta na própria conversa, em segundos.
         </p>
       </article>
@@ -750,7 +666,7 @@
       <article>
         <h3 class="text-xl font-bold text-(--color-text) mb-2">Como funciona a transcrição automática de áudios?</h3>
         <p class="text-(--color-text-muted) leading-relaxed">
-          O EscreveZap escuta apenas os áudios dos contatos que você autorizou, envia o áudio para um
+          O EscreveZap escuta apenas os áudios que você reage com 👀, envia o áudio para um
           motor de reconhecimento de voz com IA e devolve o texto formatado na conversa. No
           plano Pro, uma segunda camada de IA gera um resumo curto e organiza a transcrição em
           parágrafos legíveis.

@@ -6,7 +6,7 @@ class OnboardingController < ApplicationController
 
   def show
     if @waha_session.working?
-      current_user.complete_onboarding! unless current_user.onboarding_completed?
+      current_user.update!(onboarding_completed: true, contacts_intro_dismissed: true) unless current_user.onboarding_completed?
       redirect_to authenticated_root_path and return
     end
 
@@ -33,80 +33,6 @@ class OnboardingController < ApplicationController
     )
 
     redirect_to authenticated_root_path, notice: "Você pode conectar seu WhatsApp depois, na aba WhatsApp."
-  end
-
-  # Step 3 — choose how transcriptions are triggered.
-  # "reaction" (default)    → user reacts 👀 on the audio they want transcribed.
-  # "monitored_contacts"    → user picks specific contacts to monitor.
-  def step_mode
-    @waha_session = current_user.waha_session
-    redirect_to authenticated_root_path and return if @waha_session.nil?
-    redirect_to authenticated_root_path and return if current_user.contacts_intro_dismissed?
-  end
-
-  def set_mode
-    @waha_session = current_user.waha_session
-    redirect_to authenticated_root_path and return if @waha_session.nil?
-
-    mode = params[:transcription_mode].to_s
-    unless WahaSession.transcription_modes.key?(mode)
-      redirect_to onboarding_step_mode_path, alert: "Selecione uma opção." and return
-    end
-
-    @waha_session.update!(transcription_mode: mode)
-
-    if @waha_session.mode_reaction?
-      current_user.update!(contacts_intro_dismissed: true)
-      redirect_to authenticated_root_path,
-                  notice: "Pronto! Reaja com 👀 em qualquer áudio para transcrever."
-    else
-      redirect_to onboarding_step3_path
-    end
-  end
-
-  def step3
-    redirect_to authenticated_root_path and return if current_user.contacts_intro_dismissed?
-    redirect_to onboarding_step_mode_path and return unless current_user.waha_session&.mode_monitored_contacts?
-
-    @contact = waha_session.monitored_contacts.build(direction: :both)
-  end
-
-  def step3_done
-    redirect_to authenticated_root_path unless current_user.contacts_intro_dismissed?
-  end
-
-  def step3_whatsapp_contacts
-    unless waha_session&.working?
-      render json: { contacts: [] } and return
-    end
-
-    raw = waha_session.waha_client.contacts.list_all
-    contacts = raw.map do |c|
-      phone = c["id"].to_s.gsub("@c.us", "")
-      name  = c["name"].presence || c["pushname"].presence
-      { phone: phone, name: name, label: [name, phone].compact.join(" · ") }
-    end.sort_by { |c| c[:name].to_s.downcase }
-
-    render json: { contacts: contacts }
-  rescue => e
-    render json: { contacts: [], error: e.message }
-  end
-
-  def create_contact
-    @contact = waha_session.monitored_contacts.build(contact_params)
-
-    if @contact.save
-      FetchMonitoredContactProfilePictureJob.perform_later(@contact.id)
-      current_user.update!(contacts_intro_dismissed: true) unless current_user.contacts_intro_dismissed?
-      redirect_to onboarding_step3_done_path
-    else
-      render :step3, status: :unprocessable_entity
-    end
-  end
-
-  def dismiss_contacts
-    current_user.update!(contacts_intro_dismissed: true)
-    redirect_to authenticated_root_path
   end
 
   private

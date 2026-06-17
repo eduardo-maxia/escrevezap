@@ -7,19 +7,19 @@ module HomeContent
   FAQS = [
     {
       question: "Como transcrever áudio do WhatsApp em texto?",
-      answer:   "Conecte seu WhatsApp ao EscreveZap escaneando um QR Code, escolha os contatos que você quer monitorar e pronto: todo áudio recebido é transcrito automaticamente em texto e a transcrição aparece como resposta na própria conversa do WhatsApp."
+      answer:   "Conecte seu WhatsApp ao EscreveZap digitando seu número para gerar um código de 8 dígitos, confirme no seu WhatsApp e pronto: basta reagir com 👀 a qualquer áudio recebido ou enviado, e a transcrição aparece como resposta na própria conversa."
     },
     {
       question: "Isso usa meu próprio WhatsApp?",
-      answer:   "Sim. Você conecta sua conta pessoal via QR Code. O EscreveZap funciona como um app vinculado ao seu WhatsApp, sem criar um número novo e sem precisar trocar o seu."
+      answer:   "Sim. Você conecta sua conta pessoal via código de vinculação. O EscreveZap funciona como um dispositivo vinculado ao seu WhatsApp, sem criar um número novo e sem precisar trocar o seu."
     },
     {
       question: "Preciso trocar de número de telefone?",
       answer:   "Não. Você usa exatamente o mesmo número que já tem. Nenhuma mudança é visível para os seus contatos."
     },
     {
-      question: "Posso escolher quais contatos serão transcritos?",
-      answer:   "Sim. Você seleciona cada contato individualmente. E para cada um você define se transcreve só os áudios que você manda, só os que recebe, ou ambos."
+      question: "Posso escolher quais conversas serão transcritas?",
+      answer:   "Sim. O EscreveZap só transcreve os áudios que você sinalizar reagindo com o emoji de olho (👀). Você tem controle total e individual de quais áudios são transcritos."
     },
     {
       question: "Como funciona o resumo inteligente dos áudios?",
@@ -51,11 +51,11 @@ module HomeContent
   ].freeze
 
   COMPARISON_ROWS = [
-    { feature: "Transcrição automática de áudios", whatsapp: false, escrevezap: true },
+    { feature: "Transcrição com um clique (👀)",    whatsapp: false, escrevezap: true },
     { feature: "Resposta direto na conversa",       whatsapp: false, escrevezap: true },
     { feature: "Resumo do áudio com IA",            whatsapp: false, escrevezap: true },
-    { feature: "Funciona com vários contatos",      whatsapp: false, escrevezap: true },
-    { feature: "Escolher contatos específicos",     whatsapp: false, escrevezap: true },
+    { feature: "Funciona em qualquer conversa",     whatsapp: false, escrevezap: true },
+    { feature: "Controle manual por áudio",         whatsapp: false, escrevezap: true },
     { feature: "Usar o seu próprio número",         whatsapp: true,  escrevezap: true },
     { feature: "Mensagens de voz nativas",          whatsapp: true,  escrevezap: true }
   ].freeze

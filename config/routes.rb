@@ -47,18 +47,12 @@ Rails.application.routes.draw do
       get  "conectar",          to: "onboarding#show",             as: :onboarding
       post "conectar/reconectar", to: "onboarding#reconnect",      as: :onboarding_reconnect
       post "conectar/pular",    to: "onboarding#skip_connection",  as: :onboarding_skip_connection
-      get  "como-transcrever",  to: "onboarding#step_mode",        as: :onboarding_step_mode
-      post "como-transcrever",  to: "onboarding#set_mode",         as: :onboarding_set_mode
-      get  "primeiros-passos",  to: "onboarding#step3",            as: :onboarding_step3
-      get  "primeiros-passos/contatos-whatsapp", to: "onboarding#step3_whatsapp_contacts", as: :onboarding_step3_whatsapp_contacts
-      post "primeiros-passos/contato", to: "onboarding#create_contact", as: :onboarding_create_contact
-      get  "primeiros-passos/concluido", to: "onboarding#step3_done", as: :onboarding_step3_done
-      post "primeiros-passos/pular", to: "onboarding#dismiss_contacts", as: :onboarding_dismiss_contacts
 
       # WhatsApp connection
       resource  :waha_session,        only: [:show, :create, :destroy], as: :app_waha_session do
         member do
           get  :qr
+          get  :status
           post :pairing_code
           post :reconnect
         end
@@ -77,8 +71,6 @@ Rails.application.routes.draw do
         patch :update_email, on: :member
       end
 
-      # Formatting style (Pro plan only)
-      resource  :formatting_style, controller: "formatting_style", only: [:show, :update]
 
       # Billing / upgrade flow
       scope "/assinatura" do

@@ -92,22 +92,7 @@
     </div>
   </div>
 
-  <%# ── Formatting style — Pro only ────────────────────────────────────── %>
-  <% if current_user.pro? %>
-    <%= link_to formatting_style_path,
-          class: "flex items-center gap-4 bg-(--color-surface) border border-(--color-border) rounded-2xl px-5 py-4 hover:border-(--color-brand-light) transition-colors" do %>
-      <div class="w-10 h-10 rounded-xl bg-(--color-brand-subtle) flex items-center justify-center flex-shrink-0">
-        <i class="ph-fill ph-article text-lg text-(--color-brand)"></i>
-      </div>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-semibold text-(--color-text)">Modelo de formatação</p>
-        <p class="text-xs text-(--color-text-muted) mt-0.5">
-          <%= current_user.polished? ? "Texto Polido — resumo + formatação" : "Fiel ao Áudio — estilo original" %>
-        </p>
-      </div>
-      <i class="ph ph-arrow-right text-(--color-text-subtle)"></i>
-    <% end %>
-  <% end %>
+
 
   <%# ── Billing ─────────────────────────────────────────────────────────── %>
   <%= link_to billing_path,

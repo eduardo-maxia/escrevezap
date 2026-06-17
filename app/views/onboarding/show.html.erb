@@ -26,7 +26,7 @@
         <span class="flex-shrink-0 w-7 h-7 rounded-full bg-white flex items-center justify-center text-(--color-brand) text-xs font-bold">2</span>
         <div>
           <p class="text-sm font-semibold">Conecte seu WhatsApp</p>
-          <p class="text-xs text-white/60 mt-0.5">Escaneie o QR ou use um código de emparelhamento</p>
+          <p class="text-xs text-white/60 mt-0.5">Use o código de emparelhamento de 8 dígitos</p>
         </div>
       </li>
       <li class="flex items-start gap-4">
@@ -44,10 +44,10 @@
 
 <div
   data-controller="onboarding-connect"
-  data-onboarding-connect-qr-url-value="<%= qr_app_waha_session_path(format: :json) %>"
   data-onboarding-connect-pairing-url-value="<%= pairing_code_app_waha_session_path(format: :json) %>"
   data-onboarding-connect-reconnect-url-value="<%= onboarding_reconnect_path %>"
   data-onboarding-connect-dashboard-url-value="<%= authenticated_root_path %>"
+  data-onboarding-connect-status-url-value="<%= status_app_waha_session_path(format: :json) %>"
   data-onboarding-connect-status-value="<%= @waha_session.waha_status %>">
 
   <div class="lg:hidden fixed bottom-6 inset-x-0 z-10 flex items-center justify-center gap-1.5 pointer-events-none">
@@ -58,7 +58,7 @@
 
   <div class="mb-6">
     <h1 class="text-2xl font-bold text-(--color-text)">Conectar WhatsApp</h1>
-    <p class="mt-1 text-sm text-(--color-text-muted)">Escaneie o QR Code ou use código de emparelhamento</p>
+    <p class="mt-1 text-sm text-(--color-text-muted)">Use o código de emparelhamento no seu WhatsApp</p>
     <div class="mt-3">
       <%= button_to "Conectar depois",
             onboarding_skip_connection_path,
@@ -76,45 +76,9 @@
     <span class="text-xs text-(--color-text-muted)" data-onboarding-connect-target="statusText">Preparando conexão...</span>
   </div>
 
-  <div class="mb-6 flex rounded-xl border border-(--color-border) bg-(--color-surface-muted) p-1" data-onboarding-connect-target="tabs">
-    <button type="button"
-            data-action="click->onboarding-connect#showQRTab"
-            data-onboarding-connect-target="qrTabBtn"
-            class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition-all bg-(--color-surface) shadow-sm text-(--color-text)">
-      <i class="ph ph-qr-code text-base"></i>
-      QR Code
-    </button>
-    <button type="button"
-            data-action="click->onboarding-connect#showPairingTab"
-            data-onboarding-connect-target="pairingTabBtn"
-            class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition-all text-(--color-text-muted)">
-      <i class="ph ph-hash text-base"></i>
-      Código
-    </button>
-  </div>
 
-  <div data-onboarding-connect-target="qrPanel">
-    <div data-onboarding-connect-target="qrLoading" class="flex flex-col items-center justify-center gap-3 py-10">
-      <div class="w-8 h-8 border-[3px] border-(--color-brand) border-t-transparent rounded-full animate-spin"></div>
-      <p class="text-sm text-(--color-text-muted)">Carregando QR Code...</p>
-    </div>
-    <div data-onboarding-connect-target="qrImageWrapper" class="hidden flex-col items-center gap-4">
-      <div class="rounded-2xl border-2 border-(--color-border) bg-white shadow-sm overflow-hidden">
-        <img data-onboarding-connect-target="qrImage" class="h-52 w-52 rounded-lg" alt="QR Code WhatsApp">
-      </div>
-      <p class="text-xs text-(--color-text-muted) text-center max-w-xs">
-        Abra o WhatsApp → <strong>Menu</strong> → <strong>Dispositivos conectados</strong> → <strong>Conectar dispositivo</strong>
-      </p>
-      <button type="button"
-              data-action="click->onboarding-connect#refreshQR"
-              class="flex items-center gap-1.5 text-xs text-(--color-brand) hover:text-(--color-brand-dark) font-medium transition-colors">
-        <i class="ph ph-arrows-clockwise"></i>
-        Atualizar QR Code
-      </button>
-    </div>
-  </div>
 
-  <div data-onboarding-connect-target="pairingPanel" class="hidden">
+  <div data-onboarding-connect-target="pairingPanel" class="bg-(--color-surface) rounded-2xl border border-(--color-border) p-5">
     <div data-onboarding-connect-target="phoneFormWrapper">
       <p class="text-sm text-(--color-text-muted) mb-4 leading-relaxed">
         Digite seu número do WhatsApp para receber um código de emparelhamento de 8 dígitos.

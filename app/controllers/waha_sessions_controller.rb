@@ -7,6 +7,11 @@ class WahaSessionsController < ApplicationController
   def show
   end
 
+  # GET /app/waha_session/status  (JSON)
+  def status
+    render json: { status: @waha_session&.waha_status || "pending" }
+  end
+
   # GET /app/waha_session/qr  (JSON)
   def qr
     data = @waha_session.waha_client.sessions.qr
