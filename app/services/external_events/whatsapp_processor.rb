@@ -48,7 +48,7 @@ class ExternalEvents::WhatsappProcessor < ExternalEvents::Base
   # ── session.status ────────────────────────────────────────────────────
 
   def process_session_status
-    status       = @data.dig(:payload, :status)
+    status       = @data.dig(:payload, :status).to_s.downcase
     waha_chat_id = @data.dig(:payload, :waha_chat_id)
 
     if status.present? && WahaSession.waha_statuses.key?(status)

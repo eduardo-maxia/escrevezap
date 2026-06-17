@@ -6,7 +6,7 @@ export default class extends Controller {
   static targets = [
     "statusBadge", "statusDot", "statusText",
     "pairingPanel", "phoneFormWrapper", "phoneInput", "pairingSubmitBtn", "pairingBtnText",
-    "pairingError", "pairingErrorText", "codeWrapper", "codeText",
+    "pairingError", "pairingErrorText", "codeWrapper", "codeText", "copyIcon", "copyText",
     "errorPanel", "errorTitle", "errorMessage", "reconnectButton", "reconnectButtonText",
     "successPanel"
   ]
@@ -102,6 +102,27 @@ export default class extends Controller {
     this.hidePairingError()
   }
 
+  async copyCode(event) {
+    if (event) event.preventDefault()
+
+    const code = this.codeTextTarget.textContent
+    if (!code || code === "- - - -") return
+
+    try {
+      await navigator.clipboard.writeText(code)
+
+      if (this.hasCopyIconTarget) this.copyIconTarget.className = "ph-fill ph-check-circle"
+      if (this.hasCopyTextTarget) this.copyTextTarget.textContent = "Copiado!"
+
+      setTimeout(() => {
+        if (this.hasCopyIconTarget) this.copyIconTarget.className = "ph ph-copy"
+        if (this.hasCopyTextTarget) this.copyTextTarget.textContent = "Copiar código"
+      }, 2000)
+    } catch (err) {
+      console.error("Falha ao copiar:", err)
+    }
+  }
+
   reconnect(event) {
     event.preventDefault()
     this.setReconnectButtonLoading(true)
@@ -139,9 +160,13 @@ export default class extends Controller {
     if (!this.statusUrlValue) return
 
     const poll = () => {
-      fetch(this.statusUrlValue, { headers: this.requestHeaders() })
+      fetch(this.statusUrlValue, { 
+        headers: this.requestHeaders(),
+        cache: "no-store"
+      })
         .then(r => r.json())
         .then(data => {
+          console.log("[Onboarding] Polling status:", data.status)
           if (data.status && data.status !== this.statusValue) {
             this.handleStatus(data.status)
           }
@@ -190,7 +215,11 @@ export default class extends Controller {
 
   setPairingButtonLoading(loading) {
     this.pairingSubmitBtnTarget.disabled = loading
-    this.pairingBtnTextTarget.textContent = loading ? "Gerando código..." : "Receber código"
+    if (loading) {
+      this.pairingBtnTextTarget.innerHTML = '<span class="btn-spinner mr-2" aria-hidden="true"></span>Gerando código...'
+    } else {
+      this.pairingBtnTextTarget.textContent = "Receber código"
+    }
   }
 
   setReconnectButtonLoading(loading) {

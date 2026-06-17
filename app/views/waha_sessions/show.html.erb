@@ -93,8 +93,14 @@
             <p class="text-sm text-(--color-text-muted) mb-3 leading-relaxed">
               No WhatsApp, vá em <strong>Dispositivos conectados</strong> → <strong>Vincular com número de telefone</strong> e insira o código:
             </p>
-            <div class="inline-flex items-center justify-center bg-(--color-brand-subtle) border-2 border-(--color-brand-light) rounded-2xl px-8 py-5">
-              <span class="font-mono text-3xl font-bold tracking-[0.2em] text-(--color-brand)" data-connect-target="codeText">- - - -</span>
+            <div class="flex flex-col items-center gap-3">
+              <div class="inline-flex items-center justify-center bg-(--color-brand-subtle) border-2 border-(--color-brand-light) rounded-2xl px-8 py-5 cursor-pointer hover:bg-(--color-brand-light) transition-colors" data-action="click->connect#copyCode" title="Copiar código">
+                <span class="font-mono text-3xl font-bold tracking-[0.2em] text-(--color-brand)" data-connect-target="codeText">- - - -</span>
+              </div>
+              <button type="button" data-action="click->connect#copyCode" class="flex items-center gap-1.5 text-xs font-semibold text-(--color-brand) hover:text-(--color-brand-dark) transition-colors bg-(--color-brand-subtle) hover:bg-(--color-brand-light) px-3 py-1.5 rounded-lg border border-(--color-brand-light)">
+                <i class="ph ph-copy" data-connect-target="copyIcon"></i>
+                <span data-connect-target="copyText">Copiar código</span>
+              </button>
             </div>
           </div>
 

@@ -8,7 +8,7 @@ export default class extends Controller {
     "pairingPanel",
     "phoneFormWrapper", "phoneInput", "pairingSubmitBtn", "pairingBtnText",
     "pairingError", "pairingErrorText",
-    "codeWrapper", "codeText",
+    "codeWrapper", "codeText", "copyIcon", "copyText",
     "errorPanel", "errorTitle", "errorMessage", "reconnectButton", "reconnectButtonText",
     "successPanel",
   ]
@@ -66,9 +66,13 @@ export default class extends Controller {
     if (!this.statusUrlValue) return
 
     const poll = () => {
-      fetch(this.statusUrlValue, { headers: this._requestHeaders() })
+      fetch(this.statusUrlValue, { 
+        headers: this._requestHeaders(),
+        cache: "no-store"
+      })
         .then(r => r.json())
         .then(data => {
+          console.log("[Connect] Polling status:", data.status)
           if (data.status && data.status !== this.statusValue) {
             this._handleStatus(data.status)
           }
@@ -168,6 +172,27 @@ export default class extends Controller {
     this._hidePairingError()
   }
 
+  async copyCode(event) {
+    if (event) event.preventDefault()
+
+    const code = this.codeTextTarget.textContent
+    if (!code) return
+
+    try {
+      await navigator.clipboard.writeText(code)
+
+      if (this.hasCopyIconTarget) this.copyIconTarget.className = "ph-fill ph-check-circle"
+      if (this.hasCopyTextTarget) this.copyTextTarget.textContent = "Copiado!"
+
+      setTimeout(() => {
+        if (this.hasCopyIconTarget) this.copyIconTarget.className = "ph ph-copy"
+        if (this.hasCopyTextTarget) this.copyTextTarget.textContent = "Copiar código"
+      }, 2000)
+    } catch (err) {
+      console.error("Falha ao copiar:", err)
+    }
+  }
+
   _showPairingCode(code) {
     if (this.hasCodeTextTarget)         this.codeTextTarget.textContent = code
     if (this.hasPhoneFormWrapperTarget) this.phoneFormWrapperTarget.classList.add("hidden")
@@ -207,8 +232,11 @@ export default class extends Controller {
   _setPairingBtnLoading(loading) {
     if (!this.hasPairingSubmitBtnTarget) return
     this.pairingSubmitBtnTarget.disabled = loading
-    if (this.hasPairingBtnTextTarget)
-      this.pairingBtnTextTarget.textContent = loading ? "Gerando código..." : "Receber código"
+    if (loading) {
+      this.pairingBtnTextTarget.innerHTML = '<span class="btn-spinner mr-2" aria-hidden="true"></span>Gerando código...'
+    } else {
+      this.pairingBtnTextTarget.textContent = "Receber código"
+    }
   }
 
   _showPairingError(msg) {
