@@ -16,5 +16,25 @@ module Admin
 
       @pagy, @users = pagy(scope, limit: 30)
     end
+
+    def show
+      @user = User.includes(:subscription, :waha_session).find(params[:id])
+      @waha_session = @user.waha_session
+
+      if @waha_session
+        @total_transcriptions = @waha_session.transcriptions.count
+        @successful_transcriptions = @waha_session.transcriptions.completed.count
+        @failed_transcriptions = @waha_session.transcriptions.failed.count
+
+        scope = @waha_session.transcriptions.order(created_at: :desc)
+      else
+        @total_transcriptions = 0
+        @successful_transcriptions = 0
+        @failed_transcriptions = 0
+        scope = Transcription.none
+      end
+
+      @pagy, @transcriptions = pagy(scope, limit: 30)
+    end
   end
 end

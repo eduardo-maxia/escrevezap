@@ -1,0 +1,180 @@
+<% content_for :title, "Detalhes do Cliente — Admin" %>
+<% content_for :page_title, "Detalhes do Cliente" %>
+
+<div class="space-y-6">
+
+  <%# ── Header / Back button ──────────────────────────────────────────── %>
+  <div class="flex items-center gap-3 mb-6">
+    <%= link_to admin_users_path, class: "inline-flex items-center justify-center w-8 h-8 rounded-lg text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-surface-raised) transition-colors" do %>
+      <i class="ph ph-arrow-left text-lg"></i>
+    <% end %>
+    <h1 class="text-xl font-bold text-(--color-text)"><%= @user.name.presence || @user.email %></h1>
+  </div>
+
+  <%# ── Stats & Info Grid ─────────────────────────────────────────────── %>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    
+    <%# Info Card %>
+    <div class="bg-(--color-surface) border border-(--color-border) rounded-2xl p-5 flex flex-col justify-between">
+      <div>
+        <div class="w-12 h-12 rounded-full bg-(--color-brand-light) flex items-center justify-center text-lg font-bold text-(--color-brand) uppercase mb-3">
+          <%= (@user.name.presence || @user.email).first(2) %>
+        </div>
+        <p class="font-medium text-(--color-text)"><%= @user.name.presence || "Sem nome" %></p>
+        <p class="text-sm text-(--color-text-muted) mb-4"><%= @user.email %></p>
+      </div>
+      <div class="space-y-2 text-sm text-(--color-text-muted)">
+        <p><strong>Cadastrado em:</strong> <%= @user.created_at.strftime("%d/%m/%Y %H:%M") %></p>
+        <p><strong>Plano:</strong> <span class="capitalize font-semibold text-(--color-brand)"><%= @user.plan %></span></p>
+        <% if @user.subscription %>
+          <p><strong>Status da Assinatura:</strong> <%= @user.subscription.status.capitalize %></p>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Whatsapp Status Card %>
+    <div class="bg-(--color-surface) border border-(--color-border) rounded-2xl p-5 flex flex-col justify-center">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-full <%= @waha_session&.working? ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-500' %> flex items-center justify-center">
+          <i class="ph ph-whatsapp-logo text-xl"></i>
+        </div>
+        <div>
+          <p class="font-medium text-(--color-text)">WhatsApp</p>
+          <p class="text-sm text-(--color-text-muted)">
+            <% if @waha_session %>
+              <%= @waha_session.working? ? "Conectado" : "Status: #{@waha_session.waha_status.capitalize}" %>
+            <% else %>
+              Não configurado
+            <% end %>
+          </p>
+        </div>
+      </div>
+      
+      <% if @waha_session %>
+        <div class="space-y-2 text-sm text-(--color-text-muted)">
+          <p><strong>Sessão Waha:</strong> <%= @waha_session.session_name %></p>
+          <p><strong>Auto-transcrição:</strong> <%= @waha_session.auto_transcribe.capitalize %></p>
+        </div>
+      <% end %>
+    </div>
+
+    <%# Usage Stats Card %>
+    <div class="bg-(--color-surface) border border-(--color-border) rounded-2xl p-5 flex flex-col justify-center gap-4">
+      <div>
+        <p class="text-xs text-(--color-text-muted) mb-1 uppercase font-semibold tracking-wider">Total de Transcrições</p>
+        <p class="text-3xl font-bold text-(--color-brand)"><%= @total_transcriptions %></p>
+      </div>
+      <div class="flex items-center gap-6">
+        <div>
+          <p class="text-xs text-(--color-text-muted) mb-0.5"><i class="ph-fill ph-check-circle text-emerald-500 mr-1"></i> Sucesso</p>
+          <p class="font-semibold text-(--color-text)"><%= @successful_transcriptions %></p>
+        </div>
+        <div>
+          <p class="text-xs text-(--color-text-muted) mb-0.5"><i class="ph-fill ph-x-circle text-red-500 mr-1"></i> Falha</p>
+          <p class="font-semibold text-(--color-text)"><%= @failed_transcriptions %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# ── Transcriptions Table ──────────────────────────────────────────── %>
+  <div class="bg-(--color-surface) border border-(--color-border) rounded-2xl overflow-hidden mt-8">
+    <div class="px-5 py-4 border-b border-(--color-border) bg-(--color-surface-muted) flex items-center justify-between">
+      <h2 class="font-semibold text-(--color-text)">Transcrições do Cliente</h2>
+      <span class="text-xs text-(--color-text-muted) font-medium bg-white px-2 py-1 rounded-md border border-(--color-border)">
+        <%= @pagy.count %> registros
+      </span>
+    </div>
+    
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-(--color-border) bg-(--color-surface-muted)/50">
+            <th class="text-left px-5 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide">Data</th>
+            <th class="text-left px-5 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide">Contato</th>
+            <th class="text-left px-5 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide">Status</th>
+            <th class="text-left px-5 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide">Duração</th>
+            <th class="text-left px-5 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide">ID da Mensagem</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-(--color-border)">
+          <% @transcriptions.each do |t| %>
+            <tr class="hover:bg-(--color-surface-muted) transition-colors">
+              <td class="px-5 py-3 text-xs text-(--color-text-muted)">
+                <%= t.created_at.strftime("%d/%m/%Y %H:%M") %>
+              </td>
+              <td class="px-5 py-3">
+                <% if t.monitored_contact %>
+                  <p class="font-medium text-(--color-text) truncate max-w-[150px]" title="<%= t.monitored_contact.display_name.presence || t.monitored_contact.phone_number %>">
+                    <%= t.monitored_contact.display_name.presence || t.monitored_contact.formatted_phone %>
+                  </p>
+                <% else %>
+                  <span class="text-(--color-text-subtle)">—</span>
+                <% end %>
+              </td>
+              <td class="px-5 py-3">
+                <% status_styles = case t.status
+                   when "completed" then "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                   when "failed"    then "bg-red-50 text-red-700 border border-red-200"
+                   when "pending", "processing" then "bg-yellow-50 text-yellow-700 border border-yellow-200 animate-pulse"
+                   else "bg-gray-50 text-gray-700 border border-gray-200"
+                   end %>
+                <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-md text-xs font-medium <%= status_styles %>">
+                  <%= t.status.capitalize %>
+                </span>
+              </td>
+              <td class="px-5 py-3 text-xs text-(--color-text-muted)">
+                <%= t.audio_duration.present? ? "#{t.audio_duration}s" : "—" %>
+              </td>
+              <td class="px-5 py-3">
+                <span class="font-mono text-xs text-(--color-text-subtle) truncate block max-w-[120px]" title="<%= t.waha_message_id %>">
+                  <%= t.waha_message_id.presence || "—" %>
+                </span>
+              </td>
+            </tr>
+          <% end %>
+
+          <% if @transcriptions.empty? %>
+            <tr>
+              <td colspan="5" class="px-5 py-12 text-center">
+                <i class="ph ph-microphone-slash text-4xl text-(--color-text-subtle) block mb-2"></i>
+                <p class="text-sm text-(--color-text-muted)">Nenhuma transcrição encontrada para este cliente.</p>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <%# ── Pagination ──────────────────────────────────────────────────────── %>
+  <% if @pagy.last > 1 %>
+    <div class="flex items-center justify-center gap-1 mt-6">
+      <% if @pagy.prev %>
+        <%= link_to admin_user_path(@user, page: @pagy.prev),
+              class: "px-3 py-2 text-sm text-(--color-text-muted) hover:text-(--color-text) border border-(--color-border) rounded-lg hover:bg-(--color-surface-raised) transition-colors" do %>
+          <i class="ph ph-caret-left"></i>
+        <% end %>
+      <% end %>
+
+      <% (@pagy.series).each do |item| %>
+        <% if item == :gap %>
+          <span class="px-3 py-2 text-sm text-(--color-text-subtle)">…</span>
+        <% elsif item == @pagy.page %>
+          <span class="px-3 py-2 text-sm font-semibold bg-(--color-brand) text-white rounded-lg"><%= item %></span>
+        <% else %>
+          <%= link_to item, admin_user_path(@user, page: item),
+                class: "px-3 py-2 text-sm text-(--color-text-muted) hover:text-(--color-text) border border-(--color-border) rounded-lg hover:bg-(--color-surface-raised) transition-colors" %>
+        <% end %>
+      <% end %>
+
+      <% if @pagy.next %>
+        <%= link_to admin_user_path(@user, page: @pagy.next),
+              class: "px-3 py-2 text-sm text-(--color-text-muted) hover:text-(--color-text) border border-(--color-border) rounded-lg hover:bg-(--color-surface-raised) transition-colors" do %>
+          <i class="ph ph-caret-right"></i>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+
+</div>

@@ -87,7 +87,7 @@ Rails.application.routes.draw do
 
   namespace :admin do
     root "dashboard#index"
-    resources :users,                only: [:index]
+    resources :users,                only: [:index, :show]
     resources :transcriptions,       only: [:index, :show]
     resources :transcription_errors, only: [:index]
     resources :waha_sessions,        only: [:edit, :update]

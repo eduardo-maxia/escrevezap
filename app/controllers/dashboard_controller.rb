@@ -7,6 +7,7 @@ class DashboardController < ApplicationController
     @waha_session = current_user.waha_session
     @contacts     = @waha_session.monitored_contacts.order(:display_name) rescue []
     @month_count  = @waha_session.transcriptions.this_month.where.not(status: :failed).count rescue 0
+    @total_count  = @waha_session.transcriptions.where.not(status: :failed).count rescue 0
     @top_contacts = top_contacts_this_month
   end
 
