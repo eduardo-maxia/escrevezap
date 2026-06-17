@@ -65,7 +65,32 @@
     <% end %>
   </div>
 
-
+  <%# ── Top contacts this month ───────────────────────────────────────── %>
+  <% if @top_contacts.any? %>
+    <div>
+      <h2 class="text-sm font-bold text-(--color-text) mb-3">Quem mais te manda áudios?</h2>
+      <div class="space-y-2">
+        <% @top_contacts.each_with_index do |contact, i| %>
+          <div class="flex items-center gap-3 bg-(--color-surface) border border-(--color-border) rounded-2xl px-4 py-3">
+            <% if contact.avatar_url.present? %>
+              <img src="<%= contact.avatar_url %>" alt="" class="w-9 h-9 rounded-full object-cover flex-shrink-0">
+            <% else %>
+              <div class="w-9 h-9 rounded-full bg-(--color-brand-subtle) flex items-center justify-center flex-shrink-0">
+                <i class="ph ph-user text-sm text-(--color-brand)"></i>
+              </div>
+            <% end %>
+            <p class="flex-1 text-sm font-semibold text-(--color-text) truncate"><%= contact.display_name.presence || contact.formatted_phone %></p>
+            <span class="text-xs font-semibold text-(--color-brand) flex-shrink-0">
+              <%= contact.transcription_count %> <span class="font-normal text-(--color-text-subtle)">áudios</span>
+            </span>
+            <% if i == 0 %>
+              <i class="ph-fill ph-trophy text-base text-(--color-accent) flex-shrink-0"></i>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 
 
 </div>
