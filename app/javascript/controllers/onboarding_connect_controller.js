@@ -1,6 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import consumer from "../channels/consumer"
-import intlTelInput from "intl-tel-input"
+import intlTelInput from "intl-tel-input/intlTelInputWithUtils"
 
 export default class extends Controller {
   static targets = [
@@ -43,8 +43,7 @@ export default class extends Controller {
     this.iti = intlTelInput(this.phoneInputTarget, {
       initialCountry: "br",
       preferredCountries: ["br", "us", "pt"],
-      showSelectedDialCode: true,
-      utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/28.1.0/js/utils.js"
+      showSelectedDialCode: true
     })
   }
 
@@ -266,8 +265,8 @@ export default class extends Controller {
     }
 
     const [dotClass, text] = map[status] || ["bg-gray-400", "Atualizando status..."]
-    this.statusTextTarget.textContent = text
-    this.statusDotTarget.className = `h-2 w-2 rounded-full ${dotClass}`
+    if (this.hasStatusTextTarget) this.statusTextTarget.textContent = text
+    if (this.hasStatusDotTarget) this.statusDotTarget.className = `h-2 w-2 rounded-full ${dotClass}`
   }
 
   requestHeaders(contentType = null) {

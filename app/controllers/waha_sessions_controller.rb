@@ -33,10 +33,30 @@ class WahaSessionsController < ApplicationController
       return
     end
 
+    if @waha_session.waha_status != "scan_qr_code"
+      begin
+        @waha_session.waha_client.sessions.restart
+      rescue => _e
+        @waha_session.connect! rescue nil
+      end
+
+      @waha_session.update!(waha_status: :starting)
+
+      # Aguarda até 15 segundos para a sessão estar pronta (scan_qr_code)
+      15.times do
+        session_info = @waha_session.waha_client.sessions.get rescue nil
+        if session_info && session_info["status"] == "SCAN_QR_CODE"
+          @waha_session.update!(waha_status: :scan_qr_code)
+          break
+        end
+        sleep 1
+      end
+    end
+
     result = @waha_session.waha_client.sessions.request_pairing_code(phone_number: phone)
     render json: { code: result["code"] }
   rescue => e
-    render json: { error: "Não foi possível gerar o código: #{e.message}" }, status: :service_unavailable
+    render json: { error: "Aguarde alguns segundos e tente novamente. (#{e.message})" }, status: :service_unavailable
   end
 
   # POST /app/waha_session/reconnect
