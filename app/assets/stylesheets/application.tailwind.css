@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "intl-tel-input/build/css/intlTelInput.css";
+@import "intl-tel-input/styles";
 @plugin "flowbite/plugin";
 @source "../../../node_modules/flowbite";
 
