@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import consumer from "../channels/consumer"
+import intlTelInput from "intl-tel-input"
 
 export default class extends Controller {
   static targets = [
@@ -25,6 +26,7 @@ export default class extends Controller {
 
     this.subscribeToStatusChannel()
     this.startPolling()
+    this.initIntlTelInput()
     this.handleStatus(this.statusValue)
   }
 
@@ -32,16 +34,37 @@ export default class extends Controller {
     this.subscription?.unsubscribe()
     clearTimeout(this.redirectTimer)
     clearTimeout(this.pollTimer)
+    this.iti?.destroy()
+  }
+
+  initIntlTelInput() {
+    if (!this.hasPhoneInputTarget) return
+
+    this.iti = intlTelInput(this.phoneInputTarget, {
+      initialCountry: "br",
+      preferredCountries: ["br", "us", "pt"],
+      showSelectedDialCode: true,
+      utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/28.1.0/js/utils.js"
+    })
   }
 
   requestPairingCode(event) {
     event.preventDefault()
 
-    const phone = this.hasPhoneInputTarget ? this.phoneInputTarget.value.trim() : ""
+    const phone = this.iti ? this.iti.getNumber() : (this.hasPhoneInputTarget ? this.phoneInputTarget.value.trim() : "")
+
     if (!phone) {
       this.showPairingError("Digite seu número com DDI e DDD.")
       return
     }
+
+    if (this.iti && !this.iti.isValidNumber()) {
+      this.showPairingError("Número de telefone inválido.")
+      return
+    }
+
+    // Clean formatting before sending
+    const cleanPhone = phone.replace(/\D/g, "")
 
     this.hidePairingError()
     this.setPairingButtonLoading(true)
@@ -49,7 +72,7 @@ export default class extends Controller {
     fetch(this.pairingUrlValue, {
       method: "POST",
       headers: this.requestHeaders("application/x-www-form-urlencoded"),
-      body: `phone_number=${encodeURIComponent(phone)}`
+      body: `phone_number=${encodeURIComponent(cleanPhone)}`
     })
       .then(async (response) => {
         const data = await response.json()

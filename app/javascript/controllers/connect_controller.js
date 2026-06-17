@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import consumer from "../channels/consumer"
+import intlTelInput from "intl-tel-input"
 
 export default class extends Controller {
   static targets = [
@@ -29,6 +30,7 @@ export default class extends Controller {
 
     this._subscribeToStatusChannel()
     this._startPolling()
+    this._initIntlTelInput()
 
     this._handleStatus(this.statusValue)
   }
@@ -36,6 +38,18 @@ export default class extends Controller {
   disconnect() {
     this._subscription?.unsubscribe()
     clearTimeout(this._pollTimer)
+    this._iti?.destroy()
+  }
+
+  _initIntlTelInput() {
+    if (!this.hasPhoneInputTarget) return
+
+    this._iti = intlTelInput(this.phoneInputTarget, {
+      initialCountry: "br",
+      preferredCountries: ["br", "us", "pt"],
+      showSelectedDialCode: true,
+      utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/28.1.0/js/utils.js"
+    })
   }
 
   // ── ActionCable & Polling ─────────────────────────────────────────────────────────
@@ -104,12 +118,20 @@ export default class extends Controller {
 
   requestPairingCode(event) {
     event.preventDefault()
-    const phone = this.hasPhoneInputTarget ? this.phoneInput.value.trim() : ""
+    const phone = this._iti ? this._iti.getNumber() : (this.hasPhoneInputTarget ? this.phoneInput.value.trim() : "")
 
     if (!phone) {
       this._showPairingError("Digite seu número de telefone")
       return
     }
+
+    if (this._iti && !this._iti.isValidNumber()) {
+      this._showPairingError("Número de telefone inválido")
+      return
+    }
+
+    // Clean formatting before sending
+    const cleanPhone = phone.replace(/\D/g, "")
 
     this._setPairingBtnLoading(true)
     this._hidePairingError()
@@ -123,7 +145,7 @@ export default class extends Controller {
         "X-CSRF-Token": csrf,
         Accept:          "application/json",
       },
-      body: `phone_number=${encodeURIComponent(phone)}`,
+      body: `phone_number=${encodeURIComponent(cleanPhone)}`,
     })
       .then(r => r.json())
       .then(data => {
