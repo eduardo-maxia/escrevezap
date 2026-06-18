@@ -24,7 +24,7 @@ class WahaSession < ApplicationRecord
   }, default: :never, prefix: :auto_transcribe
 
   # How the user chooses which audios get transcribed.
-  #   :reaction           → user reacts with 👀 on a message; the bot replies
+  #   :reaction           → user reacts with any emoji on a message; the bot replies
   #                         in the conversation. No manual contact list needed.
   #   :monitored_contacts → only audios from contacts listed in monitored_contacts
   #                         are transcribed (legacy flow).

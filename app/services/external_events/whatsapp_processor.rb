@@ -4,9 +4,7 @@ class ExternalEvents::WhatsappProcessor < ExternalEvents::Base
     audio/ogg audio/mpeg audio/mp4 audio/wav audio/webm audio/aac audio/opus
   ].freeze
 
-  # Emoji that triggers transcription when the user reacts to a message.
-  REACTION_TRIGGER_EMOJI = "\u{1F440}".freeze # 👀
-
+  # Any emoji reaction will trigger transcription when the user reacts to a message.
   def process(worker_type: :waha)
     @data = parse_payload(worker_type)
     @external_event.update!(parsed_event: @data)
@@ -97,10 +95,7 @@ class ExternalEvents::WhatsappProcessor < ExternalEvents::Base
       return
     end
 
-    unless payload[:body].to_s == REACTION_TRIGGER_EMOJI
-      log_info "Reação ignorada: emoji #{payload[:body].inspect} não dispara transcrição"
-      return
-    end
+
 
     chat_id    = payload[:from].to_s
     message_id = payload[:reply_to_id]

@@ -158,7 +158,7 @@
         { icon: "ph-check-circle",   text: "Funciona no seu próprio WhatsApp" },
         { icon: "ph-sim-card",       text: "Sem trocar de número" },
         { icon: "ph-timer",          text: "Configure em menos de 2 minutos" },
-        { icon: "ph-eyes",           text: "Reaja com 👀 para transcrever" }
+        { icon: "ph-smiley",         text: "Reaja com qualquer emoji para transcrever" }
       ].each do |t| %>
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 rounded-full bg-(--color-brand-subtle) flex items-center justify-center shrink-0">
@@ -195,9 +195,9 @@
         },
         {
           num: "2",
-          icon: "ph-eyes",
-          title: "Reaja com 👀 no áudio",
-          body:  "Recebeu um áudio e não pode ouvir? Basta reagir com o emoji de olho (👀) na mensagem."
+          icon: "ph-smiley",
+          title: "Reaja com qualquer emoji no áudio",
+          body:  "Recebeu um áudio e não pode ouvir? Basta reagir com qualquer emoji (👍, ❤️, 😂) na mensagem."
         },
         {
           num: "3",
@@ -502,7 +502,7 @@
       <% [
         { icon: "ph-whatsapp-logo",  label: "Seu próprio WhatsApp",                  pro: false },
         { icon: "ph-chat-text",      label: "Resposta automática na conversa",        pro: false },
-        { icon: "ph-eyes",           label: "Controle manual reagindo com 👀",        pro: false },
+        { icon: "ph-smiley",         label: "Controle manual reagindo com emojis",    pro: false },
         { icon: "ph-arrows-split",   label: "Funciona em qualquer conversa",          pro: false },
         { icon: "ph-timer",          label: "Configuração em menos de 2 minutos",     pro: false },
         { icon: "ph-sparkle",        label: "IA que organiza e formata (Pro)",         pro: true  },
@@ -553,7 +553,7 @@
           <% [
             "Transcrição automática",
             "Resposta direto no WhatsApp",
-            "Transcreva com 👀"
+            "Transcreva com emojis"
           ].each do |item| %>
             <li class="flex items-center gap-2.5 text-sm text-(--color-text)">
               <i class="ph ph-check text-(--color-brand) shrink-0"></i>
@@ -658,7 +658,7 @@
         <p class="text-(--color-text-muted) leading-relaxed">
           Para transcrever um áudio do WhatsApp em texto basta conectar sua conta ao
           <strong class="text-(--color-text)">EscreveZap</strong> via código de vinculação,
-          e reagir com um emoji de olho (👀) a qualquer mensagem de voz. A transcrição
+          e reagir com qualquer emoji a qualquer mensagem de voz. A transcrição
           aparece automaticamente como resposta na própria conversa, em segundos.
         </p>
       </article>
@@ -666,7 +666,7 @@
       <article>
         <h3 class="text-xl font-bold text-(--color-text) mb-2">Como funciona a transcrição automática de áudios?</h3>
         <p class="text-(--color-text-muted) leading-relaxed">
-          O EscreveZap escuta apenas os áudios que você reage com 👀, envia o áudio para um
+          O EscreveZap escuta apenas os áudios que você reage com algum emoji, envia o áudio para um
           motor de reconhecimento de voz com IA e devolve o texto formatado na conversa. No
           plano Pro, uma segunda camada de IA gera um resumo curto e organiza a transcrição em
           parágrafos legíveis.

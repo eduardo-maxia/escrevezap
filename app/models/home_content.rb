@@ -7,7 +7,7 @@ module HomeContent
   FAQS = [
     {
       question: "Como transcrever áudio do WhatsApp em texto?",
-      answer:   "Conecte seu WhatsApp ao EscreveZap digitando seu número para gerar um código de 8 dígitos, confirme no seu WhatsApp e pronto: basta reagir com 👀 a qualquer áudio recebido ou enviado, e a transcrição aparece como resposta na própria conversa."
+      answer:   "Conecte seu WhatsApp ao EscreveZap digitando seu número para gerar um código de 8 dígitos, confirme no seu WhatsApp e pronto: basta reagir com qualquer emoji a qualquer áudio recebido ou enviado, e a transcrição aparece como resposta na própria conversa."
     },
     {
       question: "Isso usa meu próprio WhatsApp?",
@@ -19,7 +19,7 @@ module HomeContent
     },
     {
       question: "Posso escolher quais conversas serão transcritas?",
-      answer:   "Sim. O EscreveZap só transcreve os áudios que você sinalizar reagindo com o emoji de olho (👀). Você tem controle total e individual de quais áudios são transcritos."
+      answer:   "Sim. O EscreveZap só transcreve os áudios que você sinalizar reagindo com um emoji. Você tem controle total e individual de quais áudios são transcritos."
     },
     {
       question: "Como funciona o resumo inteligente dos áudios?",
@@ -51,7 +51,7 @@ module HomeContent
   ].freeze
 
   COMPARISON_ROWS = [
-    { feature: "Transcrição com um clique (👀)",    whatsapp: false, escrevezap: true },
+    { feature: "Transcrição com uma reação",        whatsapp: false, escrevezap: true },
     { feature: "Resposta direto na conversa",       whatsapp: false, escrevezap: true },
     { feature: "Resumo do áudio com IA",            whatsapp: false, escrevezap: true },
     { feature: "Funciona em qualquer conversa",     whatsapp: false, escrevezap: true },
