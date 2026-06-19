@@ -1,6 +1,8 @@
 # Should only happen upon server startup
 Rails.application.config.after_initialize do
   next unless Rails.env.production?
+  # Se for com secret_key_base dummy tbm não roda
+  next if ENV["SECRET_KEY_BASE_DUMMY"] == "1"
 
   begin
     inter_service = Inter::Service.new
