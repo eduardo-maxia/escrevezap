@@ -43,3 +43,5 @@
 /config/credentials/*.key
 
 /tailscale/state/*
+
+files/certificates/*

@@ -9,8 +9,8 @@ module Abacatepay
     # to redirect the user.
     def create(product_id:, customer_id: nil, external_id: nil, completion_url: nil, return_url: nil)
       body = {
-        items: [{ id: product_id, quantity: 1 }],
-        methods: ["CARD"]
+        items: [ { id: product_id, quantity: 1 } ],
+        methods: [ "CARD" ]
       }
       body[:customerId]    = customer_id    if customer_id.present?
       body[:externalId]    = external_id    if external_id.present?

@@ -5,6 +5,10 @@ module Loggable
   included do
     private
 
+    def log_debug(message, extra = {})
+      Rails.logger.debug(format_message("debug", message, extra))
+    end
+
     def log_info(message, extra = {})
       Rails.logger.info(format_message("info", message, extra))
     end

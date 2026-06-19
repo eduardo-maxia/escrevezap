@@ -62,5 +62,14 @@ module Reply
         footer_text: footer_text
       )
     end
+
+    def send_pix_code(reference_id:, pix_code:, total_amount_cents:, description:)
+      Meta::Service.new(recipient: @phone).send_pix_code(
+        reference_id: reference_id,
+        pix_code: pix_code,
+        total_amount_cents: total_amount_cents,
+        description: description
+      )
+    end
   end
 end

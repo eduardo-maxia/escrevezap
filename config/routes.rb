@@ -94,6 +94,7 @@ Rails.application.routes.draw do
   namespace :webhook do
     resource :waha,       only: [ :create ], controller: :waha
     resource :abacate_pay, only: [ :create ], controller: :abacate_pay
+    resource :inter,      only: [ :create ], controller: :inter
 
     get "meta", to: "meta#index"
     post "meta", to: "meta#create"

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_18_225451) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_19_052341) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -118,13 +118,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_18_225451) do
     t.datetime "created_at", null: false
     t.datetime "current_period_end"
     t.datetime "current_period_start"
+    t.string "inter_recorrencia_id"
+    t.string "inter_txid"
+    t.string "payer_cpf"
+    t.string "payer_name"
     t.string "pending_plan"
     t.string "plan", default: "basic", null: false
+    t.string "provider", default: "abacatepay", null: false
     t.string "status", default: "inactive", null: false
     t.datetime "trial_ends_at"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["abacatepay_subscription_id"], name: "index_subscriptions_on_abacatepay_subscription_id", unique: true, where: "(abacatepay_subscription_id IS NOT NULL)"
+    t.index ["inter_recorrencia_id"], name: "index_subscriptions_on_inter_recorrencia_id", unique: true, where: "(inter_recorrencia_id IS NOT NULL)"
+    t.index ["inter_txid"], name: "index_subscriptions_on_inter_txid", unique: true, where: "(inter_txid IS NOT NULL)"
     t.index ["user_id"], name: "index_subscriptions_on_user_id"
   end
 

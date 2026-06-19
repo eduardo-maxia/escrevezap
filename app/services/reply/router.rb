@@ -92,6 +92,10 @@ module Reply
             }
           ]
         )
+      when "waiting_for_billing_cpf"
+        process_billing_cpf(message)
+      when "waiting_for_billing_name"
+        process_billing_name(message)
       else
         show_menu
       end

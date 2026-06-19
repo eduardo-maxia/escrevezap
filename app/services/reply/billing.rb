@@ -54,6 +54,121 @@ module Reply
     end
 
     def generate_upgrade_checkout(plan)
+      if @user.subscription&.active_or_trialing?
+        send_message(message: "⚠️ Você já possui uma assinatura ativa. Para trocar de plano, é necessário primeiro cancelar a sua assinatura atual. Após o cancelamento, você poderá assinar o novo plano.")
+        show_billing
+        return
+      end
+
+      @current_conversation_state["stage"] = "waiting_for_billing_cpf"
+      @current_conversation_state["pending_upgrade_plan"] = plan
+      @user.update!(conversation_state: @current_conversation_state)
+
+      send_message(message: "Para prosseguirmos com a sua assinatura via Pix Automático, preciso de alguns dados para a emissão da cobrança.\n\nPor favor, digite seu *CPF* ou *CNPJ* (apenas números):")
+    end
+
+    def process_billing_cpf(message)
+      cpf_cnpj = message.gsub(/\D/, "")
+      if cpf_cnpj.length == 11 || cpf_cnpj.length == 14
+        @current_conversation_state["billing_cpf"] = cpf_cnpj
+        @current_conversation_state["stage"] = "waiting_for_billing_name"
+        @user.update!(conversation_state: @current_conversation_state)
+
+        send_message(message: "Obrigado! Agora, por favor, digite seu *Nome Completo* (ou Razão Social):")
+      else
+        send_message(message: "⚠️ CPF ou CNPJ inválido. Por favor, digite novamente (apenas números):")
+      end
+    end
+
+    def process_billing_name(message)
+      name = message.strip
+      if name.length < 3
+        send_message(message: "⚠️ Por favor, digite um nome válido:")
+        return
+      end
+
+      cpf = @current_conversation_state["billing_cpf"]
+      plan = @current_conversation_state["pending_upgrade_plan"]
+
+      send_message(message: "⏳ *Gerando seu Pix Automático...* Aguarde um momento.")
+
+      amount = case plan
+      when "basic" then 5.99
+      when "pro" then 19.90
+      else 5.99
+      end
+
+      begin
+        result = Inter::PixService.setup_automatic_pix(
+          amount: amount,
+          cpf: cpf,
+          name: name
+        )
+
+        # Encontrar ou criar a assinatura
+        subscription = @user.subscription || @user.build_subscription
+        subscription.update!(
+          provider: "inter",
+          plan: plan,
+          status: :inactive,
+          inter_recorrencia_id: result[:id_recorrencia],
+          inter_txid: result[:txid],
+          payer_cpf: cpf,
+          payer_name: name,
+          current_period_start: nil,
+          current_period_end: nil
+        )
+
+        # Resetar o estágio da conversação
+        @current_conversation_state.delete("stage")
+        @current_conversation_state.delete("pending_upgrade_plan")
+        @current_conversation_state.delete("billing_cpf")
+        @user.update!(conversation_state: @current_conversation_state)
+
+        # Enviar o código Pix
+        amount_cents = (amount * 100).to_i
+        send_pix_code(
+          reference_id: result[:txid],
+          pix_code: result[:pix_copia_e_cola],
+          total_amount_cents: amount_cents,
+          description: "Assinatura EscreveZap - #{plan.capitalize}"
+        )
+
+        sleep 1.second
+
+        # Enviar opções de suporte/confirmação
+        send_list_message(
+          body_text: "Assim que o pagamento for concluído e a recorrência for autorizada no seu banco, seu plano será ativado automaticamente!\n\nVocê pode cancelar a qualquer momento por aqui ou direto pelo aplicativo do banco!\n\nSe precisar de ajuda:",
+          button_text: "Opções",
+          sections: [
+            {
+              title: "Atendimento",
+              rows: [
+                { id: "menu_billing", title: "🔄 Já paguei", description: "Verificar se o plano já atualizou" },
+                { id: "menu_support", title: "🚨 Dificuldade para pagar", description: "Falar com nosso suporte" },
+                { id: "cancel_connection", title: "❌ Voltar ao Menu", description: "Voltar para o menu principal" }
+              ]
+            }
+          ]
+        )
+      rescue => e
+        raise e unless Rails.env.production?
+
+        Rails.logger.error "[Reply::Billing#process_billing_name] Error generating automatic pix: #{e.class} #{e.message}"
+
+        # Resetar o estágio da conversação em caso de erro
+        @current_conversation_state.delete("stage")
+        @current_conversation_state.delete("pending_upgrade_plan")
+        @current_conversation_state.delete("billing_cpf")
+        @user.update!(conversation_state: @current_conversation_state)
+
+        send_message(message: "⚠️ Ocorreu um erro ao gerar a cobrança do Pix Automático com o Banco Inter. Por favor, tente novamente mais tarde ou contate o suporte.")
+        sleep 0.5.seconds
+        show_billing
+      end
+    end
+
+    def generate_abacatepay_checkout(plan)
       send_message(message: "⏳ *Gerando seu link de pagamento seguro...* Aguarde um momento.")
 
       product_id = case plan
@@ -127,17 +242,35 @@ module Reply
         return
       end
 
-      response = Abacatepay::Client.new.subscriptions.cancel(
-        id: subscription.abacatepay_subscription_id
-      )
+      if subscription.provider == "inter"
+        begin
+          if subscription.inter_recorrencia_id.present?
+            Inter::PixService.cancel_automatic_pix(subscription.inter_recorrencia_id)
+          end
+          subscription.update!(status: :cancelled, cancelled_at: Time.current)
+          @user.update!(plan: :free)
+          send_message(message: "🚫 Sua assinatura via Pix Automático foi cancelada com sucesso. Você foi migrado de volta para o plano Grátis.")
+        rescue => e
+          raise e unless Rails.env.production?
 
-      if response["success"]
-        subscription.update!(status: :cancelled, cancelled_at: Time.current)
-        @user.update!(plan: :free)
-        send_message(message: "🚫 Assinatura cancelada com sucesso. Você foi migrado de volta para o plano Grátis.")
+          Rails.logger.error "[Reply::Billing#process_subscription_cancellation] Inter error: #{e.message}"
+          subscription.update!(status: :cancelled, cancelled_at: Time.current)
+          @user.update!(plan: :free)
+          send_message(message: "🚫 Sua assinatura foi cancelada localmente com sucesso. Caso o débito automático continue ativo no seu banco, você pode cancelá-lo diretamente pelo aplicativo da sua instituição financeira.")
+        end
       else
-        Rails.logger.error "[Reply::Base#process_subscription_cancellation] AbacatePay error: #{response['error']}"
-        send_message(message: "⚠️ Não foi possível processar o cancelamento automático. Por favor, entre em contato com nosso suporte pelo email ola@escrevezap.com.br")
+        response = Abacatepay::Client.new.subscriptions.cancel(
+          id: subscription.abacatepay_subscription_id
+        )
+
+        if response["success"]
+          subscription.update!(status: :cancelled, cancelled_at: Time.current)
+          @user.update!(plan: :free)
+          send_message(message: "🚫 Assinatura cancelada com sucesso. Você foi migrado de volta para o plano Grátis.")
+        else
+          Rails.logger.error "[Reply::Base#process_subscription_cancellation] AbacatePay error: #{response['error']}"
+          send_message(message: "⚠️ Não foi possível processar o cancelamento automático. Por favor, entre em contato com nosso suporte pelo email ola@escrevezap.com.br")
+        end
       end
 
       sleep 0.5.seconds

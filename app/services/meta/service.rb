@@ -1,7 +1,7 @@
 module Meta
   class Service
-    @@token = "EAA9UZCvyzPu0BQ7CpxpZAVOwA60P2kcEFi9B8mgTs5I9EPGZBJvVjRlhR22ddqbuAHYHWZBadyaQZCXVSZBFwMVE98uiauCIMVt7dP7x5DthPYIq72wZBgZCe0kmZBeP6gtzl84VB8gaU24rXUrKMvFffbaWlOJhCUZC1ULH7IAK42kISpXJmMdqtT5xeMjFrMyQZDZD"
-    @@app_id = "1814652502538333"
+    @@token = Rails.application.credentials.dig(:meta, :token) || "EAA9UZCvyzPu0BQ7CpxpZAVOwA60P2kcEFi9B8mgTs5I9EPGZBJvVjRlhR22ddqbuAHYHWZBadyaQZCXVSZBFwMVE98uiauCIMVt7dP7x5DthPYIq72wZBgZCe0kmZBeP6gtzl84VB8gaU24rXUrKMvFffbaWlOJhCUZC1ULH7IAK42kISpXJmMdqtT5xeMjFrMyQZDZD"
+    @@app_id = Rails.application.credentials.dig(:meta, :app_id) || "1814652502538333"
 
     def initialize(recipient:, sender: "1010460445488841", meta_waba_id: "950814390965540")
       # @recipient = '5521936181803'
@@ -208,9 +208,9 @@ module Meta
                   "type": "pix_dynamic_code",
                   "pix_dynamic_code": {
                     "code": pix_code,
-                    "merchant_name": "EDUARDO DOS ANJOS RODRIGUES CONSULTORIA EM TECNOLOGIA DA INFORMACAO LTDA".slice(0, 56),
-                    "key": "46520158000193",
-                    "key_type": "CNPJ"
+                    "merchant_name": "EscreveZap".slice(0, 56),
+                    "key": Rails.application.credentials.dig(:inter, :pix_key),
+                    "key_type": "EVP" # Eh uma key aleatoria
                   }
                 }
               ],

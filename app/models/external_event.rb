@@ -1,7 +1,8 @@
 class ExternalEvent < ApplicationRecord
   enum :provider, {
     waha: "waha",
-    meta: "meta"
+    meta: "meta",
+    inter: "inter"
   }, default: :waha
 
   enum :status, { pending: "pending", completed: "completed", failed: "failed" }, default: :pending
@@ -13,6 +14,9 @@ class ExternalEvent < ApplicationRecord
       whatsapp_processor.process_event(worker_type: :waha)
     when "meta"
       whatsapp_processor.process_event(worker_type: :meta)
+    when "inter"
+      inter_processor = Inter::WebhookProcessor.new(payload: self.data)
+      inter_processor.call
     else
       raise "Unknown provider: #{provider}"
     end

@@ -1,6 +1,8 @@
 class Subscription < ApplicationRecord
   belongs_to :user
 
+  validates :provider, presence: true, inclusion: { in: %w[abacatepay inter] }
+
   enum :status, {
     inactive:  "inactive",
     trialing:  "trialing",
