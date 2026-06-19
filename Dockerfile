@@ -59,6 +59,9 @@ RUN npm install
 # Copy application code
 COPY . .
 
+# Copy SSL certificates if they exist (required for Inter API)
+RUN if [ -f "files/certificates/certificado.crt" ]; then cp files/certificates/certificado.crt files/certificates/api_key.key /rails/files/certificates/; fi
+
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile app/ lib/
 
