@@ -1,5 +1,7 @@
 # Should only happen upon server startup
 Rails.application.config.after_initialize do
+  next unless Rails.env.production?
+
   begin
     inter_service = Inter::Service.new
     response = inter_service.check_webhook
