@@ -1,5 +1,5 @@
 class User < ApplicationRecord
-  devise :rememberable, :trackable, :omniauthable, omniauth_providers: [:google_oauth2]
+  devise :rememberable, :trackable, :omniauthable, omniauth_providers: [ :google_oauth2 ]
 
   has_one :waha_session, dependent: :destroy
   has_one :subscription, dependent: :destroy
@@ -8,12 +8,19 @@ class User < ApplicationRecord
   enum :plan,             { free: "free", basic: "basic", pro: "pro" }, default: :free
   enum :formatting_style, { faithful: "faithful", polished: "polished", whatsapp: "whatsapp" }, default: :whatsapp
 
+  # Only if provider is email
   validates :email, presence: true,
                     format: { with: URI::MailTo::EMAIL_REGEXP },
-                    uniqueness: { case_sensitive: false }
+                    uniqueness: { case_sensitive: false }, if: -> { provider == :email }
+
   validates :uid, uniqueness: { scope: :provider }, allow_blank: true
 
-  before_save { email.downcase! }
+  before_save do
+    if provider.to_s == "phone"
+      self.email = "phone-#{uid}@escrevezap.com.br"
+    end
+    email.downcase! if email.present?
+  end
 
   TRANSCRIPTION_LIMITS = { "free" => 20, "basic" => 500, "pro" => 2_000 }.freeze
 

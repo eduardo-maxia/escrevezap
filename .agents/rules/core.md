@@ -637,3 +637,13 @@ SendWhatsappReplyJob
 Avoid giant jobs.
 
 Prefer composable pipelines.
+
+---
+
+# WhatsApp Formatting Rules
+
+Always use single asterisks (`*`) instead of double asterisks (`**`) for bold emphasis in WhatsApp messages and chatbot copies. Double asterisks do not render as bold in WhatsApp clients.
+
+Example:
+- Good: `*bold text*`
+- Bad: `**bold text**`

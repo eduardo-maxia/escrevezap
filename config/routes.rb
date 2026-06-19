@@ -20,9 +20,7 @@ Rails.application.routes.draw do
   get  "service-worker" => "pwa#service_worker", as: :pwa_service_worker
   get  "offline"        => "pwa#offline",               as: :pwa_offline
 
-  authenticate :user, ->(u) { u.admin? } do
-    mount SolidQueueDashboard::Engine, at: "/jobs"
-  end
+  mount SolidQueueDashboard::Engine, at: "/jobs"
 
   scope "/app" do
     devise_for :users,
@@ -30,7 +28,7 @@ Rails.application.routes.draw do
                  sessions:           "users/sessions",
                  omniauth_callbacks: "users/omniauth_callbacks"
                },
-               skip: [:passwords, :registrations]
+               skip: [ :passwords, :registrations ]
 
     devise_scope :user do
       get    "entrar",                    to: "users/sessions#new",        as: :new_user_session
@@ -49,7 +47,7 @@ Rails.application.routes.draw do
       post "conectar/pular",    to: "onboarding#skip_connection",  as: :onboarding_skip_connection
 
       # WhatsApp connection
-      resource  :waha_session,        only: [:show, :create, :destroy], as: :app_waha_session do
+      resource :waha_session,        only: [ :show, :create, :destroy ], as: :app_waha_session do
         member do
           get  :qr
           get  :status
@@ -59,7 +57,7 @@ Rails.application.routes.draw do
       end
 
       # Contacts to monitor for transcription
-      resources :monitored_contacts, only: [:index, :new, :create, :edit, :update, :destroy] do
+      resources :monitored_contacts, only: [ :index, :new, :create, :edit, :update, :destroy ] do
         collection do
           get  :whatsapp_contacts
           post :switch_mode
@@ -67,7 +65,7 @@ Rails.application.routes.draw do
       end
 
       # User profile
-      resource  :profile, controller: "profile", only: [:show, :update] do
+      resource :profile, controller: "profile", only: [ :show, :update ] do
         patch :update_email, on: :member
       end
 
@@ -87,15 +85,18 @@ Rails.application.routes.draw do
 
   namespace :admin do
     root "dashboard#index"
-    resources :users,                only: [:index, :show]
-    resources :transcriptions,       only: [:index, :show]
-    resources :transcription_errors, only: [:index]
-    resources :waha_sessions,        only: [:edit, :update]
+    resources :users,                only: [ :index, :show ]
+    resources :transcriptions,       only: [ :index, :show ]
+    resources :transcription_errors, only: [ :index ]
+    resources :waha_sessions,        only: [ :edit, :update ]
   end
 
   namespace :webhook do
-    resource :waha,       only: [:create], controller: :waha
-    resource :abacate_pay, only: [:create], controller: :abacate_pay
+    resource :waha,       only: [ :create ], controller: :waha
+    resource :abacate_pay, only: [ :create ], controller: :abacate_pay
+
+    get "meta", to: "meta#index"
+    post "meta", to: "meta#create"
   end
 
   # Catch-all 404 — must be the LAST route.

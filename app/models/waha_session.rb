@@ -64,6 +64,58 @@ class WahaSession < ApplicationRecord
     Rails.logger.warn "[WahaSession#disconnect!] #{e.message}"
   end
 
+  # Requests a pairing code from WAHA for the given phone number.
+  # Handles starting/connecting the session if not running.
+  def request_pairing_code(phone_number)
+    phone = phone_number.to_s.gsub(/\D/, "")
+    raise "Número de telefone inválido" if phone.blank?
+
+    unless waha_status == "scan_qr_code"
+      begin
+        waha_client.sessions.restart
+        update!(waha_status: :starting)
+      rescue => e
+        if missing_waha_session_error?(e)
+          connect!
+        else
+          raise e
+        end
+      end
+
+      # Wait up to 15 seconds for the session to reach scan_qr_code state
+      15.times do
+        session_info = waha_client.sessions.get rescue nil
+        if session_info && session_info["status"] == "SCAN_QR_CODE"
+          update!(waha_status: :scan_qr_code)
+          break
+        end
+        sleep 1
+      end
+    end
+
+    result = waha_client.sessions.request_pairing_code(phone_number: phone)
+    result["code"]
+  rescue => e
+    Rails.logger.error "[WahaSession#request_pairing_code] Error requesting pairing code: #{e.class} #{e.message}"
+    raise e
+  end
+
+  def missing_waha_session_error?(error)
+    [error, error.cause].compact.any? do |err|
+      next false unless err.is_a?(ApiRequest::ApiClientError)
+
+      message = err.message.to_s.downcase
+      has_404 = message.include?(" 404 ") || message.include?("404")
+      missing_session = message.include?("session") && (
+        message.include?("not found") ||
+        message.include?("does not exist") ||
+        message.include?("unknown")
+      )
+
+      has_404 || missing_session
+    end
+  end
+
   # Number of transcriptions processed this calendar month (excludes failed).
   def monthly_transcription_count
     transcriptions.where("transcriptions.created_at >= ?", Time.current.beginning_of_month)
@@ -99,6 +151,45 @@ class WahaSession < ApplicationRecord
   def complete_user_onboarding
     _old, new_status = saved_change_to_waha_status
     return unless new_status == "working"
+
+    # Send message to WhatsApp user if provider is phone
+    if user.provider == "phone" && waha_chat_id.present?
+      recipient_phone = waha_chat_id.split("@").first
+      meta_service = Meta::Service.new(recipient: recipient_phone)
+
+      meta_service.send_message(
+        "🎉 *Oba! Seu WhatsApp foi conectado com sucesso!*\n\n" \
+        "Agora o EscreveZap está ativo no seu celular. Sempre que você receber ou enviar um áudio, " \
+        "basta reagir a ele com qualquer emoji (como 👀, 👍 ou ❤️) que eu enviarei a transcrição completa na própria conversa!"
+      )
+
+      # Manda o menu principal caso o usuário não tenha nenhuma transcrição ainda
+      if transcriptions.count.zero?
+        meta_service.send_list_message(
+          body_text: "Como posso ajudar você hoje?",
+          button_text: "Escolher opção",
+          sections: [
+            {
+              title: "WhatsApp",
+              rows: [
+                { id: "menu_status", title: "📡 Status da Conexão", description: "Verificar se seu celular está ativo" },
+                { id: "menu_connect", title: "🔌 Conectar / Alterar", description: "Gerar novo código de pareamento" }
+              ]
+            },
+            {
+              title: "Conta",
+              rows: [
+                { id: "menu_billing", title: "💳 Plano e Faturamento", description: "Ver limite, uso mensal e upgrades" },
+                { id: "menu_help", title: "❓ Ajuda / Como usar", description: "Relembrar instruções de transcrição" }
+              ]
+            }
+          ],
+          header_text: "Menu Principal - EscreveZap",
+          footer_text: "EscreveZap"
+        )
+      end
+    end
+
     return if user.onboarding_completed?
 
     user.complete_onboarding!

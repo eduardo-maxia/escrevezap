@@ -1,0 +1,100 @@
+module Reply
+  module Router
+    def reply(message:, interactive_reply: nil)
+      # 1. Action Router (Priority): Route by interactive action ID if present
+      if interactive_reply.present? && interactive_reply[:id].present?
+        route_action(interactive_reply[:id], interactive_reply)
+      else
+        # 2. State Router: Route based on current conversation stage
+        stage = @current_conversation_state["stage"] || "initial"
+        route_stage(stage, message)
+      end
+
+      @current_conversation_state["last_reply_at"] = Time.now
+      @user.update!(conversation_state: @current_conversation_state)
+    rescue => e
+      Rails.logger.error "[Reply::Base#reply] Error in reply service: #{e.class} #{e.message}"
+      if Rails.env.production?
+        send_message(message: "Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente em instantes. 🥺")
+      else
+        raise e
+      end
+    end
+
+    private
+
+    def route_action(action_id, reply_data)
+      case action_id
+      # Onboarding actions
+      when "onboarding_connect"
+        start_connection_flow
+      when "onboarding_how"
+        show_how_it_works
+      when "onboarding_plans"
+        show_plans
+
+      # Menu / Connection status actions
+      when "menu_status"
+        show_connection_status
+      when "menu_connect"
+        start_connection_flow
+      when "menu_billing"
+        show_billing
+      when "menu_help"
+        show_how_it_works
+      when "menu_support"
+        show_support
+
+      # Connection tracking actions
+      when "verify_connection"
+        verify_session_connection
+      when "cancel_connection"
+        cancel_connection_flow
+      when "menu_disconnect_prompt"
+        prompt_disconnect
+      when "confirm_disconnect"
+        process_disconnect
+
+      # Billing / Upgrade actions
+      when "upgrade_basic"
+        generate_upgrade_checkout("basic")
+      when "upgrade_pro"
+        generate_upgrade_checkout("pro")
+      when "cancel_subscription"
+        process_subscription_cancellation
+
+      # Default fallback
+      else
+        show_menu
+      end
+    end
+
+    def route_stage(stage, message)
+      case stage
+      when "waiting_for_connection"
+        # Checa se o usuário já conectou. Se sim, redireciona para o menu principal
+        if @session.working?
+          show_menu
+          return
+        end
+
+        send_list_message(
+          body_text: "Ainda estou aguardando a conexão do seu WhatsApp no celular. Se você já inseriu o código, toque em 'Verificar Conexão' abaixo:",
+          button_text: "Opções",
+          sections: [
+            {
+              title: "Conexão",
+              rows: [
+                { id: "verify_connection", title: "📡 Verificar Conexão", description: "Verificar se a conexão foi estabelecida" },
+                { id: "menu_connect", title: "🔄 Pedir Novo Código", description: "Gerar um novo código de pareamento" },
+                { id: "cancel_connection", title: "❌ Cancelar e Voltar", description: "Voltar para o menu principal" }
+              ]
+            }
+          ]
+        )
+      else
+        show_menu
+      end
+    end
+  end
+end

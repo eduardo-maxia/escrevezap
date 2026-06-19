@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_28_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_18_225451) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -69,6 +69,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_28_100000) do
   end
 
   create_table "monitored_contacts", force: :cascade do |t|
+    t.boolean "auto_created", default: false, null: false
     t.string "avatar_url"
     t.datetime "created_at", null: false
     t.datetime "deleted_at"
@@ -79,6 +80,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_28_100000) do
     t.datetime "updated_at", null: false
     t.string "waha_chat_id"
     t.bigint "waha_session_id", null: false
+    t.index ["auto_created"], name: "index_monitored_contacts_on_auto_created"
     t.index ["deleted_at"], name: "index_monitored_contacts_on_deleted_at"
     t.index ["waha_chat_id"], name: "index_monitored_contacts_on_waha_chat_id"
     t.index ["waha_session_id", "phone_number"], name: "index_monitored_contacts_on_waha_session_id_and_phone_number", unique: true
@@ -174,6 +176,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_28_100000) do
     t.boolean "admin", default: false, null: false
     t.string "avatar_url"
     t.boolean "contacts_intro_dismissed", default: false, null: false
+    t.jsonb "conversation_state", default: {}
     t.datetime "created_at", null: false
     t.datetime "current_sign_in_at"
     t.string "current_sign_in_ip"
@@ -210,12 +213,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_28_100000) do
     t.datetime "created_at", null: false
     t.string "display_name"
     t.string "session_name", null: false
+    t.string "transcription_mode", default: "reaction", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.string "waha_chat_id"
     t.string "waha_status", default: "pending", null: false
     t.index ["auto_transcribe"], name: "index_waha_sessions_on_auto_transcribe"
     t.index ["session_name"], name: "index_waha_sessions_on_session_name", unique: true
+    t.index ["transcription_mode"], name: "index_waha_sessions_on_transcription_mode"
     t.index ["user_id"], name: "index_waha_sessions_on_user_id", unique: true
   end
 

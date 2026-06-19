@@ -1,6 +1,7 @@
 class ExternalEvent < ApplicationRecord
   enum :provider, {
     waha: "waha",
+    meta: "meta"
   }, default: :waha
 
   enum :status, { pending: "pending", completed: "completed", failed: "failed" }, default: :pending
@@ -10,6 +11,8 @@ class ExternalEvent < ApplicationRecord
     case provider
     when "waha"
       whatsapp_processor.process_event(worker_type: :waha)
+    when "meta"
+      whatsapp_processor.process_event(worker_type: :meta)
     else
       raise "Unknown provider: #{provider}"
     end

@@ -19,18 +19,17 @@ default: &default
   # https://guides.rubyonrails.org/configuring.html#database-pooling
   max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
-
 development:
   primary:
     <<: *default
-    database: cobranca_em_dia_development
+    database: watranscriber_development
     host: <%= Rails.application.credentials.dig(:database, :host) %>
     username: <%= Rails.application.credentials.dig(:database, :username) %>
     password: <%= Rails.application.credentials.dig(:database, :password) %>
     port: <%= Rails.application.credentials.dig(:database, :port) %>
   cable:
     <<: *default
-    database: cobranca_em_dia_cable_development
+    database: watranscriber_cable_development
     host: <%= Rails.application.credentials.dig(:database, :host) %>
     username: <%= Rails.application.credentials.dig(:database, :username) %>
     password: <%= Rails.application.credentials.dig(:database, :password) %>
@@ -38,7 +37,7 @@ development:
     migrations_paths: db/cable_migrate
   queue:
     <<: *default
-    database: cobranca_em_dia_queue_development
+    database: watranscriber_queue_development
     host: <%= Rails.application.credentials.dig(:database, :host) %>
     username: <%= Rails.application.credentials.dig(:database, :username) %>
     password: <%= Rails.application.credentials.dig(:database, :password) %>

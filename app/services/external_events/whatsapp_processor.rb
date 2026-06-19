@@ -9,6 +9,19 @@ class ExternalEvents::WhatsappProcessor < ExternalEvents::Base
     @data = parse_payload(worker_type)
     @external_event.update!(parsed_event: @data)
 
+    # Se for da META, só manda pro Reply
+    if worker_type == :meta
+      return unless @data[:event] == "message"
+
+      Reply::Base.new(
+        from: @data[:payload][:from],
+        display_name: @data[:payload][:display_name]
+      ).reply(
+        message: @data[:payload][:body],
+        interactive_reply: @data[:payload][:interactive_reply]
+      )
+    end
+
     return unless preprocess
 
     case @data[:event]
@@ -263,9 +276,10 @@ class ExternalEvents::WhatsappProcessor < ExternalEvents::Base
 
   def parse_payload(worker_type)
     parser_class = case worker_type.to_sym
-                   when :waha then ExternalEvents::WhatsappParsers::GowsParser
-                   else            ExternalEvents::WhatsappParsers::GowsParser
-                   end
+    when :waha then ExternalEvents::WhatsappParsers::GowsParser
+    when :meta then ExternalEvents::WhatsappParsers::MetaParser
+    else            ExternalEvents::WhatsappParsers::GowsParser
+    end
     parser_class.new(@data).parse
   end
 end
