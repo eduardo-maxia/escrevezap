@@ -169,6 +169,7 @@ module Llm
     end
   rescue => e
     log_error "Tool '#{name}' raised: #{e.message}"
+    Sentry.capture_exception(e)
     { error: e.message }
   end
 

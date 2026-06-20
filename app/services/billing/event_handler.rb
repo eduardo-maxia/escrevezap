@@ -78,6 +78,7 @@ module Billing
           Abacatepay::Client.new.subscriptions.cancel(id: existing_sub.abacatepay_subscription_id)
         rescue => e
           Rails.logger.error "[Billing::EventHandler#handle_completed] Cancel old sub failed: #{e.message}"
+          Sentry.capture_exception(e)
         end
       end
 
@@ -106,6 +107,7 @@ module Billing
           )
         rescue => e
           Rails.logger.error "[Billing::EventHandler#handle_completed] Failed to send WhatsApp notification: #{e.message}"
+          Sentry.capture_exception(e)
         end
       end
     end

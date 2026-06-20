@@ -30,5 +30,6 @@ class FetchChipProfilePictureJob < ApplicationJob
     )
   rescue => e
     Rails.logger.warn("[FetchChipProfilePictureJob] chip=#{chip_id} #{e.class}: #{e.message}")
+    Sentry.capture_exception(e)
   end
 end

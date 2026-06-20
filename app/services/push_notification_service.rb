@@ -25,5 +25,6 @@ class PushNotificationService
     subscription.destroy
   rescue => e
     Rails.logger.error "[PushNotificationService] #{e.class}: #{e.message}"
+    Sentry.capture_exception(e)
   end
 end

@@ -152,6 +152,7 @@ module Reply
           ]
         )
       rescue => e
+        Sentry.capture_exception(e)
         raise e unless Rails.env.production?
 
         Rails.logger.error "[Reply::Billing#process_billing_name] Error generating automatic pix: #{e.class} #{e.message}"
@@ -251,6 +252,7 @@ module Reply
           @user.update!(plan: :free)
           send_message(message: "🚫 Sua assinatura via Pix Automático foi cancelada com sucesso. Você foi migrado de volta para o plano Grátis.")
         rescue => e
+          Sentry.capture_exception(e)
           raise e unless Rails.env.production?
 
           Rails.logger.error "[Reply::Billing#process_subscription_cancellation] Inter error: #{e.message}"

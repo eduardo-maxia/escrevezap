@@ -24,5 +24,6 @@ class FetchWahaSessionProfileJob < ApplicationJob
     end
   rescue => e
     Rails.logger.warn "[FetchWahaSessionProfileJob] #{e.message}"
+    Sentry.capture_exception(e)
   end
 end

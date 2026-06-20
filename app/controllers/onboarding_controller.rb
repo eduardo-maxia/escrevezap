@@ -14,6 +14,7 @@ class OnboardingController < ApplicationController
       start_onboarding_session!
     rescue => e
       flash.now[:alert] = "Não foi possível iniciar a sessão do WhatsApp: #{human_error_message(e)}"
+      Sentry.capture_exception(e)
     end
   end
 
@@ -23,6 +24,7 @@ class OnboardingController < ApplicationController
       render json: { status: @waha_session.reload.waha_status }
     rescue => e
       render json: { error: "Não foi possível reconectar: #{human_error_message(e)}" }, status: :service_unavailable
+      Sentry.capture_exception(e)
     end
   end
 

@@ -15,4 +15,8 @@ module ApplicationHelper
       number.to_s
     end
   end
+
+  def official_whatsapp_url
+    "https://wa.me/558296801867?text=Oi!%20Gostaria%20de%20conhecer%20os%20servi%C3%A7os"
+  end
 end

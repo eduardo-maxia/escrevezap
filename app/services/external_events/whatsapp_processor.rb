@@ -193,6 +193,7 @@ class ExternalEvents::WhatsappProcessor < ExternalEvents::Base
     @waha_session.waha_client.messaging.get_message(chat_id: chat_id, message_id: message_id)
   rescue => e
     log_warning "Falha ao buscar mensagem #{message_id}: #{e.class} #{e.message}"
+    Sentry.capture_exception(e)
     nil
   end
 

@@ -62,6 +62,7 @@ class WahaSession < ApplicationRecord
     update!(waha_status: :stopped)
   rescue => e
     Rails.logger.warn "[WahaSession#disconnect!] #{e.message}"
+    Sentry.capture_exception(e)
   end
 
   # Requests a pairing code from WAHA for the given phone number.

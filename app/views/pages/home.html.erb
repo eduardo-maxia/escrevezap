@@ -36,7 +36,8 @@
 
         <%# CTAs %>
         <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-          <%= link_to new_user_session_path,
+          <%= link_to official_whatsapp_url,
+                target: "_blank", rel: "noopener",
                 class: "inline-flex items-center justify-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-6 py-3.5 rounded-xl transition-colors text-sm shadow-sm" do %>
             <i class="ph ph-whatsapp-logo text-lg"></i>
             Conectar meu WhatsApp
@@ -225,7 +226,8 @@
     <%# (decorative, handled by grid gap + natural reading flow) %>
 
     <div class="mt-12 text-center">
-      <%= link_to new_user_session_path,
+      <%= link_to official_whatsapp_url,
+            target: "_blank", rel: "noopener",
             class: "inline-flex items-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-6 py-3.5 rounded-xl transition-colors text-sm" do %>
         <i class="ph ph-whatsapp-logo text-lg"></i>
         Começar agora
@@ -466,7 +468,8 @@
 
           <div class="mt-5 text-center">
             <p class="text-sm text-(--color-text-muted) mb-3">Gostou do resultado?</p>
-            <%= link_to new_user_session_path,
+            <%= link_to official_whatsapp_url,
+                  target: "_blank", rel: "noopener",
                   class: "inline-flex items-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm shadow-sm" do %>
               <i class="ph ph-whatsapp-logo text-lg"></i>
               Quero no meu WhatsApp
@@ -565,7 +568,8 @@
             Resumo com IA
           </li>
         </ul>
-        <%= link_to "Começar grátis", new_user_session_path,
+        <%= link_to "Começar grátis", official_whatsapp_url,
+              target: "_blank", rel: "noopener",
               class: "block w-full text-center bg-(--color-brand-subtle) hover:bg-(--color-brand-light) text-(--color-brand) font-semibold py-3 rounded-xl text-sm transition-colors" %>
       </div>
 
@@ -596,7 +600,8 @@
             Resumo com IA
           </li>
         </ul>
-        <%= link_to "Assinar Basic", new_user_session_path,
+        <%= link_to "Assinar Basic", official_whatsapp_url,
+              target: "_blank", rel: "noopener",
               class: "block w-full text-center bg-(--color-brand-subtle) hover:bg-(--color-brand-light) text-(--color-brand) font-semibold py-3 rounded-xl text-sm transition-colors" %>
       </div>
 
@@ -628,7 +633,8 @@
             </li>
           <% end %>
         </ul>
-        <%= link_to "Experimentar Pro", new_user_session_path,
+        <%= link_to "Experimentar Pro", official_whatsapp_url,
+              target: "_blank", rel: "noopener",
               class: "block w-full text-center bg-white hover:bg-(--color-brand-light) text-(--color-brand) font-bold py-3 rounded-xl text-sm transition-colors" %>
       </div>
 
@@ -789,7 +795,8 @@
       Leia seus áudios quando ouvir não for uma opção.
     </p>
     <div class="mt-10">
-      <%= link_to new_user_session_path,
+      <%= link_to official_whatsapp_url,
+            target: "_blank", rel: "noopener",
             class: "inline-flex items-center gap-2 bg-white hover:bg-(--color-brand-light) text-(--color-brand) font-bold px-8 py-4 rounded-xl transition-colors text-base shadow-lg" do %>
         <i class="ph ph-whatsapp-logo text-xl"></i>
         Conectar meu WhatsApp

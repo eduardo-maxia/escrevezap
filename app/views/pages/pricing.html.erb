@@ -27,7 +27,8 @@
           </li>
         <% end %>
       </ul>
-      <%= link_to t("pages.pricing.cta_free"), new_user_session_path,
+      <%= link_to t("pages.pricing.cta_free"), official_whatsapp_url,
+            target: "_blank", rel: "noopener",
             class: "mt-6 block text-center bg-(--color-surface-soft) hover:bg-gray-100 text-(--color-text) font-medium px-4 py-2.5 rounded-xl text-sm transition-colors" %>
     </div>
 
@@ -55,7 +56,8 @@
               class: "mt-6 block text-center bg-(--color-surface-raised) hover:bg-(--color-border) text-(--color-text) font-medium px-4 py-2.5 rounded-xl text-sm transition-colors",
               data: { controller: "loadable", "loadable-loading-text-value": "Redirecionando..." } %>
       <% else %>
-        <%= link_to t("pages.pricing.cta_paid"), new_user_session_path,
+        <%= link_to t("pages.pricing.cta_paid"), official_whatsapp_url,
+              target: "_blank", rel: "noopener",
               class: "mt-6 block text-center bg-(--color-surface-raised) hover:bg-(--color-border) text-(--color-text) font-medium px-4 py-2.5 rounded-xl text-sm transition-colors" %>
       <% end %>
     </div>
@@ -87,7 +89,8 @@
               class: "mt-6 block text-center bg-white text-(--color-brand) font-semibold px-4 py-2.5 rounded-xl text-sm hover:bg-(--color-brand-light) transition-colors",
               data: { controller: "loadable", "loadable-loading-text-value": "Redirecionando..." } %>
       <% else %>
-        <%= link_to t("pages.pricing.cta_paid"), new_user_session_path,
+        <%= link_to t("pages.pricing.cta_paid"), official_whatsapp_url,
+              target: "_blank", rel: "noopener",
               class: "mt-6 block text-center bg-white text-(--color-brand) font-semibold px-4 py-2.5 rounded-xl text-sm hover:bg-(--color-brand-light) transition-colors" %>
       <% end %>
     </div>

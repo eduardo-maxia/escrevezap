@@ -61,7 +61,8 @@
         <%= link_to "Entrar", authenticated_root_path,
               class: "flex items-center justify-center gap-2 w-full bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold py-3.5 rounded-xl text-sm transition-colors" %>
       <% else %>
-        <%= link_to new_user_session_path,
+        <%= link_to official_whatsapp_url,
+              target: "_blank", rel: "noopener",
               class: "flex items-center justify-center gap-2 w-full bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold py-3.5 rounded-xl text-sm transition-colors" do %>
           <i class="ph ph-whatsapp-logo text-lg"></i>
           Conectar meu WhatsApp
@@ -101,7 +102,10 @@
               <%= link_to "Entrar", authenticated_root_path,
                     class: "hidden md:inline-flex items-center gap-1.5 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors" %>
             <% else %>
-              <%= link_to new_user_session_path,
+              <%= link_to "Entrar", new_user_session_path,
+                    class: "hidden md:inline-flex text-sm text-(--color-text-muted) hover:text-(--color-text) font-semibold px-3 py-2 transition-colors mr-1" %>
+              <%= link_to official_whatsapp_url,
+                    target: "_blank", rel: "noopener",
                     class: "hidden md:inline-flex items-center gap-1.5 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors" do %>
                 <i class="ph ph-whatsapp-logo"></i>
                 Conectar WhatsApp
@@ -128,8 +132,14 @@
               <%= link_to "Entrar", authenticated_root_path,
                     class: "flex items-center justify-center gap-2 w-full bg-(--color-brand) text-white font-semibold py-3 rounded-xl text-sm" %>
             <% else %>
-              <%= link_to "Conectar meu WhatsApp", new_user_session_path,
-                    class: "flex items-center justify-center gap-2 w-full bg-(--color-brand) text-white font-semibold py-3 rounded-xl text-sm" %>
+              <%= link_to official_whatsapp_url,
+                    target: "_blank", rel: "noopener",
+                    class: "flex items-center justify-center gap-2 w-full bg-(--color-brand) text-white font-semibold py-3 rounded-xl text-sm" do %>
+                <i class="ph ph-whatsapp-logo text-lg"></i>
+                Conectar meu WhatsApp
+              <% end %>
+              <%= link_to "Entrar", new_user_session_path,
+                    class: "flex items-center justify-center text-sm text-(--color-text-muted) hover:text-(--color-text) pt-2" %>
             <% end %>
           </div>
         </div>

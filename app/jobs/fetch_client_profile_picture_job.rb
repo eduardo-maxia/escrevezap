@@ -26,5 +26,6 @@ class FetchClientProfilePictureJob < ApplicationJob
     )
   rescue => e
     Rails.logger.warn("[FetchClientProfilePictureJob] client=#{client_id} #{e.class}: #{e.message}")
+    Sentry.capture_exception(e)
   end
 end

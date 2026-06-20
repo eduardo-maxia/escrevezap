@@ -14,6 +14,7 @@ class FetchMonitoredContactProfilePictureJob < ApplicationJob
     fetch_display_name(contact, waha_session, chat_id) if contact.display_name.blank?
   rescue => e
     Rails.logger.warn("[FetchMonitoredContactProfilePictureJob] contact=#{monitored_contact_id} #{e.class}: #{e.message}")
+    Sentry.capture_exception(e)
   end
 
   private
@@ -24,6 +25,7 @@ class FetchMonitoredContactProfilePictureJob < ApplicationJob
     contact.update_column(:avatar_url, url) if url.present?
   rescue => e
     Rails.logger.warn("[FetchMonitoredContactProfilePictureJob] avatar fetch failed for contact=#{contact.id}: #{e.message}")
+    Sentry.capture_exception(e)
   end
 
   def fetch_display_name(contact, waha_session, chat_id)
@@ -35,5 +37,6 @@ class FetchMonitoredContactProfilePictureJob < ApplicationJob
     contact.update_column(:display_name, name) if name.present?
   rescue => e
     Rails.logger.warn("[FetchMonitoredContactProfilePictureJob] display_name fetch failed for contact=#{contact.id}: #{e.message}")
+    Sentry.capture_exception(e)
   end
 end

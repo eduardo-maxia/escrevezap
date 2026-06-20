@@ -14,6 +14,7 @@ module Reply
       @user.update!(conversation_state: @current_conversation_state)
     rescue => e
       Rails.logger.error "[Reply::Base#reply] Error in reply service: #{e.class} #{e.message}"
+      Sentry.capture_exception(e)
       if Rails.env.production?
         send_message(message: "Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente em instantes. 🥺")
       else

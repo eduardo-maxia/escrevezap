@@ -311,10 +311,12 @@ class TranscribeAudioJob < ApplicationJob
     [summary, result[:full_formatted], token_count]
   rescue JSON::ParserError, KeyError => e
     Rails.logger.warn "[TranscribeAudioJob] AI format parse error: #{e.message}"
+    Sentry.capture_exception(e)
     record_error!(transcription, stage: "ai_format", error: e)
     [nil, nil, nil]
   rescue => e
     Rails.logger.warn "[TranscribeAudioJob] AI format failed: #{e.message}"
+    Sentry.capture_exception(e)
     record_error!(transcription, stage: "ai_format", error: e)
     [nil, nil, nil]
   end
@@ -395,6 +397,7 @@ class TranscribeAudioJob < ApplicationJob
     )
   rescue => e
     Rails.logger.warn "[TranscribeAudioJob] Failed to track Deepgram usage: #{e.message}"
+    Sentry.capture_exception(e)
     record_error!(transcription, stage: "track_usage", error: e)
   end
 
@@ -410,6 +413,7 @@ class TranscribeAudioJob < ApplicationJob
     )
   rescue => e
     Rails.logger.warn "[TranscribeAudioJob] Failed to track OpenAI usage: #{e.message}"
+    Sentry.capture_exception(e)
     record_error!(transcription, stage: "track_usage", error: e)
   end
 
@@ -433,6 +437,7 @@ class TranscribeAudioJob < ApplicationJob
     end
   rescue => e
     Rails.logger.warn "[TranscribeAudioJob] Failed to track gpt-4o-transcribe usage: #{e.message}"
+    Sentry.capture_exception(e)
     record_error!(transcription, stage: "track_usage", error: e)
   end
 
@@ -447,6 +452,7 @@ class TranscribeAudioJob < ApplicationJob
     transcription.audio.attach(io: StringIO.new(audio_data), filename: filename)
   rescue StandardError => e
     Rails.logger.warn "[TranscribeAudioJob] Failed to attach audio for transcription #{transcription.id}: #{e.class}: #{e.message}"
+    Sentry.capture_exception(e)
     record_error!(transcription, stage: "attach_audio", error: e)
   end
 
@@ -460,6 +466,7 @@ class TranscribeAudioJob < ApplicationJob
     )
   rescue => record_err
     Rails.logger.error "[TranscribeAudioJob] Failed to record TranscriptionError: #{record_err.message}"
+    Sentry.capture_exception(record_err)
   end
 
   def fail_transcription!(transcription, message)
@@ -480,6 +487,7 @@ class TranscribeAudioJob < ApplicationJob
       waha_session.waha_client.messaging.send_text(chat_id: chat_id, text: text)
     rescue => e
       Rails.logger.warn "[TranscribeAudioJob] Failed to send limit notice via WA: #{e.message}"
+      Sentry.capture_exception(e)
     end
 
     # Push Notification (com link pro billing)

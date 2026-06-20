@@ -44,6 +44,7 @@ class BillingController < ApplicationController
     redirect_to billing_path, notice: "Assinatura cancelada. Acesso ao plano gratuito a partir de agora."
   rescue => e
     Rails.logger.error "[BillingController#cancel] #{e.message}"
+    Sentry.capture_exception(e)
     redirect_to billing_path, alert: "Erro ao cancelar. Tente novamente."
   end
 
@@ -79,6 +80,7 @@ class BillingController < ApplicationController
     end
   rescue => e
     Rails.logger.error "[BillingController#change_plan] #{e.message}"
+    Sentry.capture_exception(e)
     redirect_to billing_path, alert: "Erro ao alterar o plano. Tente novamente."
   end
 
@@ -115,6 +117,7 @@ class BillingController < ApplicationController
     redirect_to checkout_url, allow_other_host: true
   rescue => e
     Rails.logger.error "[BillingController#upgrade] #{e.message}"
+    Sentry.capture_exception(e)
     redirect_to billing_path, alert: "Erro ao processar checkout. Tente novamente."
   end
 
