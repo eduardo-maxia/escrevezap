@@ -218,7 +218,7 @@ class TranscribeAudioJob < ApplicationJob
     # 2. Write to a temp file and transcribe
     stage = "stt"
     transcriber = nil
-    transcript = Tempfile.create(["wt_audio_#{transcription.id}", ".ogg"], binmode: true) do |file|
+    transcript = Tempfile.create([ "wt_audio_#{transcription.id}", ".ogg" ], binmode: true) do |file|
       file.write(audio_data)
       file.flush
       transcriber = build_transcriber(file.path)
@@ -293,14 +293,14 @@ class TranscribeAudioJob < ApplicationJob
   def ai_format(transcript, user, transcription, with_summary: true)
     prompt = if user.faithful?
                AI_PROMPT_FAITHFUL
-             elsif user.polished?
+    elsif user.polished?
                AI_PROMPT_POLISHED
-             else
+    else
                AI_PROMPT_WHATSAPP
-             end
+    end
     response = Llm::Client.new(model: "gpt-5.4-mini")
                           # Joga a verbosity e o thinking lá embaixo
-                          .with_params(reasoning: {effort: 'low'}, text: {verbosity: 'low'})
+                          .with_params(reasoning: { effort: "low" }, text: { verbosity: "low" })
                           .with_instructions(prompt)
                           .add_message(role: "user", content: transcript)
                           .complete
@@ -308,17 +308,17 @@ class TranscribeAudioJob < ApplicationJob
     result       = parse_llm_json(response.content)
     token_count  = (response.input_tokens.to_i + response.output_tokens.to_i).then { |n| n > 0 ? n : nil }
     summary      = with_summary ? result[:summary] : nil
-    [summary, result[:full_formatted], token_count]
+    [ summary, result[:full_formatted], token_count ]
   rescue JSON::ParserError, KeyError => e
     Rails.logger.warn "[TranscribeAudioJob] AI format parse error: #{e.message}"
     Sentry.capture_exception(e)
     record_error!(transcription, stage: "ai_format", error: e)
-    [nil, nil, nil]
+    [ nil, nil, nil ]
   rescue => e
     Rails.logger.warn "[TranscribeAudioJob] AI format failed: #{e.message}"
     Sentry.capture_exception(e)
     record_error!(transcription, stage: "ai_format", error: e)
-    [nil, nil, nil]
+    [ nil, nil, nil ]
   end
 
   # Parses a JSON string returned by the LLM, handling two common failure modes:
@@ -480,7 +480,7 @@ class TranscribeAudioJob < ApplicationJob
     # Mensagem no WhatsApp (sem link)
     text = "⚠️ *Seu limite de transcrições do EscreveZap foi atingido este mês.*\n\n" \
            "Você usou todas as #{user.transcription_limit} transcrições do plano #{user.plan.capitalize}.\n\n" \
-           "Para continuar recebendo transcrições, acesse o aplicativo e atualize seu plano.\n\n" \
+           "Para continuar recebendo transcrições, atualize seu plano.\n\n" \
            "_via EscreveZap_"
 
     begin
@@ -491,9 +491,9 @@ class TranscribeAudioJob < ApplicationJob
     end
 
     # Push Notification (com link pro billing)
-    app_host = Rails.application.credentials.dig(:waha, :webhook_host) || Rails.application.config.action_mailer.default_url_options&.dig(:host) || 'localhost:3000'
+    app_host = Rails.application.credentials.dig(:waha, :webhook_host) || Rails.application.config.action_mailer.default_url_options&.dig(:host) || "localhost:3000"
     billing_url = Rails.application.routes.url_helpers.billing_url(host: app_host)
-    
+
     PushNotificationService.notify(
       user,
       title: "Limite de transcrições atingido",

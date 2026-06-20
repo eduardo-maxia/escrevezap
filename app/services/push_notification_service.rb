@@ -2,6 +2,10 @@ class PushNotificationService
   VAPID_SUBJECT = "mailto:suporte@cobrancaemdia.com.br"
 
   def self.notify(user, title:, body:, url: "/app")
+    # For now, push subscriptions are not working
+    Rails.logger.info "[PushNotificationService] Push subscriptions are not working"
+    return
+
     user.push_subscriptions.each do |sub|
       send_to(sub, title: title, body: body, url: url)
     end
