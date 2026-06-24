@@ -1,0 +1,46 @@
+<article class="bg-(--color-bg) py-16 md:py-24">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <nav aria-label="Trilha de navegação" class="text-sm text-(--color-text-muted) mb-8">
+      <ol class="inline-flex items-center gap-1.5">
+        <li><%= link_to "Início", root_path, class: "hover:text-(--color-text) transition-colors" %></li>
+        <li aria-hidden="true">/</li>
+        <li><%= link_to "Blog", blog_index_path, class: "hover:text-(--color-text) transition-colors" %></li>
+        <li aria-hidden="true">/</li>
+        <li class="text-(--color-text) truncate max-w-[200px] sm:max-w-xs" aria-current="page"><%= @post[:title] %></li>
+      </ol>
+    </nav>
+
+    <header class="mb-12">
+      <h1 class="text-3xl md:text-5xl font-extrabold text-(--color-text) leading-tight tracking-tight mb-6">
+        <%= @post[:title] %>
+      </h1>
+      <div class="flex items-center gap-4 text-sm text-(--color-text-muted)">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-(--color-brand-light) text-(--color-brand) rounded-full flex items-center justify-center shrink-0">
+            <i class="ph ph-user"></i>
+          </div>
+          <span class="font-medium"><%= @post[:author] %></span>
+        </div>
+        <span aria-hidden="true">&bull;</span>
+        <time datetime="<%= @post[:date] %>"><%= Date.parse(@post[:date]).strftime("%d de %b, %Y") %></time>
+      </div>
+    </header>
+
+    <div class="prose prose-lg prose-stone prose-a:text-(--color-brand) hover:prose-a:text-(--color-brand-dark) prose-h2:text-(--color-text) prose-h3:text-(--color-text) prose-p:text-(--color-text-muted) max-w-none">
+      <%= raw @post[:content] %>
+    </div>
+
+    <hr class="my-12 border-gray-200">
+
+    <div class="bg-(--color-surface) rounded-2xl p-8 text-center border border-gray-100">
+      <h3 class="text-2xl font-bold text-(--color-text) mb-3">Gostou deste artigo?</h3>
+      <p class="text-(--color-text-muted) mb-6">Experimente o EscreveZap agora mesmo e veja como é fácil transcrever áudios automaticamente.</p>
+      <%= link_to official_whatsapp_url, target: "_blank", rel: "noopener", class: "inline-flex items-center justify-center gap-2 bg-(--color-brand) hover:bg-(--color-brand-dark) text-white font-semibold px-6 py-3.5 rounded-xl transition-colors text-sm shadow-sm" do %>
+        <i class="ph ph-whatsapp-logo text-lg"></i>
+        Conectar meu WhatsApp
+      <% end %>
+    </div>
+
+  </div>
+</article>

@@ -1,0 +1,37 @@
+<% content_for :title_full, "Blog EscreveZap | Dicas e Tutoriais sobre Transcrição" %>
+<% content_for :description, "Aprenda tudo sobre como usar IA para transcrever áudios do WhatsApp em texto, economizar tempo e ganhar produtividade." %>
+
+<section class="relative overflow-hidden bg-(--color-bg) py-16 md:py-24">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-(--color-text) tracking-tight mb-6">
+      Blog do <span class="text-(--color-brand)">EscreveZap</span>
+    </h1>
+    <p class="text-lg md:text-xl text-(--color-text-muted) max-w-2xl mx-auto">
+      Dicas, tutoriais e as melhores práticas para aumentar sua produtividade lendo áudios do WhatsApp.
+    </p>
+  </div>
+</section>
+
+<section class="pb-20 md:pb-28 bg-(--color-bg)">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <% @posts.each do |slug, post| %>
+        <article class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col h-full">
+          <div class="p-6 flex flex-col flex-1">
+            <time class="text-xs font-semibold text-(--color-brand) uppercase tracking-wide mb-3 block"><%= Date.parse(post[:date]).strftime("%d de %b, %Y") %></time>
+            <h2 class="text-xl font-bold text-(--color-text) leading-tight mb-3">
+              <%= link_to post[:title], blog_post_path(slug), class: "hover:text-(--color-brand) transition-colors" %>
+            </h2>
+            <p class="text-sm text-(--color-text-muted) leading-relaxed mb-6 flex-1">
+              <%= post[:description] %>
+            </p>
+            <div class="flex items-center justify-between mt-auto pt-4 border-t border-gray-100">
+              <span class="text-xs text-(--color-text-muted) font-medium"><%= post[:author] %></span>
+              <%= link_to "Ler artigo →", blog_post_path(slug), class: "text-sm font-bold text-(--color-brand) hover:underline" %>
+            </div>
+          </div>
+        </article>
+      <% end %>
+    </div>
+  </div>
+</section>

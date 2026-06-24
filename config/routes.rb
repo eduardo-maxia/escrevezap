@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   get  "precos",             to: "pages#pricing",        as: :pricing
   get  "privacidade",        to: "pages#privacidade",    as: :privacidade
   get  "termos",             to: "pages#termos",         as: :termos
+  get  "transcrever-audio",  to: "pages#free_tool",      as: :free_tool
   post "testar-transcricao", to: "pages#try_transcribe", as: :try_transcribe
 
   # ── SEO ────────────────────────────────────────────────────────────
@@ -13,7 +14,12 @@ Rails.application.routes.draw do
   # Programmatic SEO landings — slug must exist in SeoPagesController::PAGES.
   # Regex kept inline to avoid autoload coupling at route-load time.
   get "/:slug", to: "seo_pages#show", as: :seo_page,
-                constraints: { slug: /transcrever-audio-whatsapp|converter-audio-em-texto|responder-audio-whatsapp|audio-whatsapp-texto/ }
+                constraints: { slug: /transcrever-audio-whatsapp|converter-audio-em-texto|responder-audio-whatsapp|audio-whatsapp-texto|como-transcrever-audio-de-cliente|como-transcrever-audio-de-reuniao|como-transcrever-audio-de-corretor|como-transcrever-audio-de-advogado|como-transcrever-audio-de-medico|como-transcrever-audio-de-professor|escrevezap-vs-transcricao-whatsapp|transcricao-whatsapp-nao-funciona|transcricao-whatsapp-web/ }
+
+  namespace :blog do
+    get "/", to: "posts#index", as: :index
+    get "/:slug", to: "posts#show", as: :post
+  end
 
   get  "up"             => "rails/health#show",        as: :rails_health_check
   get  "manifest"       => "rails/pwa#manifest",       as: :pwa_manifest

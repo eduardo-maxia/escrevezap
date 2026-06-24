@@ -6,7 +6,7 @@ class PagesController < ApplicationController
   #   - rate limit per IP (Rails 8 RateLimiting backed by SolidCache)
   #   - server-side rejection if Deepgram reports > MAX_DURATION
   MAX_UPLOAD_BYTES     = 1.megabyte
-  MAX_DURATION         = 12.0   # client caps at 10s; allow a small slack
+  MAX_DURATION         = 30.0   # client caps at 30s; allow a small slack
   AI_MIN_CHARS         = 80     # lower than the job's threshold so demos still get a summary
   TRANSCRIPTION_ENGINE = (Rails.application.credentials[:transcription_engine] || "deepgram").freeze
 
@@ -26,6 +26,7 @@ class PagesController < ApplicationController
   def pricing; end
   def privacidade; end
   def termos; end
+  def free_tool; end
 
   def try_transcribe
     audio = params[:audio]

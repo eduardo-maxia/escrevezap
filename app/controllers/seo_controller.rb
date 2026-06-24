@@ -23,10 +23,20 @@ class SeoController < ApplicationController
 
     urls = []
     urls << { loc: SeoHelper::SITE_URL,                                        changefreq: "weekly",  priority: "1.0" }
+    urls << { loc: "#{SeoHelper::SITE_URL}#{free_tool_path}",                  changefreq: "weekly",  priority: "0.9" }
     urls << { loc: "#{SeoHelper::SITE_URL}#{pricing_path}",                    changefreq: "monthly", priority: "0.8" }
+    urls << { loc: "#{SeoHelper::SITE_URL}#{blog_index_path}",                 changefreq: "weekly",  priority: "0.8" }
+    
     SeoPagesController.slugs.each do |slug|
       urls << { loc: "#{SeoHelper::SITE_URL}/#{slug}", changefreq: "weekly",  priority: "0.7" }
     end
+    
+    if defined?(Blog::PostsController)
+      Blog::PostsController::POSTS.keys.each do |slug|
+        urls << { loc: "#{SeoHelper::SITE_URL}#{blog_post_path(slug)}", changefreq: "weekly", priority: "0.7" }
+      end
+    end
+
     urls << { loc: "#{SeoHelper::SITE_URL}#{privacidade_path}",                changefreq: "yearly",  priority: "0.2" }
     urls << { loc: "#{SeoHelper::SITE_URL}#{termos_path}",                     changefreq: "yearly",  priority: "0.2" }
 
