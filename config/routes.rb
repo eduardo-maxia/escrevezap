@@ -22,9 +22,9 @@ Rails.application.routes.draw do
   end
 
   get  "up"             => "rails/health#show",        as: :rails_health_check
-  get  "manifest"       => "rails/pwa#manifest",       as: :pwa_manifest
-  get  "service-worker" => "pwa#service_worker", as: :pwa_service_worker
-  get  "offline"        => "pwa#offline",               as: :pwa_offline
+  get  "manifest"       => "pwa#manifest",              as: :pwa_manifest, defaults: { format: :json }
+  get  "service-worker" => "pwa#service_worker",        as: :pwa_service_worker, defaults: { format: :js }
+  get  "offline"        => "pwa#offline",               as: :pwa_offline, defaults: { format: :html }
 
   mount SolidQueueDashboard::Engine, at: "/jobs"
 
