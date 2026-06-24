@@ -109,8 +109,6 @@ module Blog
       return render file: Rails.public_path.join("404.html"), status: :not_found, layout: false unless @post
 
       @slug = params[:slug]
-      content_for :title_full, @post[:title]
-      content_for :description, @post[:description]
     end
   end
 end
