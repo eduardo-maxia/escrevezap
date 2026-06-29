@@ -360,11 +360,6 @@ class SeoPagesController < ApplicationController
     return render file: Rails.public_path.join("404.html"), status: :not_found, layout: false unless @page
 
     @slug = params[:slug]
-    content_for :title_full,  @page[:title]
-    content_for :description, @page[:description]
-    content_for :jsonld do
-      faq_jsonld(@page[:faqs])
-    end
 
     render :show
   end

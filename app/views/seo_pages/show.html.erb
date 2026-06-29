@@ -1,3 +1,9 @@
+<% content_for :title_full, @page[:title] %>
+<% content_for :description, @page[:description] %>
+<% content_for :jsonld do %>
+  <%= raw faq_jsonld(@page[:faqs]) %>
+<% end %>
+
 <%# Shared template for all programmatic SEO landing pages.
    Driven entirely by the @page hash from SeoPagesController.
    Mirrors the homepage design (brand, hero, steps, FAQ, CTA). %>
