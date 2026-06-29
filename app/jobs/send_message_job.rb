@@ -1,5 +1,5 @@
 class SendMessageJob < ApplicationJob
-  queue_as :default
+  queue_as :message_sender
 
   def perform(notification_id)
     notification = Notification.includes(campaign_client: :client).find(notification_id)
