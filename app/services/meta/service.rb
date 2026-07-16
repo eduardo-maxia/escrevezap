@@ -287,7 +287,7 @@ module Meta
       phone = @recipient.to_s.gsub(/\D/, "")
       return if phone.blank?
 
-      user = User.find_by(uid: phone)
+      user = resolve_user_for_phone(phone)
       sender = @sender.to_s
 
       WhatsappMessage.create!(
@@ -313,6 +313,21 @@ module Meta
       return nil unless response.is_a?(Hash)
 
       response.dig("messages", 0, "id")
+    end
+
+    def resolve_user_for_phone(phone)
+      candidates = [
+        phone,
+        "+#{phone}",
+        phone.sub(/^55/, ""),
+        "+#{phone.sub(/^55/, "")}",
+      ].compact.uniq
+
+      user = User.find_by(uid: candidates)
+      return user if user
+
+      session = WahaSession.find_by(waha_chat_id: "#{phone}@c.us")
+      session&.user
     end
 
     def send_image(media_id, filename, caption)
