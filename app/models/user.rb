@@ -3,6 +3,7 @@ class User < ApplicationRecord
 
   has_one :waha_session, dependent: :destroy
   has_one :subscription, dependent: :destroy
+  has_many :whatsapp_messages, dependent: :nullify
   has_one_attached :avatar
 
   enum :plan,             { free: "free", basic: "basic", pro: "pro" }, default: :free

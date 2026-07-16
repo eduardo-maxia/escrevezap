@@ -9,6 +9,11 @@
       <i class="ph ph-arrow-left text-lg"></i>
     <% end %>
     <h1 class="text-xl font-bold text-(--color-text)"><%= @user.name.presence || @user.email %></h1>
+    <%= link_to admin_user_whatsapp_messages_path(@user),
+          class: "ml-auto inline-flex items-center gap-2 rounded-xl bg-(--color-brand) px-3 py-2 text-sm font-semibold text-white hover:bg-(--color-brand-dark) transition-colors" do %>
+      <i class="ph ph-chat-text text-base"></i>
+      Ver Conversa WhatsApp
+    <% end %>
   </div>
 
   <%# ── Stats & Info Grid ─────────────────────────────────────────────── %>

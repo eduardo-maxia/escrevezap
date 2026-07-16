@@ -1,6 +1,14 @@
 module Reply
   module Router
-    def reply(message:, interactive_reply: nil)
+    def reply(message:, interactive_reply: nil, message_id: nil, sent_at: nil, metadata: {})
+      track_incoming_message(
+        message: message,
+        interactive_reply: interactive_reply,
+        message_id: message_id,
+        sent_at: sent_at,
+        metadata: metadata
+      )
+
       # 1. Action Router (Priority): Route by interactive action ID if present
       if interactive_reply.present? && interactive_reply[:id].present?
         route_action(interactive_reply[:id], interactive_reply)

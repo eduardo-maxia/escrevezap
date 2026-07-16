@@ -33,6 +33,37 @@ module Reply
       end
     end
 
+    def track_incoming_message(message:, interactive_reply: nil, message_id: nil, sent_at: nil, metadata: {})
+      body = message.presence || interactive_reply_text(interactive_reply) || "(mensagem sem texto)"
+
+      WhatsappMessage.create!(
+        user: @user,
+        phone: @phone,
+        from: @from,
+        to: @session.waha_chat_id.presence || "system",
+        message_id: message_id,
+        direction: :incoming,
+        message_type: interactive_reply.present? ? :interactive : :text,
+        body: body,
+        metadata: {
+          interactive_reply: interactive_reply.presence,
+          source: "reply"
+        }.merge(metadata || {}).compact,
+        sent_at: sent_at.presence || Time.current
+      )
+    rescue => e
+      Rails.logger.error "[Reply::Base#track_incoming_message] Error: #{e.class} #{e.message}"
+      Sentry.capture_exception(e)
+    end
+
+    private
+
+    def interactive_reply_text(interactive_reply)
+      return nil if interactive_reply.blank?
+
+      interactive_reply[:title].presence || interactive_reply[:id].presence
+    end
+
     # ── Meta Service Helpers ────────────────────────────────────────────────
 
     def send_message(message:)

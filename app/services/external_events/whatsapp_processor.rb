@@ -18,7 +18,14 @@ class ExternalEvents::WhatsappProcessor < ExternalEvents::Base
         display_name: @data[:payload][:display_name]
       ).reply(
         message: @data[:payload][:body],
-        interactive_reply: @data[:payload][:interactive_reply]
+        interactive_reply: @data[:payload][:interactive_reply],
+        message_id: @data[:payload][:message_id],
+        sent_at: @data[:payload][:created_at],
+        metadata: {
+          event: @data[:event],
+          provider: @external_event.provider,
+          has_media: @data[:payload][:hasMedia]
+        }
       )
     end
 

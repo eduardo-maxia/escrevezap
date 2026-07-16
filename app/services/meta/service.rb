@@ -14,27 +14,33 @@ module Meta
     end
 
     def send_template(template_json)
-      @api_request.post("/messages", {
+      payload = {
         messaging_product: "whatsapp",
         to: @recipient,
         type: "template",
         template: template_json
-      })
+      }
+
+      response = @api_request.post("/messages", payload)
+      track_outgoing_message(message_type: :template, body: "Template enviado", metadata: payload, response: response)
     end
 
     def send_message(text)
-      @api_request.post("/messages", {
+      payload = {
         messaging_product: "whatsapp",
         to: @recipient,
         type: "text",
         text: { body: text }
-      })
+      }
+
+      response = @api_request.post("/messages", payload)
+      track_outgoing_message(message_type: :text, body: text, metadata: payload, response: response)
     end
 
     # Exemplo de Uso:
     # Chip.meta.last.meta_service('5521936181803').send_message_with_buttons("Escolha uma opção:", ["Opção 1", "Opção 2", "Opção 3"])
     def send_message_with_buttons(text, buttons)
-      @api_request.post("/messages", {
+      payload = {
         messaging_product: "whatsapp",
         to: @recipient,
         type: "interactive",
@@ -57,12 +63,15 @@ module Meta
             end
           }
         }
-      })
+      }
+
+      response = @api_request.post("/messages", payload)
+      track_outgoing_message(message_type: :interactive, body: text, metadata: payload, response: response)
     end
 
     # Chip.meta.last.meta_service('5521936181803').send_image_with_buttons("Escolha uma opção:", ImageRestoration.last.restored_image.blob.url, ["Quero comprar", "Mandar outra", "Não gostei"])
     def send_image_with_buttons(text, media_id, buttons)
-      @api_request.post("/messages", {
+      payload = {
         messaging_product: "whatsapp",
         to: @recipient,
         type: "interactive",
@@ -94,7 +103,10 @@ module Meta
             end
           }
         }
-      })
+      }
+
+      response = @api_request.post("/messages", payload)
+      track_outgoing_message(message_type: :interactive, body: text, metadata: payload, response: response)
     end
 
     # Envia uma mensagem interativa do tipo List no WhatsApp
@@ -122,12 +134,15 @@ module Meta
       interactive[:header] = { type: "text", text: header_text.slice(0, 60) } if header_text.present?
       interactive[:footer] = { text: footer_text.slice(0, 60) } if footer_text.present?
 
-      @api_request.post("/messages", {
+      payload = {
         messaging_product: "whatsapp",
         to: @recipient,
         type: "interactive",
         interactive: interactive
-      })
+      }
+
+      response = @api_request.post("/messages", payload)
+      track_outgoing_message(message_type: :interactive, body: body_text, metadata: payload, response: response)
     end
 
     # Envia uma mensagem interativa do tipo cta_url (link) no WhatsApp
@@ -147,12 +162,27 @@ module Meta
       interactive[:header] = { type: "text", text: header_text.slice(0, 60) } if header_text.present?
       interactive[:footer] = { text: footer_text.slice(0, 60) } if footer_text.present?
 
-      @api_request.post("/messages", {
+      payload = {
         messaging_product: "whatsapp",
         to: @recipient,
         type: "interactive",
         interactive: interactive
-      })
+      }
+
+      response = @api_request.post("/messages", payload)
+      track_outgoing_message(message_type: :interactive, body: body_text, metadata: payload, response: response)
+    end
+
+    def send_contact(name:, phone:)
+      payload = {
+        messaging_product: "whatsapp",
+        to: @recipient,
+        type: "contacts",
+        contacts: get_waha_contact(name: name, phone_number: phone)
+      }
+
+      response = @api_request.post("/messages", payload)
+      track_outgoing_message(message_type: :contact, body: "Contato enviado", metadata: payload, response: response)
     end
 
     # Envia um contato do WhatsApp
@@ -187,7 +217,7 @@ module Meta
     def send_pix_code(
       reference_id:, pix_code:, total_amount_cents:, description:
     )
-      @api_request.post("/messages", {
+      payload = {
         messaging_product: "whatsapp",
         "recipient_type": "individual",
         "to": @recipient,
@@ -245,16 +275,44 @@ module Meta
             }
           }
         }
-      })
+      }
+
+      response = @api_request.post("/messages", payload)
+      track_outgoing_message(message_type: :interactive, body: "Pagamento do Plano Escolhido", metadata: payload, response: response)
     end
 
-    def send_contact(name:, phone:)
-      @api_request.post("/messages", {
-        messaging_product: "whatsapp",
-        to: @recipient,
-        type: "contacts",
-        contacts: get_waha_contact(name: name, phone_number: phone)
-      })
+    private
+
+    def track_outgoing_message(message_type:, body:, metadata: {}, response: nil)
+      phone = @recipient.to_s.gsub(/\D/, "")
+      return if phone.blank?
+
+      user = User.find_by(uid: phone)
+      sender = @sender.to_s
+
+      WhatsappMessage.create!(
+        user: user,
+        phone: phone,
+        from: sender,
+        to: "#{phone}@c.us",
+        message_id: extract_message_id(response),
+        direction: :outgoing,
+        message_type: message_type,
+        body: body.presence || "(sem texto)",
+        metadata: {
+          source: "meta_service"
+        }.merge(metadata || {}),
+        sent_at: Time.current
+      )
+    rescue => e
+      Rails.logger.error "[Meta::Service#track_outgoing_message] Error: #{e.class} #{e.message}"
+      Sentry.capture_exception(e)
+    end
+
+    def extract_message_id(response)
+      return nil unless response.is_a?(Hash)
+
+      response.dig("messages", 0, "id")
     end
 
     def send_image(media_id, filename, caption)

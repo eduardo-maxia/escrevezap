@@ -91,7 +91,9 @@ Rails.application.routes.draw do
 
   namespace :admin do
     root "dashboard#index"
-    resources :users,                only: [ :index, :show ]
+    resources :users,                only: [ :index, :show ] do
+      resources :whatsapp_messages, only: [ :index ], module: :users
+    end
     resources :transcriptions,       only: [ :index, :show ]
     resources :transcription_errors, only: [ :index ]
     resources :waha_sessions,        only: [ :edit, :update ]
