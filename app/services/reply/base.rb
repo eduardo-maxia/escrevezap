@@ -11,19 +11,8 @@ module Reply
       @phone = from.split("@").first
 
       # Check if the user already exists in the database
-      @session = WahaSession.find_or_initialize_by(waha_chat_id: from)
-
-      if @session.new_record?
-        @user = User.create!(
-          name: display_name.presence || "Novo usuário",
-          provider: :phone,
-          uid: @phone
-        )
-        @session.user = @user
-        @session.save!
-      else
-        @user = @session.user
-      end
+      @session = WahaSession.find_or_create_for_phone!(phone: @phone, display_name: display_name)
+      @user    = @session.user
 
       @current_conversation_state = @user.conversation_state || {}
       @last_reply = @current_conversation_state.dig("last_reply_at")&.to_datetime

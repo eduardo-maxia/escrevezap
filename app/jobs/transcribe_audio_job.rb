@@ -164,56 +164,54 @@ class TranscribeAudioJob < ApplicationJob
   PROMPT
 
   def perform(transcription_id)
-    transcription   = Transcription.find(transcription_id)
-    contact         = transcription.monitored_contact
-    waha_session    = contact.waha_session
-    user            = waha_session.user
+    transcription = Transcription.find(transcription_id)
+    user          = transcription.monitored_contact.waha_session.user
+    channel       = build_channel(transcription)
 
-    # Guard: session must be connected
-    unless waha_session.working?
-      Rails.logger.warn "[TranscribeAudioJob] WahaSession #{waha_session.id} not working — skipping"
+    # Guard: transport must be ready (e.g. Waha session connected)
+    unless channel.ready?
+      Rails.logger.warn "[TranscribeAudioJob] Canal não pronto para transcription #{transcription.id} — skipping"
       return
     end
 
     # Guard: monthly limit
     if user.transcription_limit_reached?
       Rails.logger.info "[TranscribeAudioJob] Limite mensal atingido para user #{user.id} — skipping"
-      send_limit_reached_notice(waha_session, contact)
+      send_limit_reached_notice(channel, user)
       fail_transcription!(transcription, "Limite mensal de transcrições atingido")
       return
     end
 
-    process_transcription(transcription, waha_session, contact, user)
+    process_transcription(transcription, channel, user)
   end
 
   private
 
-  def process_transcription(transcription, waha_session, contact, user)
-    media_url = transcription.media_url
+  def build_channel(transcription)
+    if transcription.direct?
+      TranscriptionChannels::MetaDirectChannel.new(transcription)
+    else
+      TranscriptionChannels::WahaChannel.new(transcription)
+    end
+  end
 
-    unless media_url.present?
+  def process_transcription(transcription, channel, user)
+    unless transcription.media_url.present? || transcription.media_id.present?
       fail_transcription!(transcription, "URL de mídia ausente na mensagem")
       return
     end
 
-    chat_id     = contact.resolve_waha_chat_id
-    reply_to_id = transcription.waha_message_id
     placeholder_message_id = nil
     stage = "send_whatsapp"
 
     # 0. Mark chat as read + send immediate progress feedback
-    waha_session.waha_client.chats.read_messages(chat_id: chat_id)
-    placeholder_response   = waha_session.waha_client.messaging.send_text(
-      chat_id:  chat_id,
-      text:     "_⏳ Transcrevendo com o EscreveZap! Aguarde um instante..._",
-      reply_to: reply_to_id
-    )
-    placeholder_message_id = placeholder_response["id"]
+    channel.mark_read
+    placeholder_message_id = channel.send_placeholder("_⏳ Transcrevendo com o EscreveZap! Aguarde um instante..._")
 
-    # 1. Download the audio binary from Waha
+    # 1. Download the audio binary
     stage = "download_audio"
-    audio_data = waha_session.waha_client.messaging.download_media_from_url(media_url: media_url)
-    attach_audio(transcription, audio_data, media_url)
+    audio_data = channel.download_audio
+    attach_audio(transcription, audio_data, transcription.media_url)
 
     # 2. Write to a temp file and transcribe
     stage = "stt"
@@ -253,14 +251,10 @@ class TranscribeAudioJob < ApplicationJob
       status:         :completed
     )
 
-    # 5. Edit the placeholder with the final transcription
+    # 5. Send/finalize the transcription reply
     stage = "send_whatsapp"
     reply_text = transcription.reply_text(user)
-    waha_session.waha_client.messaging.edit_message(
-      chat_id:    chat_id,
-      message_id: placeholder_message_id,
-      text:       reply_text
-    )
+    channel.finalize(placeholder_message_id, reply_text)
     transcription.update!(reply_message_id: placeholder_message_id)
 
     # 6. Track usage event (async, non-critical)
@@ -272,16 +266,10 @@ class TranscribeAudioJob < ApplicationJob
   rescue => e
     Rails.logger.error "[TranscribeAudioJob] Erro ao processar transcription #{transcription.id} (stage=#{stage}): #{e.message}"
     record_error!(transcription, stage: stage, error: e)
-    if placeholder_message_id
-      begin
-        waha_session.waha_client.messaging.edit_message(
-          chat_id:    chat_id,
-          message_id: placeholder_message_id,
-          text:       "❌ _Não foi possível transcrever este áudio. Tente novamente._"
-        )
-      rescue => edit_error
-        Rails.logger.warn "[TranscribeAudioJob] Falha ao editar placeholder de erro: #{edit_error.message}"
-      end
+    begin
+      channel.finalize(placeholder_message_id, "❌ _Não foi possível transcrever este áudio. Tente novamente._")
+    rescue => edit_error
+      Rails.logger.warn "[TranscribeAudioJob] Falha ao notificar erro: #{edit_error.message}"
     end
     fail_transcription!(transcription, e.message)
     raise e
@@ -442,10 +430,14 @@ class TranscribeAudioJob < ApplicationJob
   end
 
   def attach_audio(transcription, audio_data, media_url)
-    extension = begin
-      File.extname(URI.parse(media_url).path).presence || DEFAULT_AUDIO_EXTENSION
-    rescue URI::InvalidURIError
+    extension = if media_url.blank?
       DEFAULT_AUDIO_EXTENSION
+    else
+      begin
+        File.extname(URI.parse(media_url).path).presence || DEFAULT_AUDIO_EXTENSION
+      rescue URI::InvalidURIError
+        DEFAULT_AUDIO_EXTENSION
+      end
     end
 
     filename = "transcription-#{transcription.id}#{extension}"
@@ -473,10 +465,7 @@ class TranscribeAudioJob < ApplicationJob
     transcription.update!(status: :failed, error_message: message)
   end
 
-  def send_limit_reached_notice(waha_session, contact)
-    chat_id = contact.resolve_waha_chat_id
-    user = waha_session.user
-
+  def send_limit_reached_notice(channel, user)
     # Mensagem no WhatsApp (sem link)
     text = "⚠️ *Seu limite de transcrições do EscreveZap foi atingido este mês.*\n\n" \
            "Você usou todas as #{user.transcription_limit} transcrições do plano #{user.plan.capitalize}.\n\n" \
@@ -484,7 +473,7 @@ class TranscribeAudioJob < ApplicationJob
            "_via EscreveZap_"
 
     begin
-      waha_session.waha_client.messaging.send_text(chat_id: chat_id, text: text)
+      channel.send_text(text)
     rescue => e
       Rails.logger.warn "[TranscribeAudioJob] Failed to send limit notice via WA: #{e.message}"
       Sentry.capture_exception(e)

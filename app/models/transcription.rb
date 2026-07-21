@@ -17,6 +17,14 @@ class Transcription < ApplicationRecord
     outgoing: "outgoing"
   }, default: :incoming
 
+  # Which transport this transcription's audio/reply travels through.
+  #   :waha   → connected WhatsApp session (Waha/Baileys)
+  #   :direct → user chatting directly with the EscreveZap number (Meta Cloud API)
+  enum :channel, {
+    waha:   "waha",
+    direct: "direct"
+  }, default: :waha
+
   scope :completed, -> { where(status: :completed) }
   scope :this_month, -> { where("transcriptions.created_at >= ?", Time.current.beginning_of_month) }
   scope :recent, -> { order("transcriptions.created_at" => :desc) }

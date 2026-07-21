@@ -42,6 +42,25 @@ class WahaSession < ApplicationRecord
   after_update_commit :complete_user_onboarding,       if: :saved_change_to_waha_status?
   after_update_commit :record_status_event,            if: :saved_change_to_waha_status?
 
+  # Finds (or creates, along with a new User) the WahaSession that anchors a
+  # given phone number's identity. Used both by the connected-flow webhook and
+  # by the direct-chat-with-the-bot flow (Meta), so a user always maps to a
+  # single WahaSession/quota pool regardless of which channel they use.
+  def self.find_or_create_for_phone!(phone:, display_name: nil)
+    session = find_or_initialize_by(waha_chat_id: "#{phone}@c.us")
+
+    if session.new_record?
+      session.user = User.create!(
+        name:     display_name.presence || "Novo usuário",
+        provider: :phone,
+        uid:      phone
+      )
+      session.save!
+    end
+
+    session
+  end
+
   # Convenience shortcut for building API calls
   def waha_client
     Waha::Client.new(session: session_name)

@@ -9,24 +9,33 @@ class ExternalEvents::WhatsappProcessor < ExternalEvents::Base
     @data = parse_payload(worker_type)
     @external_event.update!(parsed_event: @data)
 
-    # Se for da META, só manda pro Reply
+    # Se for da META, só manda pro Reply — exceto áudio, que entra no mesmo
+    # pipeline de transcrição do fluxo conectado (mesma cota, mesmo plano).
     if worker_type == :meta
       return unless @data[:event] == "message"
 
+      payload = @data[:payload]
+
+      if audio_message?(payload)
+        enqueue_direct_transcription(payload)
+        return
+      end
+
       Reply::Base.new(
-        from: @data[:payload][:from],
-        display_name: @data[:payload][:display_name]
+        from: payload[:from],
+        display_name: payload[:display_name]
       ).reply(
-        message: @data[:payload][:body],
-        interactive_reply: @data[:payload][:interactive_reply],
-        message_id: @data[:payload][:message_id],
-        sent_at: @data[:payload][:created_at],
+        message: payload[:body],
+        interactive_reply: payload[:interactive_reply],
+        message_id: payload[:message_id],
+        sent_at: payload[:created_at],
         metadata: {
           event: @data[:event],
           provider: @external_event.provider,
-          has_media: @data[:payload][:hasMedia]
+          has_media: payload[:hasMedia]
         }
       )
+      return
     end
 
     return unless preprocess
@@ -193,6 +202,42 @@ class ExternalEvents::WhatsappProcessor < ExternalEvents::Base
 
     ActiveRecord.after_all_transactions_commit do
       TranscribeAudioJob.perform_later(transcription.id)
+    end
+  end
+
+  # ── Direct chat with the bot (Meta) ────────────────────────────────────
+
+  # A user sending audio straight to the EscreveZap number. Resolves/creates
+  # the same WahaSession used for onboarding (Reply::Base) so the quota pool
+  # is shared with the connected-flow, then queues the same TranscribeAudioJob.
+  def enqueue_direct_transcription(payload)
+    phone   = payload[:from].to_s.split("@").first
+    session = WahaSession.find_or_create_for_phone!(phone: phone, display_name: payload[:display_name])
+    contact = resolve_direct_chat_contact(session, phone)
+
+    transcription = Transcription.create!(
+      monitored_contact: contact,
+      waha_message_id:   payload[:message_id],
+      direction:          :incoming,
+      channel:            :direct,
+      media_id:           payload.dig(:media, :media_id),
+      status:             :processing
+    )
+
+    ActiveRecord.after_all_transactions_commit do
+      TranscribeAudioJob.perform_later(transcription.id)
+    end
+  end
+
+  # One MonitoredContact per WahaSession represents "the conversation with the
+  # bot itself" — mirrors the auto-created contacts used in reaction mode, just
+  # hidden from the user-facing contact list.
+  def resolve_direct_chat_contact(waha_session, phone)
+    waha_session.monitored_contacts.find_or_create_by!(phone_number: phone) do |c|
+      c.waha_chat_id = "#{phone}@c.us"
+      c.direction    = :both
+      c.enabled      = true
+      c.auto_created = true
     end
   end
 
