@@ -60,9 +60,7 @@ services:
     restart: unless-stopped
 
   waha:
-    # image: hsiereveld/waha-plus:latest # 2026.1.1
-    # image: tanujempiricinfotech/waha-plus:latest # 2026.1.3
-    image: contatomyvillage/waha-plus:gows # 2026.3.4
+    image: devlikeapro/waha
     env_file:
       - .env.waha
     volumes:
